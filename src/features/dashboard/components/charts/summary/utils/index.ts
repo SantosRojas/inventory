@@ -1,0 +1,1 @@
+export {getPercentage} from './getPercentage.ts';
