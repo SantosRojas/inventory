@@ -30,8 +30,6 @@ const PumpsPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
 
-    // Estados para búsqueda y filtros
-    const [searchTerm, setSearchTerm] = useState('');
 
     // Estados para operaciones CRUD
     const [selectedPump, setSelectedPump] = useState<Pump | null>(null);
@@ -46,7 +44,6 @@ const PumpsPage = () => {
 
     // Handlers para búsqueda
     const handleSearchChange = useCallback((term: string) => {
-        setSearchTerm(term);
         // Solo hacer log si hay término de búsqueda o si se está limpiando intencionalmente
         if (term.length >= 3) {
             let url
@@ -69,7 +66,6 @@ const PumpsPage = () => {
 
     const handleQRResult = useCallback((result: string) => {
         console.log('📱 Código QR escaneado:', result);
-        setSearchTerm(result);
         setShowQRModal(false);
     }, []);
 
@@ -135,7 +131,6 @@ const PumpsPage = () => {
         <div className="flex flex-col h-full">
             {/* Toolbar */}
             <PumpsToolbar
-                searchTerm={searchTerm}
                 target={target}
                 onSearchChange={handleSearchChange}
                 onQRScan={handleQRScan}

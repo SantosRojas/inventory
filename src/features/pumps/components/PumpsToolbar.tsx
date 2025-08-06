@@ -3,7 +3,6 @@ import {Button, SearchInput} from "../../../components";
 import SerialQRSelector from "../../../components/SerialQrSelector.tsx";
 
 interface PumpsToolbarProps {
-    searchTerm: string;
     target: string;
     onSearchChange: (term: string) => void;
     onQRScan: () => void;
@@ -14,7 +13,6 @@ interface PumpsToolbarProps {
 
 const PumpsToolbar = (
     {
-        searchTerm,
         target,
         onSearchChange,
         onQRScan,
@@ -64,34 +62,6 @@ const PumpsToolbar = (
 
             </div>
 
-            {/* Results Summary - Solo mostrar si hay búsqueda válida */}
-            {searchTerm && searchTerm.length >= 3 && (
-                <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-                    <div>
-            <span>
-              <span className="ml-2 text-blue-600">
-                • Filtrado por: "{searchTerm}"
-              </span>
-            </span>
-                    </div>
-
-                    <button
-                        onClick={() => onSearchChange('')}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                        Limpiar búsqueda
-                    </button>
-                </div>
-            )}
-
-            {/* Mensaje cuando no hay búsqueda */}
-            {!searchTerm && (
-                <div className="mt-4 text-center text-gray-500">
-                    <p className="text-sm">
-                        Usa la búsqueda o el escáner QR para encontrar bombas específicas
-                    </p>
-                </div>
-            )}
         </div>
     );
 };

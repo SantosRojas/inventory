@@ -5,56 +5,80 @@ type Data<T> = T | null;
 type ErrorType = string | null;
 
 interface Params<T> {
-    data: Data<T>;
-    loadingSearch: boolean;
-    searchError: ErrorType;
-    fetchData: (url: string) => void;
+  data: Data<T>;
+  loadingSearch: boolean;
+  searchError: ErrorType;
+  fetchData: (url: string) => void;
 }
 
-export const useFetch = <T>(token?: string | null, options?: RequestInit): Params<T> => {
-    const [data, setData] = useState<Data<T>>(null);
-    const [loadingSearch, setLoading] = useState(false);
-    const [searchError, setSearchError] = useState<ErrorType>(null);
-    const controllerRef = useRef<AbortController | null>(null);
+interface UseFetchOptions extends RequestInit {
+  onError?: (error: string) => void;
+}
 
-    const fetchData = useCallback(async (url: string) => {
-        controllerRef.current?.abort();
-        controllerRef.current = new AbortController();
+export const useFetch = <T>(
+  token?: string | null,
+  options?: UseFetchOptions
+): Params<T> => {
+  const [data, setData] = useState<Data<T>>(null);
+  const [loadingSearch, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState<ErrorType>(null);
+  const controllerRef = useRef<AbortController | null>(null);
 
-        setLoading(true);
-        setSearchError(null);
+  const fetchData = useCallback(
+    async (url: string) => {
+      controllerRef.current?.abort();
+      controllerRef.current = new AbortController();
 
-        try {
-            const response = await fetch(url, {
-                signal: controllerRef.current.signal,
-                headers: {
-                    ...getHeaders(token || ""),
-                    ...(options?.headers || {}),
-                },
-                ...options,
-            });
+      setLoading(true);
+      setSearchError(null);
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
+      try {
+        const response = await fetch(url, {
+          signal: controllerRef.current.signal,
+          headers: {
+            ...getHeaders(token || ""),
+            ...(options?.headers || {}),
+          },
+          ...options,
+        });
 
-            const jsonData = await response.json();
-
-            if (jsonData.success) {
-                setData(jsonData.data);
-            } else {
-                throw new Error(jsonData.error || jsonData.message || "Error desconocido");
-            }
-
-        } catch (err) {
-            if (err instanceof Error && err.name !== "AbortError") {
-                setSearchError(err.message);
-                setData(null);
-            }
-        } finally {
-            setLoading(false);
+        if (!response.ok) {
+          const errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          setSearchError(errorMessage);
+          setData(null);
+          options?.onError?.(errorMessage);
+          return;
         }
-    }, [token, options]);
 
-    return { data, loadingSearch, searchError, fetchData };
+        const jsonData = await response.json();
+
+        if (jsonData.success) {
+          setData(jsonData.data);
+        } else {
+          const errorMessage =
+            jsonData.error || jsonData.message || "Error desconocido";
+          setSearchError(errorMessage);
+          setData(null);
+          options?.onError?.(errorMessage);
+          return;
+        }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          // Ignorar abortos
+          return;
+        }
+
+        const errorMessage =
+          err instanceof Error ? err.message : "Error desconocido";
+        setSearchError(errorMessage);
+        setData(null);
+        options?.onError?.(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, options]
+  );
+
+  return { data, loadingSearch, searchError, fetchData };
 };
