@@ -1,192 +1,191 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Button, NotificationContainer } from '../components';
-import { 
-  Menu, 
-  X, 
-  Activity, 
-  Users, 
-  Settings, 
-  LogOut, 
+import {
+  Menu,
+  X,
+  Activity,
+  Users,
+  Settings,
+  LogOut,
   Home,
   Package,
   BarChart3,
   Search,
   Building,
   Stethoscope,
-  Monitor
+  Monitor,
 } from 'lucide-react';
-import {useAuth} from "../features/auth/hooks";
-import {useAuthStore} from "../features/auth/store/store.ts";
+import { useAuth } from '../features/auth/hooks';
+import { useAuthStore } from '../features/auth/store/store';
 
-const MainLayout = () => {
-  const { user} = useAuth();
-  const logout = useAuthStore((state) => state.logout)
+const NAV_ITEMS = [
+  { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'Bombas', href: '/bombas', icon: Package },
+  { name: 'Usuarios', href: '/usuarios', icon: Users },
+  { name: 'Modelos', href: '/modelos', icon: Monitor },
+  { name: 'Instituciones', href: '/instituciones', icon: Building },
+  { name: 'Servicios', href: '/servicios', icon: Stethoscope },
+  { name: 'Reportes', href: '/reportes', icon: BarChart3 },
+  { name: 'Configuración', href: '/configuracion', icon: Settings },
+];
+
+const Sidebar = ({
+  isMobile,
+  open,
+  collapsed,
+  onClose,
+  onToggleCollapse,
+}: {
+  isMobile: boolean;
+  open: boolean;
+  collapsed: boolean;
+  onClose?: () => void;
+  onToggleCollapse?: () => void;
+}) => {
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const navigation = useMemo(() => [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, current: location.pathname === '/dashboard' },
-    { name: 'Bombas', href: '/bombas', icon: Package, current: location.pathname.startsWith('/bombas') },
-    { name: 'Usuarios', href: '/usuarios', icon: Users, current: location.pathname.startsWith('/usuarios') },
-    { name: 'Modelos', href: '/modelos', icon: Monitor, current: location.pathname.startsWith('/modelos') },
-    { name: 'Instituciones', href: '/instituciones', icon: Building, current: location.pathname.startsWith('/instituciones') },
-    { name: 'Servicios', href: '/servicios', icon: Stethoscope, current: location.pathname.startsWith('/servicios') },
-    { name: 'Reportes', href: '/reportes', icon: BarChart3, current: location.pathname.startsWith('/reportes') },
-    { name: 'Configuración', href: '/configuracion', icon: Settings, current: location.pathname.startsWith('/configuracion') },
-  ], [location.pathname]);
-
-  const handleLogout = async () => {
-    await logout();
-  };
+  const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100">
-      {/* Sidebar para móvil */}
-      <div className={`fixed inset-0 flex z-50 lg:hidden ${sidebarOpen ? '' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-        <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-gray-800">
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
-            <button
-              type="button"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-6 w-6 text-white" />
-            </button>
-          </div>
-          <div className="flex-shrink-0 flex items-center px-4">
-            <Activity className="h-8 w-8 text-white" />
-            <span className="ml-2 text-white font-bold text-lg">InventarioMed</span>
-          </div>
-          <div className="mt-5 flex-1 h-0 overflow-y-auto">
-            <nav className="px-2 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`${
-                    item.current
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                  } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="mr-4 h-6 w-6" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
+    <div
+      className={`bg-gray-800 h-full flex flex-col transition-all duration-200 ease-in-out
+        ${isMobile
+          ? `fixed top-0 left-0 z-40 w-64 transform ${open ? 'translate-x-0' : '-translate-x-full'} shadow-lg`
+          : collapsed
+          ? 'w-16'
+          : 'w-56'}`
+      }
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between h-16 px-4 bg-gray-900">
+        <div className="flex items-center space-x-2 text-white">
+          <Activity className="h-6 w-6" />
+          {!collapsed && <span className="font-semibold text-base">InventarioMed</span>}
         </div>
-      </div>
-
-      {/* Sidebar para escritorio */}
-      <div className="hidden lg:flex lg:flex-shrink-0">
-        <div className="flex flex-col w-56">
-          <div className="flex-1 flex flex-col min-h-0 bg-gray-800">
-            <div className="flex items-center h-16 flex-shrink-0 px-3 bg-gray-900">
-              <Activity className="h-7 w-7 text-white" />
-              <span className="ml-2 text-white font-bold text-base">InventarioMed</span>
-            </div>
-            <div className="flex-1 flex flex-col overflow-y-auto">
-              <nav className="flex-1 px-2 py-4 space-y-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`${
-                      item.current
-                        ? 'bg-gray-900 text-white'
-                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                    } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200`}
-                  >
-                    <item.icon className="mr-2 h-5 w-5 flex-shrink-0" />
-                    <span className="truncate">{item.name}</span>
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Contenido principal */}
-      <div className="flex flex-col w-0 flex-1 overflow-hidden">
-        {/* Header superior */}
-        <div className="relative z-10 flex-shrink-0 flex h-16 bg-white shadow border-b border-gray-200">
+        {!isMobile && (
           <button
-            type="button"
-            className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
-            onClick={() => setSidebarOpen(true)}
+            onClick={onToggleCollapse}
+            className="text-gray-400 hover:text-white"
           >
-            <Menu className="h-6 w-6" />
+            {collapsed ? <Menu className="h-5 w-5" /> : <X className="h-5 w-5" />}
           </button>
-          
-          <div className="flex-1 px-4 flex justify-between items-center">
-            {/* Barra de búsqueda */}
-            <div className="flex-1 flex max-w-xs lg:max-w-md">
-              <div className="hidden sm:block w-full">
-                <div className="relative w-full text-gray-400 focus-within:text-gray-600">
-                  <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5" />
-                  </div>
-                  <input
-                    id="main-search"
-                    name="search"
-                    className="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent text-sm"
-                    placeholder="Buscar..."
-                    type="search"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {/* Panel derecho */}
-            <div className="ml-4 flex items-center space-x-2 sm:space-x-4">
-              <button className="sm:hidden bg-white p-2 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                <Search className="h-5 w-5" />
-              </button>
+        )}
+        {isMobile && (
+          <button
+            onClick={onClose}
+            className="text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
 
-              <div className="relative">
-                <div className="flex items-center space-x-2 lg:space-x-3">
-                  <div className="flex-shrink-0">
-                    <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-sm font-medium text-gray-700">
-                        {user?.firstName?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="hidden lg:block">
-                    <div className="text-sm font-medium text-gray-700 truncate max-w-32">{user?.firstName}</div>
-                    <div className="text-xs text-gray-500">Usuario</div>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    icon={LogOut}
-                    onClick={handleLogout}
-                    className="ml-2"
-                  >
-                    <span className="hidden lg:inline">Salir</span>
-                  </Button>
-                </div>
+      {/* Navegación */}
+      <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+        {NAV_ITEMS.map((item) => (
+          <Link
+            key={item.name}
+            to={item.href}
+            onClick={isMobile ? onClose : undefined}
+            className={`flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+              isActive(item.href)
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            <item.icon className="h-5 w-5" />
+            {!collapsed && <span className="ml-3 truncate">{item.name}</span>}
+          </Link>
+        ))}
+      </nav>
+    </div>
+  );
+};
+
+const MainLayout = () => {
+  const { user } = useAuth();
+  const logout = useAuthStore((state) => state.logout);
+  const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  return (
+    <div className="h-screen flex overflow-hidden bg-gray-100 relative">
+      {/* Overlay para mobile */}
+      {sidebarOpenMobile && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpenMobile(false)}
+        />
+      )}
+
+      {/* Sidebar Mobile */}
+      <Sidebar
+        isMobile
+        open={sidebarOpenMobile}
+        collapsed={false}
+        onClose={() => setSidebarOpenMobile(false)}
+      />
+
+      {/* Sidebar Desktop */}
+      <div className="hidden lg:block fixed left-0 top-0 h-full z-20">
+        <Sidebar
+          isMobile={false}
+          open
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+      </div>
+
+      {/* Main Content - con margen dinámico basado en el estado del sidebar */}
+      <div className={`flex-1 flex flex-col transition-all duration-200 ${
+        sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'
+      }`}>
+        {/* Header */}
+        <header className="flex items-center justify-between h-16 bg-white shadow px-4 border-b border-gray-200">
+          <div className="flex items-center space-x-4">
+            <button
+              className="lg:hidden text-gray-500 hover:text-gray-700"
+              onClick={() => setSidebarOpenMobile(true)}
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+            <div className="relative w-64 hidden sm:block">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
               </div>
+              <input
+                type="search"
+                placeholder="Buscar..."
+                className="w-full pl-10 pr-4 py-2 rounded-md bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
           </div>
-        </div>
 
-        {/* Contenido del outlet */}
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-4 lg:py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <Outlet />
+          <div className="flex items-center space-x-4">
+            <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-gray-700">
+                {user?.firstName?.charAt(0).toUpperCase()}
+              </span>
             </div>
+            <div className="hidden lg:block text-sm">
+              <div className="font-medium text-gray-700">{user?.firstName}</div>
+              <div className="text-xs text-gray-500">{user?.role}</div>
+            </div>
+            <Button variant="secondary" size="sm" icon={LogOut} onClick={logout}>
+              <span className="hidden sm:inline">Salir</span>
+            </Button>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto bg-gray-50">
+          <div className="w-[98%] mx-auto px-2 py-3">
+            <Outlet />
           </div>
         </main>
       </div>
-      
-      {/* Contenedor de notificaciones */}
+
+      {/* Notificaciones */}
       <NotificationContainer />
     </div>
   );

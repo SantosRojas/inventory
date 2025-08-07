@@ -1,1 +1,1 @@
-export {API_ENDPOINTS} from './api'
+export {API_ENDPOINTS, API_BASE} from './api'

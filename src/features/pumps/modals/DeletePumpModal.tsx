@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button, Modal } from '../../../components';
 import { Trash2, AlertTriangle } from 'lucide-react';
-import type { Inventory } from '../../../types';
+import type { Pump } from '../../../types';
 
 interface DeleteBombaModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
-    bomba: Inventory | null;
+    bomba: Pump | null;
     isDeleting?: boolean;
 }
 
