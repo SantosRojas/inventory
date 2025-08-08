@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { Pump } from '../../../types';
 
-import { useCatalogLoader, usePumpActions } from "../hooks";
+import { useCatalogLoader, usePumpWithStoreSync } from "../hooks";
 import { PumpsTable, PumpsToolbar, QRScannerModal } from "../components";
 import AddPumpModal from "../modals/AddPumpModal.tsx";
 import EditPumpModal from "../modals/EditPumpModal.tsx";
@@ -10,8 +10,8 @@ import { DeletePumpModal } from "../modals";
 
 const PumpsPage = () => {
     console.log('🚀 Renderizando PumpsPage');
-    const { remove } = usePumpActions()
-    const { loading, error } = useCatalogLoader()
+    const { remove } = usePumpWithStoreSync();
+    const { loading, error } = useCatalogLoader();
 
     // Estados para modales
     const [showAddModal, setShowAddModal] = useState(false);

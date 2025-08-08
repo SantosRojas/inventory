@@ -18,12 +18,11 @@ async function handleErrorResponse(res: Response) {
     try {
         const errorBody = await res.json();
         if (errorBody?.message || errorBody?.error) {
-            errorMessage = `${errorBody.message || ''} ${errorBody.error || ''}`.trim();
+            errorMessage = `${errorBody.message || ''}: ${errorBody.error || ''}`.trim();
         }
     } catch {
         // Si no se puede parsear el JSON, se mantiene el mensaje genérico
     }
-    // console.log(errorMessage);
     throw new Error(errorMessage);
 }
 

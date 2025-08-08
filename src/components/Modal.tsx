@@ -6,6 +6,7 @@ interface ModalProps {
   title?: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'default' | 'fullscreen-mobile'; // Nueva variante para formularios largos
   preventCloseOnOverlay?: boolean;
   preventCloseOnEscape?: boolean;
 }
@@ -16,6 +17,7 @@ const Modal: React.FC<ModalProps> = ({
   title,
   children,
   size = 'md',
+  variant = 'default',
   preventCloseOnOverlay = false,
   preventCloseOnEscape = false
 }) => {
@@ -40,9 +42,23 @@ const Modal: React.FC<ModalProps> = ({
     xl: 'max-w-4xl',
   };
 
-  return (
+  // Configuración específica para formularios que necesitan más espacio en móvil
+  const isFullscreenMobile = variant === 'fullscreen-mobile';
+  
+  const containerClasses = isFullscreenMobile 
+    ? "flex items-end justify-center min-h-screen px-0 sm:px-4 pt-0 pb-0 sm:pt-4 sm:pb-20 text-center sm:items-center sm:p-0"
+    : "flex items-end justify-center min-h-screen px-1 sm:px-4 pt-2 pb-2 sm:pt-4 sm:pb-20 text-center sm:items-center sm:p-0";
+    
+    const modalClasses = isFullscreenMobile
+    ? `relative inline-block w-full p-2 sm:p-4 md:p-6 my-0 sm:my-8 overflow-hidden text-left align-bottom sm:align-middle 
+       transition-all transform bg-white shadow-xl rounded-none sm:rounded-lg ${sizeClasses[size]}
+       max-h-[100vh] sm:max-h-[90vh] md:max-h-[85vh] overflow-y-auto scroll-smooth`
+    : `relative inline-block w-full p-3 sm:p-4 md:p-6 my-1 sm:my-8 overflow-hidden text-left align-bottom sm:align-middle 
+       transition-all transform bg-white shadow-xl rounded-t-xl sm:rounded-lg ${sizeClasses[size]}
+       max-h-[97vh] sm:max-h-[85vh] md:max-h-[80vh] overflow-y-auto scroll-smooth
+       safe-bottom safe-top`;  return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-end justify-center min-h-screen px-2 sm:px-4 pt-4 pb-20 text-center sm:items-center sm:p-0">
+      <div className={containerClasses}>
         {/* Overlay */}
         <div 
           className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
@@ -50,15 +66,10 @@ const Modal: React.FC<ModalProps> = ({
         />
         
         {/* Modal */}
-        <div className={`
-          relative inline-block w-full p-3 sm:p-4 md:p-6 my-4 sm:my-8 overflow-hidden text-left align-bottom sm:align-middle 
-          transition-all transform bg-white shadow-xl rounded-t-xl sm:rounded-lg ${sizeClasses[size]}
-          max-h-[95vh] sm:max-h-[85vh] md:max-h-[80vh] overflow-y-auto
-          safe-bottom safe-top
-        `}>
+        <div className={modalClasses}>
           {title && (
-            <div className="flex items-center justify-between mb-3 sm:mb-4 pb-3 border-b border-gray-200 sticky top-0 bg-white z-10">
-              <h3 className="text-base sm:text-lg font-medium leading-6 text-gray-900 pr-2">
+            <div className="flex items-center justify-between mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-gray-200 sticky top-0 bg-white z-10">
+              <h3 className="text-sm sm:text-lg font-medium leading-6 text-gray-900 pr-2">
                 {title}
               </h3>
               <button
@@ -73,7 +84,7 @@ const Modal: React.FC<ModalProps> = ({
             </div>
           )}
           
-          <div className="pb-2 sm:pb-4">
+          <div className="pb-1 sm:pb-4">
             {children}
           </div>
         </div>
