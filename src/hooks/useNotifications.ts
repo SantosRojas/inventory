@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useCallback } from 'react';
 
 // Tipos para notificaciones
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
@@ -61,17 +62,26 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 export const useNotifications = () => {
     const { addNotification } = useNotificationStore();
 
+    const notifySuccess = useCallback((title: string, message?: string) =>
+        addNotification({ type: 'success', title, message })
+    , [addNotification]);
+
+    const notifyError = useCallback((title: string, message?: string) =>
+        addNotification({ type: 'error', title, message, duration: 8000 })
+    , [addNotification]);
+
+    const notifyWarning = useCallback((title: string, message?: string) =>
+        addNotification({ type: 'warning', title, message })
+    , [addNotification]);
+
+    const notifyInfo = useCallback((title: string, message?: string) =>
+        addNotification({ type: 'info', title, message })
+    , [addNotification]);
+
     return {
-        notifySuccess: (title: string, message?: string) =>
-            addNotification({ type: 'success', title, message }),
-
-        notifyError: (title: string, message?: string) =>
-            addNotification({ type: 'error', title, message, duration: 8000 }),
-
-        notifyWarning: (title: string, message?: string) =>
-            addNotification({ type: 'warning', title, message }),
-
-        notifyInfo: (title: string, message?: string) =>
-            addNotification({ type: 'info', title, message }),
+        notifySuccess,
+        notifyError,
+        notifyWarning,
+        notifyInfo,
     };
 };

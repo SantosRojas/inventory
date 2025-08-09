@@ -16,7 +16,8 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 // Importación del componente de ruta protegida
 import ProtectedRoute from './ProtectedRoute';
-import {PumpsPage} from "../features/pumps/pages";
+import { PumpsPage } from "../features/pumps/pages";
+import { InstitutionsPage } from "../features/institutions/pages";
 
 
 // Componente para mostrar páginas en desarrollo
@@ -57,7 +58,7 @@ const AppRoutes = () => {
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="bombas" element={<PumpsPage />} />
                         <Route path="modelos" element={<DevelopmentPage title="Gestión de Modelos" />} />
-                        <Route path="instituciones" element={<DevelopmentPage title="Gestión de Instituciones" />} />
+                        <Route path="instituciones" element={<InstitutionsPage />} />
                         <Route path="servicios" element={<DevelopmentPage title="Gestión de Servicios" />} />
                         <Route path="reportes" element={<DevelopmentPage title="Reportes" />} />
                         <Route path="configuracion" element={<DevelopmentPage title="Configuración" />} />

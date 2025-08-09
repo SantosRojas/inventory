@@ -32,6 +32,10 @@ export const API_ENDPOINTS = {
   },
   institutions: {
     getAll: `${API_BASE}/institutions`,
+    create: `${API_BASE}/institutions`,
+    getById: (id: number) => `${API_BASE}/institutions/${id}`,
+    update: (id: number) => `${API_BASE}/institutions/${id}`,
+    delete: (id: number) => `${API_BASE}/institutions/${id}`,
   },
   services: {
     getAll: `${API_BASE}/services`,
