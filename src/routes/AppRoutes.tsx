@@ -18,6 +18,7 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 import ProtectedRoute from './ProtectedRoute';
 import { PumpsPage } from "../features/pumps/pages";
 import { InstitutionsPage } from "../features/institutions/pages";
+import { ServicesPage } from "../features/services/pages";
 
 
 // Componente para mostrar páginas en desarrollo
@@ -59,7 +60,7 @@ const AppRoutes = () => {
                         <Route path="bombas" element={<PumpsPage />} />
                         <Route path="modelos" element={<DevelopmentPage title="Gestión de Modelos" />} />
                         <Route path="instituciones" element={<InstitutionsPage />} />
-                        <Route path="servicios" element={<DevelopmentPage title="Gestión de Servicios" />} />
+                        <Route path="servicios" element={<ServicesPage />} />
                         <Route path="reportes" element={<DevelopmentPage title="Reportes" />} />
                         <Route path="configuracion" element={<DevelopmentPage title="Configuración" />} />
                         {/* Ejemplo de redirección legacy */}
