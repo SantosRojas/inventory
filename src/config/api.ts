@@ -39,6 +39,10 @@ export const API_ENDPOINTS = {
   },
   services: {
     getAll: `${API_BASE}/services`,
+    create: `${API_BASE}/services`,
+    getById: (id: number) => `${API_BASE}/services/${id}`,
+    update: (id: number) => `${API_BASE}/services/${id}`,
+    delete: (id: number) => `${API_BASE}/services/${id}`,
   },
   dashboard: {
     summary: (userId: number) => `${API_BASE}/dashboard/summary/${userId}`,
