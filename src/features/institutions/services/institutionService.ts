@@ -97,7 +97,7 @@ export async function createInstitution(institutionData: CreateInstitution): Pro
 /**
  * Actualiza una institución por ID
  */
-export async function updateInstitution(id: number, institutionData: UpdateInstitution): Promise<{ updated: InstitutionExtended }> {
+export async function updateInstitution(id: number, institutionData: UpdateInstitution): Promise<{ updatedInstitution: InstitutionExtended }> {
     const endPoint = API_ENDPOINTS.institutions.update(id);
     const res = await fetch(endPoint, {
         method: 'PATCH',
@@ -111,7 +111,7 @@ export async function updateInstitution(id: number, institutionData: UpdateInsti
         await handleErrorResponse(res);
     }
 
-    return await handleSuccessResponse<{ updated: InstitutionExtended }>(res);
+    return await handleSuccessResponse<{ updatedInstitution: InstitutionExtended }>(res);
 }
 
 /**

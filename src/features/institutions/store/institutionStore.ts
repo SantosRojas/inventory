@@ -66,7 +66,7 @@ export const useInstitutionStore = create<InstitutionState>((set) => ({
             const newInstitution = await createInstitution(data);
             
             // Verificar que la respuesta sea válida
-            if (!newInstitution?.id) {
+            if (!newInstitution?.createdId) {
                 throw new Error('Error: Respuesta inválida del servidor');
             }
             
@@ -74,7 +74,7 @@ export const useInstitutionStore = create<InstitutionState>((set) => ({
             const institutions = await getAllInstitutions();
             set({ institutions, error: null });
             
-            return newInstitution.id;
+            return newInstitution.createdId;
         } catch (err: unknown) {
             // NO establecer error en el estado global para errores de creación
             // El error se propagará al hook que lo maneja apropiadamente
@@ -89,14 +89,14 @@ export const useInstitutionStore = create<InstitutionState>((set) => ({
         set({ isLoading: true, error: null });
         try {
             const updatedData = await updateInstitution(id, data);
-            
+            const updatedInstitution = updatedData.updatedInstitution;
             // Actualizar en el estado local
             set((state) => ({
                 institutions: state.institutions.map((institution) =>
-                    institution.id === id ? updatedData.updated : institution
+                    institution.id === id ? updatedInstitution : institution
                 ),
                 selectedInstitution: state.selectedInstitution?.id === id 
-                    ? updatedData.updated 
+                    ? updatedInstitution 
                     : state.selectedInstitution,
                 error: null
             }));

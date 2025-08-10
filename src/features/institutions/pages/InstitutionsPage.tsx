@@ -3,7 +3,7 @@ import { Plus, Building2, Search } from 'lucide-react';
 import type { InstitutionExtended } from '../types';
 
 import { useInstitutionStore } from "../store";
-import { useInstitutionActions, useInstitutionSearch } from "../hooks";
+import { useInstitutionSearch } from "../hooks";
 import { useNotifications } from '../../../hooks/useNotifications';
 import { InstitutionsTable } from "../components";
 import { 
@@ -11,6 +11,7 @@ import {
     EditInstitutionModal, 
     DeleteInstitutionModal 
 } from "../modals";
+import { Button } from '../../../components';
 
 const InstitutionsPage = () => {
     const { 
@@ -18,10 +19,10 @@ const InstitutionsPage = () => {
         isLoading, 
         error, 
         fetchAllInstitutions,
+        removeInstitution,
         clearError 
     } = useInstitutionStore();
     
-    const { remove, errorAction } = useInstitutionActions();
     const { notifySuccess, notifyError } = useNotifications();
     
     // Hook personalizado para búsqueda
@@ -44,24 +45,14 @@ const InstitutionsPage = () => {
 
     // Cargar instituciones al montar el componente
     useEffect(() => {
-        if (institutions.length === 0 && !isLoading) {
-            fetchAllInstitutions();
-        }
-    }, [institutions.length, isLoading, fetchAllInstitutions]); // Dependencias necesarias
+        fetchAllInstitutions();
+    }, [fetchAllInstitutions]);
 
-    // Manejar notificaciones de error automáticamente
-    useEffect(() => {
-        if (errorAction) {
-            notifyError(errorAction);
-        }
-    }, [errorAction, notifyError]);
-
-    // Handlers para operaciones CRUD
     const handleAdd = useCallback(() => {
         setShowAddModal(true);
     }, []);
 
-    const handleAddSuccess = useCallback(() => {
+    const handleClose = useCallback(() => {
         setShowAddModal(false);
         // El store ya se actualiza automáticamente
     }, []);
@@ -86,31 +77,37 @@ const InstitutionsPage = () => {
         if (!institutionToDelete) return;
 
         setIsDeleting(true);
-        const success = await remove(institutionToDelete.id);
-        
-        if (success) {
-            notifySuccess(`Institución "${institutionToDelete.name}" eliminada exitosamente`);
-            setShowDeleteModal(false);
-            setInstitutionToDelete(null);
+        try {
+            const success = await removeInstitution(institutionToDelete.id);
             
-            // Si la institución eliminada era la última en el filtro, limpiar búsqueda
-            if (isLastFilteredInstitution(institutionToDelete.id)) {
-                setSearchTerm('');
-                clearError();
+            if (success) {
+                notifySuccess(`Institución "${institutionToDelete.name}" eliminada exitosamente`);
+                setShowDeleteModal(false);
+                setInstitutionToDelete(null);
+                
+                // Si la institución eliminada era la última en el filtro, limpiar búsqueda
+                if (isLastFilteredInstitution(institutionToDelete.id)) {
+                    setSearchTerm('');
+                    clearError();
+                }
             }
+        } catch (error) {
+            if (error instanceof Error) {
+                notifyError(error.message);
+            } else {
+                notifyError('Error al eliminar la institución');
+            }
+        } finally {
+            setIsDeleting(false);
         }
-        
-        setIsDeleting(false);
-    }, [institutionToDelete, remove, notifySuccess, isLastFilteredInstitution, setSearchTerm, clearError]);
+    }, [institutionToDelete, removeInstitution, notifySuccess, notifyError, isLastFilteredInstitution, setSearchTerm, clearError]);
 
     const handleCancelDelete = useCallback(() => {
         setShowDeleteModal(false);
         setInstitutionToDelete(null);
     }, []);
 
-
     if (error) {
-        console.error('Error al cargar instituciones:', error);
         return (
             <div className="flex flex-col h-full w-full items-center justify-center bg-gray-50">
                 <div className="text-center p-8">
@@ -149,9 +146,19 @@ const InstitutionsPage = () => {
                         Gestiona las instituciones del sistema
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                    
+                    {/* Botón Agregar */}
+                    <Button
+                        onClick={handleAdd}
+                        className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar Institución
+                    </Button>
+
                     {/* Buscador */}
-                    <div className="relative">
+                    <div className="relative w-full sm:w-auto">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search className="h-4 w-4 text-gray-400" />
                         </div>
@@ -163,14 +170,7 @@ const InstitutionsPage = () => {
                             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         />
                     </div>
-                    {/* Botón Agregar */}
-                    <button
-                        onClick={handleAdd}
-                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Agregar Institución
-                    </button>
+                    
                 </div>
             </div>
 
@@ -226,8 +226,7 @@ const InstitutionsPage = () => {
             {/* Modales */}
             <AddInstitutionModal
                 isOpen={showAddModal}
-                onClose={() => setShowAddModal(false)}
-                onSuccess={handleAddSuccess}
+                onClose={handleClose}
             />
 
             {selectedInstitution && (

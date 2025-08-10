@@ -19,7 +19,7 @@ export interface InstitutionExtended {
 
 // Para respuestas de la API
 export interface InstitutionResponse {
-    id: number;
+    createdId: number;
 }
 
 export interface InstitutionListResponse {
