@@ -32,12 +32,23 @@ const RegisterForm: React.FC = () => {
 
             <FormProvider {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    {/* Campo oculto de username para accesibilidad */}
+                    <input
+                        type="text"
+                        name="username"
+                        autoComplete="username"
+                        style={{ position: 'absolute', left: '-9999px', opacity: 0 }}
+                        tabIndex={-1}
+                        aria-hidden="true"
+                    />
+                    
                     {/* Nombres */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <RegisterInput
                             name="firstName"
                             label="Nombre"
                             placeholder="Ingresa tu nombre"
+                            autocomplete="given-name"
                             required
                         />
 
@@ -45,6 +56,7 @@ const RegisterForm: React.FC = () => {
                             name="lastName"
                             label="Apellido"
                             placeholder="Ingresa tu apellido"
+                            autocomplete="family-name"
                             required
                         />
                     </div>
@@ -56,6 +68,7 @@ const RegisterForm: React.FC = () => {
                             label="Teléfono Celular"
                             type="tel"
                             placeholder="Ej: 987654321"
+                            autocomplete="tel"
                             required
                             onChange={handlePhoneInput}
                         />
@@ -65,6 +78,7 @@ const RegisterForm: React.FC = () => {
                             label="Correo electrónico"
                             type="email"
                             placeholder="correo@ejemplo.com"
+                            autocomplete="email"
                             required
                         />
                     </div>
@@ -76,7 +90,7 @@ const RegisterForm: React.FC = () => {
                             label="Contraseña"
                             type="password"
                             placeholder="Mínimo 6 caracteres"
-                            autocomplete = "new-password"
+                            autocomplete="new-password"
                             required
                         />
 
@@ -85,7 +99,7 @@ const RegisterForm: React.FC = () => {
                             label="Confirmar contraseña"
                             type="password"
                             placeholder="Repite la contraseña"
-                            autocomplete = "new-password"
+                            autocomplete="new-password"
                             required
                         />
                     </div>

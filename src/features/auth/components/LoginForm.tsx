@@ -25,10 +25,10 @@ const LoginForm = () => {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <input {...register('email')} placeholder="Correo" />
+            <input {...register('email')} placeholder="Correo" autoComplete="username" />
             <p>{errors.email?.message}</p>
 
-            <input {...register('password')} placeholder="Contraseña" type="password" />
+            <input {...register('password')} placeholder="Contraseña" type="password" autoComplete="current-password" />
             <p>{errors.password?.message}</p>
 
             <button type="submit">Iniciar sesión</button>
