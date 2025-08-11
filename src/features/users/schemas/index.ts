@@ -14,24 +14,25 @@ export const userSchema = z.object({
         .min(1, "El teléfono es requerido")
         .regex(/^\+?[1-9]\d{1,14}$/, "Formato de teléfono inválido")
         .trim(),
-    email: z.string()
+    email: z.email()
         .min(1, "El email es requerido")
-        .email("Formato de email inválido")
         .toLowerCase()
         .trim(),
-    role: z.enum(['admin', 'user', 'superadmin']).refine(val => val, {
-        message: "Rol inválido"
-    })
+    roleId: z.number()
+        .min(1, "Debe seleccionar un rol válido")
+        .refine(val => val, {
+            message: "Rol inválido"
+        })
 });
 
-// Schema para crear usuarios (incluye password)
-export const createUserSchema = userSchema.extend({
-    password: z.string()
-        .min(8, "La contraseña debe tener al menos 8 caracteres")
-        .max(100, "La contraseña no puede exceder 100 caracteres")
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
-            "La contraseña debe contener al menos una minúscula, una mayúscula y un número")
-});
+// // Schema para crear usuarios (incluye password)
+// export const createUserSchema = userSchema.extend({
+//     password: z.string()
+//         .min(8, "La contraseña debe tener al menos 8 caracteres")
+//         .max(100, "La contraseña no puede exceder 100 caracteres")
+//         .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
+//             "La contraseña debe contener al menos una minúscula, una mayúscula y un número")
+// });
 
 // Schema para actualizar usuarios (campos opcionales, sin password)
 export const updateUserSchema = userSchema.partial();
@@ -54,7 +55,7 @@ export const updatePasswordSchema = z.object({
 
 // Tipos inferidos de los schemas
 export type UserFormData = z.infer<typeof userSchema>;
-export type CreateUserFormData = z.infer<typeof createUserSchema>;
+// export type CreateUserFormData = z.infer<typeof createUserSchema>;
 export type UpdateUserFormData = z.infer<typeof updateUserSchema>;
 export type UpdatePasswordFormData = z.infer<typeof updatePasswordSchema>;
 

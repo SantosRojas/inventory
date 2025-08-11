@@ -18,7 +18,7 @@ export const useUserPermissions = () => {
             };
         }
 
-        const isAdmin = currentUser.role === 'admin' || currentUser.role === 'superadmin';
+        const isAdmin = currentUser.role === 'admin';
 
         return {
             canViewAllUsers: isAdmin,
@@ -68,6 +68,17 @@ export const useUserPermissions = () => {
         return permissions.isAdmin && currentUser.id !== targetUser.id;
     };
 
+    const canEditUserPersonalInfo = (targetUser: UserExtended): boolean => {
+        if (!currentUser) return false;
+        
+        // Los usuarios pueden editar su propia información personal
+        if (currentUser.id === targetUser.id) return true;
+        
+        // Los admins NO pueden editar información personal de otros usuarios
+        // Solo pueden cambiar roles y resetear contraseñas
+        return false;
+    };
+
     const getFilteredUsers = (users: UserExtended[]): UserExtended[] => {
         if (!currentUser) return [];
         
@@ -84,6 +95,7 @@ export const useUserPermissions = () => {
         canDeleteUser,
         canChangeUserPassword,
         canEditUserRole,
+        canEditUserPersonalInfo,
         getFilteredUsers
     };
 };

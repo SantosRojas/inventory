@@ -9,7 +9,7 @@ export interface CreateUser {
     cellPhone: string;
     email: string;
     password: string;
-    role: 'admin' | 'user' | 'superadmin';
+    roleId: number; // Cambiado a roleId
 }
 
 export interface UpdateUser {
@@ -17,7 +17,7 @@ export interface UpdateUser {
     lastName?: string;
     cellPhone?: string;
     email?: string;
-    role?: 'admin' | 'user' | 'superadmin';
+    roleId?: number; // Cambiado a roleId
 }
 
 export interface UpdateUserPassword {
@@ -28,7 +28,7 @@ export interface UpdateUserPassword {
 
 // Extiende el tipo base con campos adicionales si necesario
 export interface UserExtended extends User {
-    // Podemos añadir campos adicionales aquí si necesario
+    roleId?: number; // Añadido para compatibilidad con el nuevo sistema
 }
 
 // Para respuestas de la API

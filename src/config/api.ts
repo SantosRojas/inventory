@@ -15,6 +15,9 @@ export const API_ENDPOINTS = {
     update: (id: number) => `${API_BASE}/users/${id}`,
     delete: (id: number) => `${API_BASE}/users/${id}`,
   },
+  roles: {
+    getAll: `${API_BASE}/roles`,
+  },
   pumps: {
     getAll: `${API_BASE}/inventory`,
     create: `${API_BASE}/inventory`,

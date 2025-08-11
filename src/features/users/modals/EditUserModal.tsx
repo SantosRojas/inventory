@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Modal, Select } from '../../../components';
@@ -8,6 +8,7 @@ import { useNotifications } from '../../../hooks/useNotifications';
 import { useUserStore } from "../store";
 import { updateUserSchema, type UpdateUserFormData } from "../schemas";
 import { useUserPermissions } from "../hooks";
+import { useRoles } from "../hooks/useRoles";
 
 interface EditUserModalProps {
     isOpen: boolean;
@@ -15,12 +16,6 @@ interface EditUserModalProps {
     onSuccess?: () => void;
     user: UserExtended | null;
 }
-
-const roleOptions = [
-    { id: 'user', name: 'Usuario' },
-    { id: 'admin', name: 'Administrador' },
-    { id: 'superadmin', name: 'Super Admin' }
-];
 
 const EditUserModal: React.FC<EditUserModalProps> = ({ 
     isOpen, 
@@ -30,42 +25,81 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 }) => {
     const { updateUser } = useUserStore();
     const { notifySuccess, notifyError } = useNotifications();
-    const { canEditUserRole } = useUserPermissions();
+    const { canEditUserRole, canEditUserPersonalInfo } = useUserPermissions();
+    const { roleOptions, getRoleIdByName } = useRoles();
     
     // Estados locales
     const [isLoading, setIsLoading] = useState(false);
     const [showConfirmClose, setShowConfirmClose] = useState(false);
     
-    // Verificar si se puede editar el rol de este usuario
+    // Verificar permisos para este usuario
     const canEditRole = user ? canEditUserRole(user) : false;
+    const canEditPersonalInfo = user ? canEditUserPersonalInfo(user) : false;
+
+    // Si no puede editar nada, no mostrar el modal
+    if (!canEditRole && !canEditPersonalInfo) {
+        return null;
+    }
+
+    // Crear schema dinámico basado en permisos - solo para info personal
+    const dynamicSchema = useMemo(() => {
+        if (canEditPersonalInfo) {
+            // Validar solo campos de información personal
+            return updateUserSchema.omit({ roleId: true }).partial();
+        }
+        // Si solo puede editar rol, no usar validación de Zod
+        return null;
+    }, [canEditPersonalInfo]);
 
     const {
         handleSubmit,
         control,
         formState: { errors, isDirty },
         reset,
-        setValue
+        setValue,
     } = useForm<UpdateUserFormData>({
-        resolver: zodResolver(updateUserSchema),
+        resolver: dynamicSchema ? zodResolver(dynamicSchema) : undefined,
         defaultValues: {
             firstName: '',
             lastName: '',
             cellPhone: '',
             email: '',
-            role: 'user'
+            roleId: 4 // ID del rol 'guest' por defecto
         }
     });
 
+
     // Inicializar formulario con datos del usuario
     useEffect(() => {
-        if (user && isOpen) {
-            setValue('firstName', user.firstName || '');
-            setValue('lastName', user.lastName || '');
-            setValue('cellPhone', user.cellPhone || '');
-            setValue('email', user.email || '');
-            setValue('role', user.role || 'user');
+        if (user && isOpen && roleOptions.length > 0) {
+            console.log("🔄 Inicializando formulario:", {
+                user,
+                canEditPersonalInfo,
+                canEditRole,
+                usingZodValidation: !!dynamicSchema,
+                roleOptions
+            });
+            
+            if (canEditPersonalInfo) {
+                setValue('firstName', user.firstName || '');
+                setValue('lastName', user.lastName || '');
+                setValue('cellPhone', user.cellPhone || '');
+                setValue('email', user.email || '');
+                console.log("✅ Campos personales inicializados");
+            }
+            if (canEditRole) {
+                // Obtener el roleId basado en el nombre del rol del usuario
+                const userRoleId = user.roleId || getRoleIdByName(user.role || 'guest') || 4;
+                console.log("🔧 Inicializando rol:", {
+                    userRole: user.role,
+                    userRoleId: user.roleId,
+                    calculatedRoleId: userRoleId,
+                    roleOptions: roleOptions.map(r => ({ id: r.id, name: r.name }))
+                });
+                setValue('roleId', userRoleId);
+            }
         }
-    }, [user, isOpen, setValue]);
+    }, [user, isOpen, roleOptions.length]); // Simplificadas las dependencias
 
     // Resetear estado de confirmación cuando se abre el modal
     useEffect(() => {
@@ -75,34 +109,49 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     }, [isOpen]);
 
     const onSubmit = async (data: UpdateUserFormData) => {
-        if (!user) return;
+        
+        if (!user) {
+            console.log("❌ Usuario no encontrado, saliendo...");
+            return;
+        }
         
         setIsLoading(true);
         try {
-            // Solo enviar campos que han cambiado
             const payload: UpdateUser = {};
-            if (data.firstName && data.firstName.trim() !== user.firstName) {
-                payload.firstName = data.firstName.trim();
+            
+            // Manejar información personal (con validación)
+            if (canEditPersonalInfo) {
+                if (data.firstName && data.firstName.trim() !== user.firstName) {
+                    payload.firstName = data.firstName.trim();
+                }
+                if (data.lastName && data.lastName.trim() !== user.lastName) {
+                    payload.lastName = data.lastName.trim();
+                }
+                if (data.cellPhone && data.cellPhone.trim() !== user.cellPhone) {
+                    payload.cellPhone = data.cellPhone.trim();
+                }
+                if (data.email && data.email.toLowerCase().trim() !== user.email.toLowerCase()) {
+                    payload.email = data.email.toLowerCase().trim();
+                }
             }
-            if (data.lastName && data.lastName.trim() !== user.lastName) {
-                payload.lastName = data.lastName.trim();
-            }
-            if (data.cellPhone && data.cellPhone.trim() !== user.cellPhone) {
-                payload.cellPhone = data.cellPhone.trim();
-            }
-            if (data.email && data.email.toLowerCase().trim() !== user.email.toLowerCase()) {
-                payload.email = data.email.toLowerCase().trim();
-            }
-            if (canEditRole && data.role && data.role !== user.role) {
-                payload.role = data.role;
+            
+            // Manejar rol (sin validación compleja - solo verificar que no esté vacío)
+            if (canEditRole && data.roleId && data.roleId !== (user.roleId || getRoleIdByName(user.role || 'guest'))) {
+                // Validación simple del roleId
+                if (!data.roleId || data.roleId < 1) {
+                    notifyError('Rol inválido seleccionado');
+                    return;
+                }
+                payload.roleId = data.roleId;
             }
 
             // Solo actualizar si hay cambios
             if (Object.keys(payload).length === 0) {
                 notifySuccess('No hay cambios que guardar');
-                onClose();
                 return;
             }
+
+            console.log("📦 Payload a enviar:", payload);
 
             await updateUser(user.id, payload);
             
@@ -111,10 +160,11 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             onClose();
             onSuccess?.();
         } catch (error) {
+            console.log(error)
             if (error instanceof Error) {
                 notifyError(error.message);
             } else {
-                notifyError('Error desconocido al actualizar el usuario');
+                notifyError('Error al actualizar el usuario');
             }
         } finally {
             setIsLoading(false);
@@ -122,12 +172,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     };
 
     const handleClose = () => {
-        if (isLoading) return;
-        
-        if (isDirty) {
+        if (isDirty && !isLoading) {
             setShowConfirmClose(true);
         } else {
-            onClose();
+            confirmClose();
         }
     };
 
@@ -144,19 +192,26 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             <Modal
                 isOpen={isOpen}
                 onClose={handleClose}
-                title={canEditRole ? "Editar Usuario" : "Mi Perfil"}
+                title={canEditRole && !canEditPersonalInfo ? "Editar Rol de Usuario" : canEditPersonalInfo ? "Editar Usuario" : "Editar Usuario"}
                 size="md"
             >
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    {!canEditRole && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                <form 
+                    onSubmit={(e) => {
+                        console.log("📝 Form onSubmit event triggered");
+                        handleSubmit(onSubmit)(e);
+                    }} 
+                    className="space-y-6"
+                >
+                    {/* Mensaje informativo solo para admins editando roles */}
+                    {!canEditPersonalInfo && canEditRole && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
                             <div className="flex">
                                 <div className="ml-3">
-                                    <h3 className="text-sm font-medium text-blue-800">
-                                        Editando tu perfil personal
+                                    <h3 className="text-sm font-medium text-yellow-800">
+                                        Edición administrativa
                                     </h3>
-                                    <div className="mt-2 text-sm text-blue-700">
-                                        <p>Puedes actualizar tu información personal. Para cambios en roles o permisos, contacta a un administrador.</p>
+                                    <div className="mt-2 text-sm text-yellow-700">
+                                        <p>Como administrador, solo puedes cambiar el rol de este usuario.</p>
                                     </div>
                                 </div>
                             </div>
@@ -164,125 +219,114 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     )}
                     
                     <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Controller
-                                name="firstName"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input
-                                        {...field}
-                                        label="Nombre"
-                                        placeholder="Ingrese el nombre"
-                                        error={errors.firstName?.message}
-                                        disabled={isLoading}
-                                        autoComplete="given-name"
+                        {/* Campos de información personal - solo si tiene permisos */}
+                        {canEditPersonalInfo && (
+                            <>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Controller
+                                        name="firstName"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                label="Nombre"
+                                                placeholder="Ingrese el nombre"
+                                                error={errors.firstName?.message}
+                                                disabled={isLoading}
+                                                autoComplete="given-name"
+                                            />
+                                        )}
                                     />
-                                )}
-                            />
 
-                            <Controller
-                                name="lastName"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input
-                                        {...field}
-                                        label="Apellido"
-                                        placeholder="Ingrese el apellido"
-                                        error={errors.lastName?.message}
-                                        disabled={isLoading}
-                                        autoComplete="family-name"
+                                    <Controller
+                                        name="lastName"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                label="Apellido"
+                                                placeholder="Ingrese el apellido"
+                                                error={errors.lastName?.message}
+                                                disabled={isLoading}
+                                                autoComplete="family-name"
+                                            />
+                                        )}
                                     />
-                                )}
-                            />
-                        </div>
+                                </div>
 
-                        <Controller
-                            name="email"
-                            control={control}
-                            render={({ field }) => (
-                                <Input
-                                    {...field}
-                                    type="email"
-                                    label="Email"
-                                    placeholder="Ingrese el email"
-                                    error={errors.email?.message}
-                                    disabled={isLoading}
-                                    autoComplete="email"
+                                <Controller
+                                    name="email"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            {...field}
+                                            type="email"
+                                            label="Email"
+                                            placeholder="Ingrese el email"
+                                            error={errors.email?.message}
+                                            disabled={isLoading}
+                                            autoComplete="email"
+                                        />
+                                    )}
                                 />
-                            )}
-                        />
 
-                        <Controller
-                            name="cellPhone"
-                            control={control}
-                            render={({ field }) => (
-                                <Input
-                                    {...field}
-                                    type="tel"
-                                    label="Teléfono"
-                                    placeholder="Ingrese el teléfono"
-                                    error={errors.cellPhone?.message}
-                                    disabled={isLoading}
-                                    autoComplete="tel"
+                                <Controller
+                                    name="cellPhone"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            {...field}
+                                            type="tel"
+                                            label="Teléfono"
+                                            placeholder="Ingrese el teléfono"
+                                            error={errors.cellPhone?.message}
+                                            disabled={isLoading}
+                                            autoComplete="tel"
+                                        />
+                                    )}
                                 />
-                            )}
-                        />
+                            </>
+                        )}
 
+                        {/* Campo de rol - solo si tiene permisos */}
                         {canEditRole && (
                             <Controller
-                                name="role"
+                                name="roleId"
                                 control={control}
                                 render={({ field }) => (
                                     <Select
                                         label="Rol"
                                         items={roleOptions}
-                                        value={field.value || 'user'}
-                                        onChange={(value) => field.onChange(value)}
-                                        error={errors.role?.message}
+                                        value={field.value || 4}
+                                        onChange={(value) => {
+                                            const numericValue = Number(value);
+                                            field.onChange(numericValue);
+                                        }}
+                                        error={errors.roleId?.message}
                                         disabled={isLoading}
                                     />
                                 )}
                             />
-                        )}
-                        
-                        {!canEditRole && user && (
-                            <div className="space-y-1">
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Rol
-                                </label>
-                                <div className="flex items-center p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                    <span className="text-sm text-gray-600">
-                                        {roleOptions.find(r => r.id === user.role)?.name || 'Usuario'}
-                                    </span>
-                                    <span className="ml-2 text-xs text-gray-500">
-                                        (Solo lectura)
-                                    </span>
-                                </div>
-                            </div>
                         )}
                     </div>
 
                     <div className="flex justify-end space-x-3 pt-4">
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="secondary"
                             onClick={handleClose}
                             disabled={isLoading}
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Guardando...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="h-4 w-4 mr-2" />
-                                    Guardar Cambios
-                                </>
-                            )}
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="flex items-center gap-2"
+                            onClick={() => console.log("🔘 Botón submit clickeado")}
+                        >
+                            <Save className="h-4 w-4" />
+                            {isLoading ? 'Guardando...' : 'Guardar cambios'}
                         </Button>
                     </div>
                 </form>
@@ -302,10 +346,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                     <div className="flex justify-end space-x-3">
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="secondary"
                             onClick={() => setShowConfirmClose(false)}
                         >
-                            Continuar editando
+                            Seguir editando
                         </Button>
                         <Button
                             type="button"

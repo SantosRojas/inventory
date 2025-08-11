@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import type { 
-    CreateUser, 
     UpdateUser, 
     UpdateUserPassword,
     UserExtended 
@@ -9,7 +8,6 @@ import {
     getAllUsers,
     getUserById,
     getUserProfile,
-    createUser,
     updateUser,
     updateUserPassword,
     deleteUser
@@ -26,7 +24,6 @@ interface UserState {
     fetchAllUsers: () => Promise<void>;
     fetchUserById: (id: number) => Promise<void>;
     fetchUserProfile: () => Promise<void>;
-    addUser: (data: CreateUser) => Promise<number | undefined>;
     updateUser: (id: number, data: UpdateUser) => Promise<void>;
     updateUserPassword: (id: number, data: UpdateUserPassword) => Promise<void>;
     removeUser: (id: number) => Promise<boolean>;
@@ -80,35 +77,11 @@ export const useUserStore = create<UserState>((set) => ({
         }
     },
 
-    addUser: async (data: CreateUser) => {
-        set({ isLoading: true, error: null });
-        try {
-            const newUser = await createUser(data);
-            
-            // Verificar que la respuesta sea válida
-            if (!newUser?.createdId) {
-                throw new Error('Error: Respuesta inválida del servidor');
-            }
-            
-            // Recargar toda la lista para asegurar consistencia con la base de datos
-            const users = await getAllUsers();
-            set({ users, error: null });
-            
-            return newUser.createdId;
-        } catch (err: unknown) {
-            // NO establecer error en el estado global para errores de creación
-            // El error se propagará al hook que lo maneja apropiadamente
-            const errorMessage = err instanceof Error ? err.message : 'Error desconocido al crear el usuario';
-            throw new Error(errorMessage);
-        } finally {
-            set({ isLoading: false });
-        }
-    },
-
     updateUser: async (id: number, data: UpdateUser) => {
         set({ isLoading: true, error: null });
         try {
             const updatedData = await updateUser(id, data);
+            console.log('Usuario actualizado:', updatedData);
             const updatedUser = updatedData.updatedUser;
             
             // Actualizar en el estado local

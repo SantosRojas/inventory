@@ -1,6 +1,7 @@
 import { memo, useCallback } from 'react';
 import { Edit, Trash2, User, Key, Mail, Phone } from 'lucide-react';
 import type { UserExtended } from '../types';
+import { getRoleDisplayName } from '../../../services/rolesService';
 
 interface UsersTableProps {
     users: UserExtended[];
@@ -17,17 +18,34 @@ interface UsersTableProps {
 }
 
 // Mapeo de roles para mostrar
-const roleLabels = {
+const roleLabels: Record<string, string> = {
     admin: 'Administrador',
+    sales_representative: 'Representante de Ventas',
+    technician: 'Técnico',
+    guest: 'Invitado',
+    // Mantener compatibilidad con roles anteriores
     user: 'Usuario',
     superadmin: 'Super Admin'
 };
 
 // Colores para los roles
-const roleColors = {
+const roleColors: Record<string, string> = {
     admin: 'bg-blue-100 text-blue-800',
+    sales_representative: 'bg-green-100 text-green-800',
+    technician: 'bg-yellow-100 text-yellow-800',
+    guest: 'bg-gray-100 text-gray-800',
+    // Mantener compatibilidad con roles anteriores
     user: 'bg-green-100 text-green-800', 
     superadmin: 'bg-purple-100 text-purple-800'
+};
+
+// Función helper para obtener el label y color del rol
+const getRoleInfo = (user: UserExtended) => {
+    const roleName = user.role || 'guest';
+    const label = roleLabels[roleName] || getRoleDisplayName(roleName);
+    const colorClass = roleColors[roleName] || 'bg-gray-100 text-gray-800';
+    
+    return { label, colorClass };
 };
 
 // Componente de fila memoizado para evitar re-renders innecesarios
@@ -61,6 +79,9 @@ const UserRow = memo(({
     const canDelete = permissions?.canDeleteUser(user) ?? !isCurrentUser;
     const canChangePassword = permissions?.canChangeUserPassword(user) ?? true;
 
+    // Obtener información del rol
+    const { label: roleLabel, colorClass: roleColorClass } = getRoleInfo(user);
+
     return (
         <tr className="hover:bg-gray-50">
             <td className="px-6 py-4 whitespace-nowrap">
@@ -88,8 +109,8 @@ const UserRow = memo(({
                 </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${roleColors[user.role]}`}>
-                    {roleLabels[user.role]}
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${roleColorClass}`}>
+                    {roleLabel}
                 </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -218,8 +239,11 @@ const UsersTable = memo(({
             {/* Vista Mobile/Tablet */}
             <div className="lg:hidden">
                 <div className="divide-y divide-gray-200">
-                    {users.map((user, index) => (
-                        <div key={user.id ? `mobile-user-${user.id}` : `mobile-temp-${index}`} className="p-4 space-y-3">
+                    {users.map((user, index) => {
+                        const { label: roleLabel, colorClass: roleColorClass } = getRoleInfo(user);
+                        
+                        return (
+                            <div key={user.id ? `mobile-user-${user.id}` : `mobile-temp-${index}`} className="p-4 space-y-3">
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                     <div className="flex items-center space-x-3">
@@ -244,8 +268,8 @@ const UsersTable = memo(({
                                             {user.cellPhone}
                                         </p>
                                         <div className="flex items-center space-x-2">
-                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${roleColors[user.role]}`}>
-                                                {roleLabels[user.role]}
+                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${roleColorClass}`}>
+                                                {roleLabel}
                                             </span>
                                             <span className="text-xs text-gray-500">
                                                 {new Date(user.createdAt).toLocaleDateString()}
@@ -284,7 +308,8 @@ const UsersTable = memo(({
                                 </div>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
