@@ -33,6 +33,13 @@ export const API_ENDPOINTS = {
   pumpModels: {
     getAll: `${API_BASE}/models`,
   },
+  models: {
+    getAll: `${API_BASE}/models`,
+    create: `${API_BASE}/models`,
+    getById: (id: number) => `${API_BASE}/models/${id}`,
+    update: (id: number) => `${API_BASE}/models/${id}`,
+    delete: (id: number) => `${API_BASE}/models/${id}`,
+  },
   institutions: {
     getAll: `${API_BASE}/institutions`,
     create: `${API_BASE}/institutions`,

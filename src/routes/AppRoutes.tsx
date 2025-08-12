@@ -20,6 +20,7 @@ const PumpsPage = lazy(() => import('../features/pumps/pages/PumpsPage'));
 const InstitutionsPage = lazy(() => import('../features/institutions/pages/InstitutionsPage'));
 const ServicesPage = lazy(() => import('../features/services/pages/ServicesPage'));
 const UsersPage = lazy(() => import('../features/users/pages/UsersPage'));
+const ModelsPage = lazy(() => import('../features/models/pages/ModelsPage'));
 
 
 // Componente para mostrar páginas en desarrollo
@@ -59,7 +60,7 @@ const AppRoutes = () => {
                         <Route index element={<Navigate to="/dashboard" replace />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="bombas" element={<PumpsPage />} />
-                        <Route path="modelos" element={<DevelopmentPage title="Gestión de Modelos" />} />
+                        <Route path="modelos" element={<ModelsPage />} />
                         <Route path="instituciones" element={<InstitutionsPage />} />
                         <Route path="servicios" element={<ServicesPage />} />
                         <Route path="usuarios" element={<UsersPage />} />
