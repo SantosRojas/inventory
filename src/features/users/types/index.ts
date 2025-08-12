@@ -21,9 +21,11 @@ export interface UpdateUser {
 }
 
 export interface UpdateUserPassword {
-    currentPassword: string;
+    currentPassword?: string; // Opcional para permitir reseteo administrativo
     newPassword: string;
     confirmPassword: string;
+    requestingUserId?: number; // Opcional - el service lo agregará automáticamente
+    requestingUserRole?: string; // Opcional - el service lo agregará automáticamente
 }
 
 // Extiende el tipo base con campos adicionales si necesario

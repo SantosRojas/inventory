@@ -17,20 +17,11 @@ export interface RolesResponse {
  */
 export const getAllRoles = async (): Promise<Role[]> => {
     try {
-        console.log('🔄 Intentando obtener roles desde:', API_ENDPOINTS.roles.getAll);
         const response = await fetchWithAuth(API_ENDPOINTS.roles.getAll);
-        
-        console.log('📡 Respuesta del servidor:', {
-            status: response.status,
-            statusText: response.statusText,
-            url: response.url,
-            headers: Object.fromEntries(response.headers.entries())
-        });
         
         if (!response.ok) {
             // Si el endpoint no existe (404), usar roles por defecto
             if (response.status === 404) {
-                console.warn('⚠️ Endpoint /roles no encontrado, usando roles por defecto');
                 return getDefaultRoles();
             }
             throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -38,7 +29,7 @@ export const getAllRoles = async (): Promise<Role[]> => {
         
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-            console.warn('⚠️ Respuesta no es JSON, usando roles por defecto. Content-Type:', contentType);
+            
             return getDefaultRoles();
         }
         
@@ -51,11 +42,10 @@ export const getAllRoles = async (): Promise<Role[]> => {
         
         return data.data;
     } catch (error) {
-        console.error('❌ Error fetching roles:', error);
         
         // Si es un error de red o parsing, usar roles por defecto
         if (error instanceof SyntaxError || (error as any).name === 'TypeError') {
-            console.warn('⚠️ Error de red o parsing, usando roles por defecto');
+            
             return getDefaultRoles();
         }
         

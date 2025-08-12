@@ -7,6 +7,7 @@ import type {
     UpdatePasswordResponse
 } from "../types";
 import { API_ENDPOINTS } from "../../../config";
+import { useAuthStore } from "../../auth/store/store";
 
 /**
  * Maneja errores del servidor devolviendo un mensaje legible.
@@ -49,10 +50,10 @@ async function handleSuccessResponse<T>(res: Response): Promise<T> {
 }
 
 /**
- * Obtiene el token de autenticación del localStorage
+ * Obtiene el token de autenticación del store
  */
 function getAuthToken(): string | null {
-    return localStorage.getItem('token');
+    return useAuthStore.getState().token;
 }
 
 /**
@@ -60,6 +61,7 @@ function getAuthToken(): string | null {
  */
 function getAuthHeaders(): HeadersInit {
     const token = getAuthToken();
+    
     return {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` })
@@ -151,35 +153,58 @@ export async function updateUser(id: number, userData: UpdateUser): Promise<{ up
 }
 
 /**
+ * Limpia propiedades undefined del objeto
+ */
+function cleanPayload<T extends Record<string, any>>(obj: T): Partial<T> {
+    const cleaned: Partial<T> = {};
+    for (const [key, value] of Object.entries(obj)) {
+        if (value !== undefined) {
+            (cleaned as any)[key] = value;
+        }
+    }
+    return cleaned;
+}
+
+/**
  * Actualiza la contraseña de un usuario
  */
 export async function updateUserPassword(id: number, passwordData: UpdateUserPassword): Promise<UpdatePasswordResponse> {
-    // Primero intentar endpoint específico para cambio de contraseña
+    // Obtener información del usuario actual del store
+    const currentUser = useAuthStore.getState().user;
+    if (!currentUser) {
+        throw new Error('No se pudo obtener la información del usuario actual');
+    }
+    
+    // Construir payload completo con información del usuario actual
+    const completePayload: UpdateUserPassword = {
+        ...passwordData,
+        requestingUserId: currentUser.id,
+        requestingUserRole: currentUser.role
+    };
+    
+    // Limpiar payload de propiedades undefined
+    const cleanedPayload = cleanPayload(completePayload);
+    
     const endPoint = `${API_ENDPOINTS.users.update(id)}/password`;
+    const headers = getAuthHeaders();
+    
     const res = await fetch(endPoint, {
         method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(passwordData),
+        headers: headers,
+        body: JSON.stringify(cleanedPayload),
     });
 
     if (!res.ok) {
-        // Si el endpoint específico no existe (404), usar el endpoint general
-        if (res.status === 404) {
-            const generalEndPoint = API_ENDPOINTS.users.update(id);
-            const generalRes = await fetch(generalEndPoint, {
-                method: 'PATCH',
-                headers: getAuthHeaders(),
-                body: JSON.stringify(passwordData),
-            });
-            
-            if (!generalRes.ok) {
-                await handleErrorResponse(generalRes);
-            }
-            
-            return await handleSuccessResponse<UpdatePasswordResponse>(generalRes);
-        } else {
-            await handleErrorResponse(res);
-        }
+        const errorText = await res.text();
+        
+        // Re-crear la respuesta para handleErrorResponse
+        const errorResponse = new Response(errorText, {
+            status: res.status,
+            statusText: res.statusText,
+            headers: res.headers
+        });
+        
+        await handleErrorResponse(errorResponse);
     }
 
     return await handleSuccessResponse<UpdatePasswordResponse>(res);

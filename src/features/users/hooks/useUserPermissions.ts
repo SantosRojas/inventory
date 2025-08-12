@@ -91,6 +91,7 @@ export const useUserPermissions = () => {
 
     return {
         ...permissions,
+        currentUser, // Agregamos currentUser al retorno
         canEditUser,
         canDeleteUser,
         canChangeUserPassword,

@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Modal } from '../../../components';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import type { UserExtended } from '../types';
+import { getRoleDisplayName } from '../../../services/rolesService';
 
 interface DeleteUserModalProps {
     isOpen: boolean;
@@ -53,8 +54,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
                                         {user.email}
                                     </p>
                                     <p className="text-sm text-gray-600">
-                                        Rol: {user.role === 'admin' ? 'Administrador' : 
-                                              user.role === 'superadmin' ? 'Super Admin' : 'Usuario'}
+                                        Rol: {getRoleDisplayName(user.role)}
                                     </p>
                                 </div>
                             </div>
