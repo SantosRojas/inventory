@@ -16,6 +16,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
   const [searchTerm, setSearchTerm] = useState('');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [downloadingServiceId, setDownloadingServiceId] = useState<string | null>(null);
   
   // Obtener token del auth store
   const { token } = useAuthStore();
@@ -136,19 +137,106 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
     setOpenMenuId(prev => prev === institutionId ? null : institutionId);
   }, []);
 
+  // Función para descargar inventario de un servicio específico
+  const handleServiceDownload = useCallback(async (serviceId: number, serviceName: string, institutionId: number, institutionName: string) => {
+    if (!token) {
+      notifyError(
+        'Error de autenticación', 
+        'Por favor, inicia sesión nuevamente.'
+      );
+      return;
+    }
+
+    const downloadKey = `${institutionId}-${serviceId}`;
+    setDownloadingServiceId(downloadKey);
+
+    try {
+      const data = await dashboardService.downloadServiceInventory(serviceId, institutionId, token);
+      // Validar si hay datos para descargar
+      if (!data || data.length === 0) {
+        notifyWarning(
+          `Sin datos para ${serviceName}`,
+          `No hay bombas disponibles para descargar en el servicio "${serviceName}" de ${institutionName}.`
+        );
+        return;
+      }
+
+      const filename = `inventario-servicio-${serviceName.replace(/\s+/g, '-').toLowerCase()}-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
+      
+      // Usar la función de utilidad para generar y descargar el Excel
+      downloadDashboardInventoryExcel(data, filename, 'total', `${serviceName} - ${institutionName}`);
+
+      // Mostrar notificación de éxito
+      notifySuccess(
+        'Descarga completada',
+        `Se han descargado ${data.length} bombas del servicio "${serviceName}" en ${institutionName}.`
+      );
+
+      console.log(`✅ Descarga de servicio completada: ${filename} con ${data.length} elementos`);
+    } catch (error) {
+      console.error('❌ Error downloading service data:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      notifyError(
+        'Error en la descarga del servicio',
+        `No se pudo descargar los datos del servicio: ${errorMessage}`
+      );
+    } finally {
+      setDownloadingServiceId(null);
+    }
+  }, [token, notifySuccess, notifyError, notifyWarning]);
+
   // Componente de servicio memoizado para evitar re-renders innecesarios
-  const ServiceCard = useCallback(({ service }: { service: { serviceName: string; totalPumps: number; pumpsInventoriedThisYear: number } }) => {
+  const ServiceCard = useCallback(({ service, institutionId, institutionName }: { 
+    service: { serviceId: number; serviceName: string; totalPumps: number; pumpsInventoriedThisYear: number }, 
+    institutionId: number,
+    institutionName: string 
+  }) => {
     const serviceProgress = service.totalPumps > 0
       ? (service.pumpsInventoriedThisYear / service.totalPumps) * 100
       : 0;
 
+    const isDownloadingService = downloadingServiceId === `${institutionId}-${service.serviceId}`;
+
     return (
       <div className="bg-gray-50 rounded-lg p-3">
         <div className="flex justify-between items-start mb-2">
-          <h6 className="text-sm font-medium text-gray-900 line-clamp-2">{service.serviceName}</h6>
-          <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full whitespace-nowrap ml-2">
-            {service.totalPumps}
-          </span>
+          <h6 className="text-sm font-medium text-gray-900 line-clamp-2 flex-1">{service.serviceName}</h6>
+          <div className="flex items-center gap-2 ml-2">
+            <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full whitespace-nowrap">
+              {service.totalPumps}
+            </span>
+            <button
+              onClick={() => handleServiceDownload(service.serviceId, service.serviceName, institutionId, institutionName)}
+              disabled={isDownloadingService}
+              className="group relative flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-blue-50 disabled:bg-gray-200 transition-all duration-200 hover:shadow-sm"
+              title={`Descargar inventario de ${service.serviceName}`}
+            >
+              {isDownloadingService ? (
+                <div className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+              ) : (
+                <svg 
+                  className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+                  />
+                </svg>
+              )}
+              
+              {/* Tooltip mejorado */}
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                {isDownloadingService ? 'Descargando...' : 'Descargar Excel'}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-800"></div>
+              </div>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-1">
@@ -175,7 +263,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
         </div>
       </div>
     );
-  }, []);
+  }, [handleServiceDownload, downloadingServiceId]);
 
   const handleDownload = useCallback(async (institutionId: number, type: 'total' | 'current-year' | 'not-inventoried' | 'overdue-maintenance', institutionName: string) => {
     if (!token) {
@@ -414,7 +502,12 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
                   {/* Servicios */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {institution.services.map((service, index) => (
-                      <ServiceCard key={`${institution.institutionId}-${service.serviceName}-${index}`} service={service} />
+                      <ServiceCard 
+                        key={`${institution.institutionId}-${service.serviceName}-${index}`} 
+                        service={service} 
+                        institutionId={institution.institutionId}
+                        institutionName={institution.institutionName}
+                      />
                     ))}
                   </div>
                 </div>

@@ -112,6 +112,32 @@ class DashboardService {
   }
 
   /**
+   * Descarga las bombas de un servicio específico en una institución
+   */
+  async downloadServiceInventory(serviceId: number, institutionId: number, token: string): Promise<DashboardInventoryItem[]> {
+    try {
+      const response = await fetch(
+        API_ENDPOINTS.pumps.getByServiceIdAndInstitutionId(serviceId, institutionId),
+        {
+          headers: getHeaders(token),
+        }
+      );
+
+      const json = await response.json();
+
+      if (!response.ok || json.success === false) {
+        throw new Error(json.message || json.error || 'Error al descargar inventario del servicio');
+      }
+
+      const pumps = json.data || [];
+      return this.transformPumpsToInventoryItems(pumps);
+    } catch (error) {
+      console.error('❌ Error downloading service inventory:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Transforma los datos de bombas al formato esperado por la utilidad de descarga
    */
   private transformPumpsToInventoryItems(pumps: any[]): DashboardInventoryItem[] {
