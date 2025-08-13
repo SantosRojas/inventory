@@ -29,6 +29,14 @@ export const API_ENDPOINTS = {
     getByInventoryTaker: (userId: number) => `${API_BASE}/inventory/inventory-taker/${userId}`,
     getByInstitutionId: (institutionId: number) => `${API_BASE}/inventory/institution/${institutionId}`,
     getByServiceId: (serviceId: number) => `${API_BASE}/inventory/service/${serviceId}`,
+    getThisYearByInstitutionId: (institutionId: number) =>
+        `${API_BASE}/inventory/current-year/${institutionId}`,
+    getNotThisYearByInstitutionId: (institutionId: number) =>
+        `${API_BASE}/inventory/not-inventoried/${institutionId}`,
+    getOverdueMaintenanceByInstitutionId: (institutionId: number) =>
+        `${API_BASE}/inventory/overdue-maintenance-by-institution/${institutionId}`,
+    getByServiceIdAndInstitutionId: (serviceId: number, institutionId: number) =>
+        `${API_BASE}/inventory/${institutionId}/service/${serviceId}`
   },
   pumpModels: {
     getAll: `${API_BASE}/models`,

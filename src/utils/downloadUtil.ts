@@ -162,7 +162,7 @@ export interface DashboardInventoryItem {
 export const downloadDashboardInventoryExcel = (
     items: DashboardInventoryItem[],
     filename: string,
-    type: 'total' | 'current-year' | 'not-inventoried',
+    type: 'total' | 'current-year' | 'not-inventoried' | 'overdue-maintenance',
     institutionName?: string
 ): void => {
     console.log('📥 Descargando reporte dashboard:', type, 'con', items.length, 'elementos');
@@ -207,6 +207,9 @@ export const downloadDashboardInventoryExcel = (
             break;
         case 'not-inventoried':
             htmlContent += `<div class="title">⚠️ PENDIENTES DE INVENTARIO 2025 - ${institutionDisplayName}</div>`;
+            break;
+        case 'overdue-maintenance':
+            htmlContent += `<div class="title">🔧 MANTENIMIENTO VENCIDO - ${institutionDisplayName}</div>`;
             break;
     }
 

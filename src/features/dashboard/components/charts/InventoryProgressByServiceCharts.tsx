@@ -1,6 +1,10 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type { InventoryProgressByServiceResponse, SummaryResponse} from '../../types';
 import { LazyCard } from '../../../../components';
+import { dashboardService } from '../../services';
+import { downloadDashboardInventoryExcel } from '../../../../utils';
+import { useAuthStore } from '../../../auth/store/store';
+import { useNotifications } from '../../../../hooks';
 
 
 interface InventoryProgressByServiceChartsProps {
@@ -12,6 +16,12 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
   const [searchTerm, setSearchTerm] = useState('');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  
+  // Obtener token del auth store
+  const { token } = useAuthStore();
+  
+  // Hook de notificaciones
+  const { notifySuccess, notifyError, notifyWarning } = useNotifications();
 
   // Usar datos directos del summary en lugar de calcularlos - MUCHO MÁS EFICIENTE
   const summaryStats = useMemo(() => {
@@ -167,52 +177,82 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
     );
   }, []);
 
-  // const handleDownload = useCallback(async (institutionId: number, type: 'total' | 'current-year' | 'not-inventoried', institutionName: string) => {
-  //   const downloadKey = `${institutionId}-${type}`;
-  //   setDownloadingId(downloadKey);
-  //
-  //   try {
-  //     let data;
-  //     let filename: string;
-  //
-  //     switch (type) {
-  //       case 'total':
-  //         data = await useFetch(API_ENDPOINTS.)
-  //         filename = `inventario-total-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
-  //         break;
-  //       case 'current-year':
-  //         data = await dashboardService.downloadCurrentYearInventory(institutionId);
-  //         filename = `inventario-2025-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
-  //         break;
-  //       case 'not-inventoried':
-  //         data = await dashboardService.downloadNotInventoriedThisYear(institutionId);
-  //         filename = `pendientes-inventario-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
-  //         break;
-  //       default:
-  //         throw new Error('Tipo de descarga no válido');
-  //     }
-  //
-  //     // Usar la función de utilidad para generar y descargar el Excel
-  //     // Ahora data es un array directo de elementos
-  //     downloadDashboardInventoryExcel(data, filename, type, institutionName);
-  //
-  //     setOpenMenuId(null); // Cerrar menú después de descarga
-  //   } catch (error) {
-  //     console.error('❌ Error downloading data:', error);
-  //     alert('Error al descargar los datos. Intenta nuevamente.');
-  //   } finally {
-  //     setDownloadingId(null);
-  //   }
-  // }, []);
+  const handleDownload = useCallback(async (institutionId: number, type: 'total' | 'current-year' | 'not-inventoried' | 'overdue-maintenance', institutionName: string) => {
+    if (!token) {
+      console.error('❌ No token available for download');
+      notifyError(
+        'Error de autenticación', 
+        'Por favor, inicia sesión nuevamente.'
+      );
+      return;
+    }
 
-  const handleDownload = (institutionId: number, type: 'total' | 'current-year' | 'not-inventoried', institutionName: string) => {
-    console.log('Download Excel');
-    console.log(institutionId);
-    console.log(type);
-    console.log(institutionName);
     const downloadKey = `${institutionId}-${type}`;
     setDownloadingId(downloadKey);
-  }
+
+    try {
+      let data;
+      let filename: string;
+      let typeDisplayName: string;
+
+      switch (type) {
+        case 'total':
+          data = await dashboardService.downloadInventoryTotal(institutionId, token);
+          filename = `inventario-total-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
+          typeDisplayName = 'Inventario Total';
+          break;
+        case 'current-year':
+          data = await dashboardService.downloadInventoryCurrentYear(institutionId, token);
+          filename = `inventario-2025-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
+          typeDisplayName = 'Inventario 2025';
+          break;
+        case 'not-inventoried':
+          data = await dashboardService.downloadInventoryNotInventoried(institutionId, token);
+          filename = `pendientes-inventario-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
+          typeDisplayName = 'Pendientes de Inventario';
+          break;
+        case 'overdue-maintenance':
+          data = await dashboardService.downloadOverdueMaintenance(institutionId, token);
+          filename = `mantenimiento-vencido-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
+          typeDisplayName = 'Mantenimiento Vencido';
+          break;
+        default:
+          throw new Error('Tipo de descarga no válido');
+      }
+
+      // Validar si hay datos para descargar
+      if (!data || data.length === 0) {
+        notifyWarning(
+          `Sin datos para ${typeDisplayName}`,
+          `No hay elementos disponibles para descargar en la categoría "${typeDisplayName}" de ${institutionName}.`
+        );
+        setOpenMenuId(null);
+        return;
+      }
+
+      // Usar la función de utilidad para generar y descargar el Excel
+      downloadDashboardInventoryExcel(data, filename, type, institutionName);
+
+      // Mostrar notificación de éxito
+      notifySuccess(
+        'Descarga completada',
+        `Se han descargado ${data.length} elementos de ${typeDisplayName} para ${institutionName}.`
+      );
+
+      setOpenMenuId(null); // Cerrar menú después de descarga
+      console.log(`✅ Descarga completada: ${filename} con ${data.length} elementos`);
+    } catch (error) {
+      console.error('❌ Error downloading data:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      notifyError(
+        'Error en la descarga',
+        `No se pudo descargar los datos: ${errorMessage}`
+      );
+    } finally {
+      setDownloadingId(null);
+    }
+  }, [token, notifySuccess, notifyError, notifyWarning]);
 
   if (!data?.institutions || data.institutions.length === 0) {
     return (
@@ -310,7 +350,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
                         </button>
 
                         {openMenuId === institution.institutionId && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-10">
+                          <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border z-10">
                             <div className="py-2">
                               <button
                                 onClick={() => handleDownload(institution.institutionId, 'total', institution.institutionName)}
@@ -318,15 +358,21 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
                                 className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
                               >
                                 {downloadingId === `${institution.institutionId}-total` ? '⏳' : '📊'}
-                                Inventario Total
+                                <div className="flex flex-col">
+                                  <span className="font-medium">Inventario Total</span>
+                                  <span className="text-xs text-gray-500">Todas las bombas</span>
+                                </div>
                               </button>
                               <button
                                 onClick={() => handleDownload(institution.institutionId, 'current-year', institution.institutionName)}
                                 disabled={downloadingId === `${institution.institutionId}-current-year`}
                                 className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
                               >
-                                {downloadingId === `${institution.institutionId}-current-year` ? '⏳' : '📅'}
-                                Inventario 2025
+                                {downloadingId === `${institution.institutionId}-current-year` ? '⏳' : '✅'}
+                                <div className="flex flex-col">
+                                  <span className="font-medium">Inventario 2025</span>
+                                  <span className="text-xs text-gray-500">Solo inventariadas este año</span>
+                                </div>
                               </button>
                               <button
                                 onClick={() => handleDownload(institution.institutionId, 'not-inventoried', institution.institutionName)}
@@ -334,7 +380,21 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
                                 className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
                               >
                                 {downloadingId === `${institution.institutionId}-not-inventoried` ? '⏳' : '⚠️'}
-                                Pendientes
+                                <div className="flex flex-col">
+                                  <span className="font-medium">Pendientes</span>
+                                  <span className="text-xs text-gray-500">Sin inventariar este año</span>
+                                </div>
+                              </button>
+                              <button
+                                onClick={() => handleDownload(institution.institutionId, 'overdue-maintenance', institution.institutionName)}
+                                disabled={downloadingId === `${institution.institutionId}-overdue-maintenance`}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
+                              >
+                                {downloadingId === `${institution.institutionId}-overdue-maintenance` ? '⏳' : '🔧'}
+                                <div className="flex flex-col">
+                                  <span className="font-medium">Mantenimiento Vencido</span>
+                                  <span className="text-xs text-gray-500">Requieren mantenimiento</span>
+                                </div>
                               </button>
                             </div>
                           </div>
