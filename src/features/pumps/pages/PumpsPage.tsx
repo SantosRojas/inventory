@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import type { Pump } from '../../../types';
 
-import { useCatalogLoader, usePumpWithStoreSync } from "../hooks";
-import { PumpsTable, PumpsToolbar, QRScannerModal } from "../components";
+import { useCatalogLoader, usePumpWithStoreSync, useLatestInventories } from "../hooks";
+import { PumpsTable, PumpsToolbar, QRScannerModal, LatestInventoriesTable } from "../components";
 import AddPumpModal from "../modals/AddPumpModal.tsx";
 import EditPumpModal from "../modals/EditPumpModal.tsx";
 import { DeletePumpModal } from "../modals";
@@ -12,6 +12,16 @@ const PumpsPage = () => {
     console.log('🚀 Renderizando PumpsPage');
     const { remove } = usePumpWithStoreSync();
     const { loading, error } = useCatalogLoader();
+
+    // Hook para últimos inventarios
+    const {
+        latestInventories,
+        isLoading: isLoadingLatest,
+        error: latestError,
+        limit,
+        updateLimit,
+        refreshLatestInventories,
+    } = useLatestInventories();
 
     // Estados para modales
     const [showAddModal, setShowAddModal] = useState(false);
@@ -90,14 +100,27 @@ const PumpsPage = () => {
 
 
     return (
-        <div className="flex flex-col h-full w-full overflow-hidden gap-2">
+        <div className="flex flex-col h-full w-full overflow-hidden gap-4">
             {/* Toolbar */}
             <PumpsToolbar
                 onQRScan={handleQRScan}
                 onAdd={handleAdd}
             />
 
+            {/* Tabla principal de todos los inventarios */}
             <PumpsTable
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+            />
+
+            {/* Sección de Últimos Inventarios */}
+            <LatestInventoriesTable
+                inventories={latestInventories}
+                isLoading={isLoadingLatest}
+                error={latestError}
+                limit={limit}
+                onLimitChange={updateLimit}
+                onRefresh={refreshLatestInventories}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />

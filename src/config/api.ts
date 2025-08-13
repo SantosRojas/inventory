@@ -36,7 +36,9 @@ export const API_ENDPOINTS = {
     getOverdueMaintenanceByInstitutionId: (institutionId: number) =>
         `${API_BASE}/inventory/overdue-maintenance-by-institution/${institutionId}`,
     getByServiceIdAndInstitutionId: (serviceId: number, institutionId: number) =>
-        `${API_BASE}/inventory/institution/${institutionId}/service/${serviceId}`
+        `${API_BASE}/inventory/institution/${institutionId}/service/${serviceId}`,
+    getLastInventories: (limit: number) =>
+        `${API_BASE}/inventory/latest?limit=${limit}`,
   },
   pumpModels: {
     getAll: `${API_BASE}/models`,
