@@ -38,8 +38,8 @@ const SummaryCharts: React.FC<SummaryChartsProps> = ({ data, isAdmin }) => {
     } = data;
 
     return (
-        <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="space-y-4 sm:space-y-6 overflow-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <ChartCard
                     title="Total Bombas"
                     value={totalPumps?.toLocaleString() || "N/A"}
@@ -52,7 +52,7 @@ const SummaryCharts: React.FC<SummaryChartsProps> = ({ data, isAdmin }) => {
                     bgFrom="green"
                 >
                     {totalPumps && inventoriedPumpsThisYear && (
-                        <p className="text-xs opacity-75">
+                        <p className="text-xs opacity-75 break-words">
                             {getPercentage(inventoriedPumpsThisYear, totalPumps)}% del total
                         </p>
                     )}
@@ -64,7 +64,7 @@ const SummaryCharts: React.FC<SummaryChartsProps> = ({ data, isAdmin }) => {
                     bgFrom="yellow"
                 >
                     {totalPumps && operativePumps && (
-                        <p className="text-xs opacity-75">
+                        <p className="text-xs opacity-75 break-words">
                             {getPercentage(operativePumps, totalPumps)}% del total
                         </p>
                     )}
@@ -76,7 +76,7 @@ const SummaryCharts: React.FC<SummaryChartsProps> = ({ data, isAdmin }) => {
                     bgFrom="red"
                 >
                     {totalPumps && overduePumpsMaintenance && (
-                        <p className="text-xs opacity-75">
+                        <p className="text-xs opacity-75 break-words">
                             {getPercentage(overduePumpsMaintenance, totalPumps)}% del total
                         </p>
                     )}
@@ -84,7 +84,7 @@ const SummaryCharts: React.FC<SummaryChartsProps> = ({ data, isAdmin }) => {
             </div>
 
             {isAdmin && adminData && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <ChartCard
                         title="Total Inventariadores"
                         value={adminData.totalInventoryTakers?.toLocaleString() || "N/A"}

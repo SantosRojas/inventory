@@ -28,14 +28,16 @@ const ChartCard = ({
     const bgClass = bgColors[bgFrom] || "from-gray-400 to-gray-500";
 
     return (
-        <div className={`bg-gradient-to-r ${bgClass} p-4 rounded-lg text-white`}>
-            <div className="flex items-start justify-between">
-                <div>
-                    <p className="text-sm font-medium opacity-90">{title}</p>
-                    <p className="text-2xl font-bold">{value}</p>
-                    {children}
+        <div className={`bg-gradient-to-r ${bgClass} p-3 sm:p-4 rounded-lg text-white min-w-0 overflow-hidden`}>
+            <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-medium opacity-90 break-words">{title}</p>
+                    <p className="text-lg sm:text-2xl font-bold break-words">{value}</p>
+                    <div className="min-w-0">
+                        {children}
+                    </div>
                 </div>
-                {icon && <div className="text-3xl opacity-75">{icon}</div>}
+                {icon && <div className="text-2xl sm:text-3xl opacity-75 flex-shrink-0">{icon}</div>}
             </div>
         </div>
     );

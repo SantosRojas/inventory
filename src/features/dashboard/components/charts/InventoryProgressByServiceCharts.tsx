@@ -199,24 +199,24 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
     const isDownloadingService = downloadingServiceId === `${institutionId}-${service.serviceId}`;
 
     return (
-      <div className="bg-gray-50 rounded-lg p-3">
-        <div className="flex justify-between items-start mb-2">
-          <h6 className="text-sm font-medium text-gray-900 line-clamp-2 flex-1">{service.serviceName}</h6>
-          <div className="flex items-center gap-2 ml-2">
-            <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full whitespace-nowrap">
+      <div className="bg-gray-50 rounded-lg p-2 sm:p-3 min-w-0">
+        <div className="flex justify-between items-start mb-2 gap-2">
+          <h6 className="text-xs sm:text-sm font-medium text-gray-900 line-clamp-2 flex-1 min-w-0 break-words">{service.serviceName}</h6>
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <span className="text-xs bg-gray-200 text-gray-700 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full whitespace-nowrap">
               {service.totalPumps}
             </span>
             <button
               onClick={() => handleServiceDownload(service.serviceId, service.serviceName, institutionId, institutionName)}
               disabled={isDownloadingService}
-              className="group relative flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-blue-50 disabled:bg-gray-200 transition-all duration-200 hover:shadow-sm"
+              className="group relative flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-100 hover:bg-blue-50 disabled:bg-gray-200 transition-all duration-200 hover:shadow-sm flex-shrink-0"
               title={`Descargar inventario de ${service.serviceName}`}
             >
               {isDownloadingService ? (
-                <div className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+                <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
               ) : (
                 <svg 
-                  className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" 
+                  className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -230,8 +230,8 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
                 </svg>
               )}
               
-              {/* Tooltip mejorado */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+              {/* Tooltip mejorado - solo en desktop */}
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10 hidden sm:block">
                 {isDownloadingService ? 'Descargando...' : 'Descargar Excel'}
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-800"></div>
               </div>
@@ -351,19 +351,19 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg border space-y-6">
+    <div className="bg-white p-2 sm:p-4 lg:p-6 rounded-lg border space-y-4 sm:space-y-6 overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">🏥 Progreso de Inventario por Servicio</h3>
-          <p className="text-sm text-gray-600 mt-1">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">🏥 Progreso de Inventario por Servicio</h3>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">
             {summaryStats.inventoriedItems.toLocaleString()} de {summaryStats.totalItems.toLocaleString()} bombas inventariadas •
             {summaryStats.totalServices} servicios en {summaryStats.totalInstitutions} instituciones
           </p>
         </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-500">Progreso General</div>
-          <div className="text-2xl font-bold text-green-600">
+        <div className="text-right flex-shrink-0">
+          <div className="text-xs sm:text-sm text-gray-500">Progreso General</div>
+          <div className="text-xl sm:text-2xl font-bold text-green-600">
             {totalProgress.toFixed(1)}%
           </div>
         </div>
@@ -376,12 +376,12 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
           placeholder="🔍 Buscar por institución..."
           value={searchTerm}
           onChange={handleSearchChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         {searchTerm && (
           <button
             onClick={() => setSearchTerm('')}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
           >
             ❌
           </button>
@@ -396,34 +396,34 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {filteredAndSortedInstitutions.map((institution) => {
             const progress = institutionProgresses.get(institution.institutionId) || 0;
 
             return (
-              <LazyCard key={institution.institutionId} className="border rounded-lg p-6">
-                <div className="space-y-4">
+              <LazyCard key={institution.institutionId} className="border rounded-lg p-3 sm:p-4 lg:p-6 overflow-hidden">
+                <div className="space-y-3 sm:space-y-4">
                   {/* Header de la institución */}
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <h4 className="text-lg font-semibold text-gray-900">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
                           {institution.institutionName}
                         </h4>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-xs sm:text-sm text-gray-500 flex-shrink-0">
                           {institution.services.length} servicios
                         </div>
                       </div>
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="text-xs sm:text-sm text-gray-600 mt-1">
                         {institution.inventoriedItems.toLocaleString()} de {institution.totalItems.toLocaleString()} bombas inventariadas
                       </div>
                     </div>
 
                     {/* Progreso y menú de descarga */}
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500">Progreso</div>
-                        <div className="text-xl font-bold text-green-600">
+                    <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 sm:gap-4">
+                      <div className="text-left sm:text-right">
+                        <div className="text-xs sm:text-sm text-gray-500">Progreso</div>
+                        <div className="text-lg sm:text-xl font-bold text-green-600">
                           {progress.toFixed(1)}%
                         </div>
                       </div>
@@ -432,56 +432,56 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
                       <div className="relative download-menu-container">
                         <button
                           onClick={() => handleMenuToggle(institution.institutionId)}
-                          className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm"
+                          className="bg-blue-600 text-white px-2 py-1 sm:px-3 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm whitespace-nowrap"
                         >
-                          📥 Descargar
+                          📥 <span className="hidden sm:inline">Descargar</span>
                         </button>
 
                         {openMenuId === institution.institutionId && (
-                          <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border z-10">
+                          <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-white rounded-lg shadow-lg border z-10 max-w-[calc(100vw-2rem)]">
                             <div className="py-2">
                               <button
                                 onClick={() => handleDownload(institution.institutionId, 'total', institution.institutionName)}
                                 disabled={downloadingId === `${institution.institutionId}-total`}
-                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
+                                className="w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
                               >
                                 {downloadingId === `${institution.institutionId}-total` ? '⏳' : '📊'}
-                                <div className="flex flex-col">
-                                  <span className="font-medium">Inventario Total</span>
-                                  <span className="text-xs text-gray-500">Todas las bombas</span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-medium truncate">Inventario Total</span>
+                                  <span className="text-xs text-gray-500 truncate">Todas las bombas</span>
                                 </div>
                               </button>
                               <button
                                 onClick={() => handleDownload(institution.institutionId, 'current-year', institution.institutionName)}
                                 disabled={downloadingId === `${institution.institutionId}-current-year`}
-                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
+                                className="w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
                               >
                                 {downloadingId === `${institution.institutionId}-current-year` ? '⏳' : '✅'}
-                                <div className="flex flex-col">
-                                  <span className="font-medium">Inventario 2025</span>
-                                  <span className="text-xs text-gray-500">Solo inventariadas este año</span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-medium truncate">Inventario 2025</span>
+                                  <span className="text-xs text-gray-500 truncate">Solo inventariadas este año</span>
                                 </div>
                               </button>
                               <button
                                 onClick={() => handleDownload(institution.institutionId, 'not-inventoried', institution.institutionName)}
                                 disabled={downloadingId === `${institution.institutionId}-not-inventoried`}
-                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
+                                className="w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
                               >
                                 {downloadingId === `${institution.institutionId}-not-inventoried` ? '⏳' : '⚠️'}
-                                <div className="flex flex-col">
-                                  <span className="font-medium">Pendientes</span>
-                                  <span className="text-xs text-gray-500">Sin inventariar este año</span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-medium truncate">Pendientes</span>
+                                  <span className="text-xs text-gray-500 truncate">Sin inventariar este año</span>
                                 </div>
                               </button>
                               <button
                                 onClick={() => handleDownload(institution.institutionId, 'overdue-maintenance', institution.institutionName)}
                                 disabled={downloadingId === `${institution.institutionId}-overdue-maintenance`}
-                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
+                                className="w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-gray-100 flex items-center gap-2 disabled:opacity-50"
                               >
                                 {downloadingId === `${institution.institutionId}-overdue-maintenance` ? '⏳' : '🔧'}
-                                <div className="flex flex-col">
-                                  <span className="font-medium">Mantenimiento Vencido</span>
-                                  <span className="text-xs text-gray-500">Requieren mantenimiento</span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-medium truncate">Mantenimiento Vencido</span>
+                                  <span className="text-xs text-gray-500 truncate">Requieren mantenimiento</span>
                                 </div>
                               </button>
                             </div>
@@ -500,7 +500,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
                   </div>
 
                   {/* Servicios */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {institution.services.map((service, index) => (
                       <ServiceCard 
                         key={`${institution.institutionId}-${service.serviceName}-${index}`} 

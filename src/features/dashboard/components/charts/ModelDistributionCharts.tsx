@@ -1,7 +1,8 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import type { ModelDistributionResponse, SummaryResponse } from '../../types';
-import {CustomizedLabelPie} from "./summary/components";
+import { useMediaQuery } from 'react-responsive';
+import CustomizedLabelPie from '../CustomizedLabelPie';
 
 
 interface ModelDistributionChartsProps {
@@ -24,6 +25,8 @@ const COLORS = [
 ];
 
 export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = ({ data, summaryData }) => {
+  const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
+
   if (!data?.models || data.models.length === 0) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -64,54 +67,64 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg border">
+    <div className="bg-white p-2 sm:p-4 lg:p-6 rounded-lg border space-y-3 sm:space-y-4 overflow-hidden">
       {/* Header */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">📊 Distribución por Modelo</h3>
-        <p className="text-sm text-gray-600">{total.toLocaleString()} bombas en {data.models.length} modelos</p>
+      <div className="min-w-0">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">📊 Distribución por Modelo</h3>
+        <p className="text-xs sm:text-sm text-gray-600 break-words">{total.toLocaleString()} bombas en {data.models.length} modelos</p>
       </div>
 
-      {/* Gráfico Circular */}
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={CustomizedLabelPie}
-              outerRadius={100}
-              innerRadius={50}
-              fill="#8884d8"
-              dataKey="count"
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+      <div className={`flex ${isMobile ? 'flex-col' : 'items-center justify-center'} gap-4 sm:gap-6`}>
+        {/* Gráfico Circular */}
+        <div className={isMobile ? "h-80 w-full" : "h-96 flex-shrink-0"} style={{ width: isMobile ? '100%' : '400px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart margin={{ top: 20, right: 60, bottom: 20, left: 60 }}>
+              <Pie
+                data={chartData ?? []}
+                cx="50%"
+                cy="50%"
+                labelLine={isMobile}
+                label={!isMobile ? CustomizedLabelPie : true}
+                outerRadius={isMobile ? 70 : 90}
+                innerRadius={isMobile ? 35 : 45}
+                fill="#8884d8"
+                dataKey="count"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
 
-      {/* Leyenda simple debajo del gráfico */}
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        {data.models.map((model, index) => {
-          const percentage = ((model.count / total) * 100).toFixed(1);
-          const color = COLORS[index % COLORS.length];
-          return (
-            <div key={model.modelName} className="flex items-center gap-2 text-sm">
-              <div
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: color }}
-              ></div>
-              <span className="text-gray-700 truncate">
-                {model.modelName}: <span className="font-medium">{model.count.toLocaleString()}</span> ({percentage}%)
-              </span>
+        {/* Leyenda responsiva */}
+        {
+          !isMobile && (
+
+            <div className={`${isMobile ? 'grid grid-cols-1 sm:grid-cols-2' : 'flex flex-col justify-center max-w-sm'} gap-2 ${isMobile ? 'w-full' : 'flex-1'}`}>
+              {data.models.map((model, index) => {
+                const percentage = ((model.count / total) * 100).toFixed(1);
+                const color = COLORS[index % COLORS.length];
+                return (
+                  <div key={model.modelName} className="flex items-center gap-2 text-xs sm:text-sm min-w-0 p-2 bg-gray-50 rounded-md">
+                    <div
+                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: color }}
+                    ></div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-gray-900 truncate">{model.modelName}</div>
+                      <div className="text-gray-600 text-xs">
+                        <span className="font-medium">{model.count.toLocaleString()}</span> bombas ({percentage}%)
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          )
+        }
       </div>
     </div>
   );

@@ -4,16 +4,13 @@ import {
     Pie,
     Cell,
     Tooltip,
-    Legend,
     ResponsiveContainer,
+    Legend,
 } from 'recharts';
 import type { OverdueMaintenanceResponse } from '../../types';
-import {CustomizedLabelPie} from "./summary/components";
-
-const COLORS = [
-    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-    '#FF9F40', '#00C49F', '#FF8042', '#A28FD0', '#F67280',
-];
+import { generateColor } from '../../../../utils';
+import { useMediaQuery } from 'react-responsive';
+import CustomizedLabelPie from '../CustomizedLabelPie';
 
 interface Props {
     data?: OverdueMaintenanceResponse;
@@ -25,6 +22,7 @@ interface ChartItem {
 }
 
 const OverdueMaintenanceChart = ({ data }: Props) => {
+    const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
     const { chartData, error, total } = useMemo(() => {
         const institutions = data?.institutions ?? [];
 
@@ -45,6 +43,8 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
         return { chartData, total, error: null };
     }, [data]);
 
+    
+
     const CustomTooltip = ({
                                active,
                                payload,
@@ -54,14 +54,18 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
     }) => {
         if (active && payload?.length) {
             const { name, value } = payload[0].payload;
+            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
             return (
                 <div className="bg-white rounded-lg shadow-md border border-gray-200 p-3 text-sm text-gray-800">
                     <p className="font-semibold">{name}</p>
                     <p>
-                        Bombas con mantenimiento vencido:{' '}
+                        Cantidad:{' '}
                         <span className="font-medium text-red-500">
               {value.toLocaleString()}
             </span>
+                    </p>
+                    <p className="text-gray-600">
+                        <span className="font-medium">{percentage}%</span> del total
                     </p>
                 </div>
             );
@@ -78,42 +82,54 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
     }
 
     return (
-        <div className="bg-white p-6 rounded-lg border space-y-4">
+        <div className="bg-white p-2 sm:p-4 lg:p-6 rounded-lg border space-y-3 sm:space-y-4 overflow-hidden">
             {/* Header */}
-            <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+            <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">
                     🔧 Mantenimiento Vencido por Institución
                 </h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">
                     Distribución de {total.toLocaleString()} bombas con mantenimiento vencido
                 </p>
             </div>
 
             {/* Pie Chart */}
-            <ResponsiveContainer width="100%" height={350}>
-                <PieChart>
+           <div className={isMobile ? "h-80 w-full" : 'h-96'}>
+             <ResponsiveContainer width="100%" height="100%">
+                <PieChart margin={{ top: 20, right: 60, bottom: 20, left: 60 }}>
                     <Pie
                         data={chartData ?? []}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
-                        outerRadius={100}
-                        innerRadius={50}
-                        labelLine={false}
-                        label={CustomizedLabelPie}
+                        outerRadius={isMobile ? 70 : 90}
+                        innerRadius={isMobile ? 35 : 45}
+                        labelLine={isMobile}
+                        label={!isMobile ? CustomizedLabelPie : true}
                     >
                         {chartData?.map((_, index) => (
                             <Cell
                                 key={`cell-${index}`}
-                                fill={COLORS[index % COLORS.length]}
+                                fill={generateColor(index)}
                             />
                         ))}
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    {!isMobile && (
+                        <Legend verticalAlign='middle' align='right' layout='vertical' />
+                    )}
+                    {/* {isMobile && (
+                        <Legend 
+                            verticalAlign='bottom' 
+                            align='center' 
+                            layout='horizontal'
+                            wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }}
+                        />
+                    )} */}
                 </PieChart>
             </ResponsiveContainer>
+           </div>
         </div>
     );
 };

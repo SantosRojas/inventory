@@ -146,14 +146,14 @@ export const DashboardPage = () => {
     }
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-2 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 max-w-full overflow-hidden">
             {/* Encabezado */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                <div className="min-w-0 flex-1">
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">
                         {isAdmin ? 'Dashboard de Administración' : 'Mi Dashboard'}
                     </h1>
-                    <p className="text-gray-600 mt-1">
+                    <p className="text-sm sm:text-base text-gray-600 mt-1 break-words">
                         {isAdmin
                             ? 'Vista completa del sistema de inventario'
                             : 'Vista de tu inventario personal'}
@@ -161,10 +161,10 @@ export const DashboardPage = () => {
                 </div>
                 <button
                     onClick={() => user?.id && getDashboardData(user.id, token)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap flex-shrink-0"
                     disabled={!user?.id || !token}
                 >
-                    🔄 Actualizar
+                    🔄 <span className="hidden sm:inline">Actualizar</span>
                 </button>
             </div>
 

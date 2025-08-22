@@ -9,7 +9,7 @@ interface EmptyTableStateProps {
 
 const EmptyTableState = memo(({ 
     title = "No se encontraron bombas", 
-    message = "No hay bombas registradas en el sistema.",
+    message = "Intente buscar por serie o qr.",
     icon
 }: EmptyTableStateProps) => {
     const defaultIcon = (

@@ -2,12 +2,11 @@
 // features/auth/services.ts
 import type {AuthResponse, User, UserToRegister} from '../types/types.ts'
 import type {LoginInput} from '../schemas'
-
-const API_URL = 'http://localhost:3001/auth'
+import { API_ENDPOINTS } from '../../../config/api.ts';
 
 export const loginUser = async (data: LoginInput): Promise<AuthResponse> => {
     try {
-        const res = await fetch(`${API_URL}/login`, {
+        const res = await fetch(API_ENDPOINTS.auth.login, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -35,7 +34,7 @@ export const loginUser = async (data: LoginInput): Promise<AuthResponse> => {
 
 export const registerUser = async (data: UserToRegister): Promise<AuthResponse> => {
 
-    const res = await fetch(`${API_URL}/register`, {
+    const res = await fetch(API_ENDPOINTS.auth.register, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -47,7 +46,7 @@ export const registerUser = async (data: UserToRegister): Promise<AuthResponse> 
 }
 
 export const checkTokenValidity = async (token: string): Promise<User> => {
-    const res = await fetch(`${API_URL}/me`, {
+    const res = await fetch(API_ENDPOINTS.auth.verify, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,

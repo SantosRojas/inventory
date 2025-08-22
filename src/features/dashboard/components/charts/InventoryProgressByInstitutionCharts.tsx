@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback} from 'react';
 import {
   BarChart,
   Bar,
@@ -13,6 +13,7 @@ import type {
   InventoryProgressByInstitutionResponse,
   SummaryResponse,
 } from '../../types';
+import { useMediaQuery } from 'react-responsive';
 
 interface InventoryProgressByInstitutionChartsProps {
   data: InventoryProgressByInstitutionResponse;
@@ -38,6 +39,10 @@ interface TooltipProps {
 export const InventoryProgressByInstitutionCharts: React.FC<
     InventoryProgressByInstitutionChartsProps
 > = ({ data, summaryData }) => {
+  // Hook para detectar el tamaño de pantalla
+  const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
+
+
   const { chartData, overallProgress, totalInstitutions } = useMemo(() => {
     const institutions = data?.institutions ?? [];
 
@@ -49,10 +54,7 @@ export const InventoryProgressByInstitutionCharts: React.FC<
       };
     }
 
-    const MAX_INSTITUTIONS = 15;
-    const institutionsToShow = institutions.slice(0, MAX_INSTITUTIONS);
-
-    const chartData: InstitutionChartData[] = institutionsToShow.map((institution) => {
+    const chartData: InstitutionChartData[] = institutions.map((institution) => {
       const total = institution.totalPumps;
       const inventoried = institution.pumpsInventoriedThisYear;
       const pendientes = total - inventoried;
@@ -84,7 +86,7 @@ export const InventoryProgressByInstitutionCharts: React.FC<
       const data = payload[0].payload;
 
       return (
-          <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
+          <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
             <p className="font-semibold text-gray-900 mb-2">{label}</p>
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-sm">
@@ -131,7 +133,7 @@ export const InventoryProgressByInstitutionCharts: React.FC<
   }
 
   return (
-      <div className="bg-white p-6 rounded-lg border">
+      <div className="bg-white p-1 sm:p-4 rounded-lg border">
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900">
             📋 Progreso de Inventario por Institución
@@ -146,44 +148,56 @@ export const InventoryProgressByInstitutionCharts: React.FC<
           </p>
         </div>
 
-        <div className="h-96">
+        <div 
+          className={isMobile ? "" : "h-96"}
+          style={isMobile ? { height: Math.max(400, chartData.length * 60) } : {}}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
                 data={chartData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                layout={isMobile ? "vertical" : undefined}
+                margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
+              {isMobile ? (
+                // Configuración para móvil/tablet (barras horizontales)
+                <>
+                  <XAxis type="number" />
+                  <YAxis
+                    type="category"
+                    dataKey="institutionName"
+                    tick={false}
+                    width={0}
+                    axisLine={false}
+                  />
+                </>
+              ) : (
+                // Configuración para desktop (barras verticales)
+                <XAxis
                   dataKey="institutionName"
                   tick={{ fontSize: 12 }}
                   angle={-45}
                   textAnchor="end"
                   height={80}
                   tickFormatter={formatInstitutionName}
-              />
-              <YAxis
-                  tick={{ fontSize: 12 }}
-                  label={{
-                    value: 'Cantidad de Bombas',
-                    angle: -90,
-                    position: 'insideLeft',
-                  }}
-              />
+                />
+              )}
+              
               <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="rect" />
+              <Legend wrapperStyle={{ paddingTop: '10px' }} iconType="rect" />
               <Bar
                   dataKey="inventariadas"
                   stackId="progress"
                   fill="#10B981"
                   name="Inventariadas 2025"
-                  radius={[0, 0, 0, 0]}
+                  radius={isMobile ? [0, 4, 4, 0] : [4, 4, 0, 0]}
               />
               <Bar
                   dataKey="pendientes"
                   stackId="progress"
                   fill="#9CA3AF"
                   name="Pendientes"
-                  radius={[4, 4, 0, 0]}
+                  radius={[0, 0, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
