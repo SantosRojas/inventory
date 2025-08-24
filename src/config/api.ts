@@ -1,4 +1,4 @@
-export const API_BASE = 'http://localhost:4000';
+export const API_BASE = 'http://192.168.1.121:4000';
 
 export const API_ENDPOINTS = {
   auth: {

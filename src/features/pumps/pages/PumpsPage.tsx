@@ -2,11 +2,9 @@ import { useState, useCallback, useEffect } from 'react';
 import type { Pump } from '../../../types';
 
 import { useCatalogLoader } from "../hooks";
-import { PumpsTable, PumpsToolbar, QRScannerModal, LatestInventoriesTable } from "../components";
+import { PumpsTable, PumpsToolbar, LatestInventoriesTable } from "../components";
 import { PageLoader } from "../../../components";
-import AddPumpModal from "../modals/AddPumpModal.tsx";
-import EditPumpModal from "../modals/EditPumpModal.tsx";
-import { DeletePumpModal } from "../modals";
+import { DeletePumpModal,AddPumpModal,EditPumpModal,QRScannerModal } from "../modals";
 import { useLatestInventoriesStore } from '../store';
 
 

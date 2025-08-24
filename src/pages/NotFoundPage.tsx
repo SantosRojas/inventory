@@ -21,11 +21,11 @@ const NotFoundPage: React.FC = () => {
                 </p>
 
                 <Link
-                    to="/dashboard"
+                    to="/inventario"
                     className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
                 >
                     <Home className="h-5 w-5 mr-2" />
-                    Volver al Dashboard
+                    Volver al Inventario
                 </Link>
             </div>
         </div>

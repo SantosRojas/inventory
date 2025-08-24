@@ -21,7 +21,7 @@ import { useAuthStore } from '../features/auth/store/store';
 
 const NAV_ITEMS = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Bombas', href: '/bombas', icon: Package },
+  { name: 'Inventario', href: '/inventario', icon: Package },
   { name: 'Usuarios', href: '/usuarios', icon: Users },
   { name: 'Modelos', href: '/modelos', icon: Monitor },
   { name: 'Instituciones', href: '/instituciones', icon: Building },
@@ -36,12 +36,14 @@ const Sidebar = ({
   collapsed,
   onClose,
   onToggleCollapse,
+  navItems,
 }: {
   isMobile: boolean;
   open: boolean;
   collapsed: boolean;
   onClose?: () => void;
   onToggleCollapse?: () => void;
+  navItems: typeof NAV_ITEMS;
 }) => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname.startsWith(path);
@@ -82,7 +84,7 @@ const Sidebar = ({
 
       {/* Navegación */}
       <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <Link
             key={item.name}
             to={item.href}
@@ -108,6 +110,26 @@ const MainLayout = () => {
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Filtrar elementos de navegación según el rol del usuario
+  const getFilteredNavItems = () => {
+    const isAdmin = user?.role === 'admin';
+    
+    if (isAdmin) {
+      return NAV_ITEMS;
+    }
+    
+    // Para usuarios no admin, cambiar "Usuarios" por "Mi Perfil" y excluir páginas de admin
+    return NAV_ITEMS
+      .filter(item => !['Modelos', 'Instituciones', 'Servicios'].includes(item.name))
+      .map(item => 
+        item.name === 'Usuarios' 
+          ? { ...item, name: 'Mi Perfil' }
+          : item
+      );
+  };
+
+  const filteredNavItems = getFilteredNavItems();
+
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100 relative">
       {/* Overlay para mobile */}
@@ -124,6 +146,7 @@ const MainLayout = () => {
         open={sidebarOpenMobile}
         collapsed={false}
         onClose={() => setSidebarOpenMobile(false)}
+        navItems={filteredNavItems}
       />
 
       {/* Sidebar Desktop */}
@@ -133,6 +156,7 @@ const MainLayout = () => {
           open
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          navItems={filteredNavItems}
         />
       </div>
 

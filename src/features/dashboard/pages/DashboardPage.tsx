@@ -95,12 +95,12 @@ export const DashboardPage = () => {
         }
     }, [user?.id, getDashboardData, token]);
 
-    const handleNavigateToDashboard = () => {
-        console.log("Redirigiendo a bombas")
-        navigate("/bombas");
+    const handleNavigateToInventory = () => {
+        console.log("Redirigiendo a inventario")
+        navigate("/inventario");
     }
 
-    if (!data?.summary?.totalPumps) return <EmptyState onAction ={handleNavigateToDashboard} />
+    if (!data?.summary?.totalPumps) return <EmptyState onAction ={handleNavigateToInventory} />
 
     if (isAuthLoading) return <StateMessage icon="🔄" text="Inicializando autenticación..."/>;
     if (!user) return <StateMessage icon="⚠️" text="No hay usuario autenticado" color="text-red-600"/>;

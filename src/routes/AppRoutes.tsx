@@ -16,7 +16,7 @@ const AboutPage = lazy(() => import('../pages/AboutPage'));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage'));
 
 // Páginas principales con lazy loading
-const PumpsPage = lazy(() => import('../features/pumps/pages/PumpsPage'));
+const InventoryPage = lazy(() => import('../features/pumps/pages/PumpsPage'));
 const InstitutionsPage = lazy(() => import('../features/institutions/pages/InstitutionsPage'));
 const ServicesPage = lazy(() => import('../features/services/pages/ServicesPage'));
 const UsersPage = lazy(() => import('../features/users/pages/UsersPage'));
@@ -56,18 +56,30 @@ const AppRoutes = () => {
                             <MainLayout />
                         </ProtectedRoute>
                     }>
-                        {/* Redirección de la raíz (/) a /dashboard para usuarios autenticados */}
-                        <Route index element={<Navigate to="/dashboard" replace />} />
+                        {/* Redirección de la raíz (/) a /inventario para usuarios autenticados */}
+                        <Route index element={<Navigate to="/inventario" replace />} />
                         <Route path="dashboard" element={<DashboardPage />} />
-                        <Route path="bombas" element={<PumpsPage />} />
-                        <Route path="modelos" element={<ModelsPage />} />
-                        <Route path="instituciones" element={<InstitutionsPage />} />
-                        <Route path="servicios" element={<ServicesPage />} />
+                        <Route path="inventario" element={<InventoryPage />} />
+                        <Route path="modelos" element={
+                            <ProtectedRoute requiredRole={['admin']}>
+                                <ModelsPage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="instituciones" element={
+                            <ProtectedRoute requiredRole={['admin']}>
+                                <InstitutionsPage />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="servicios" element={
+                            <ProtectedRoute requiredRole={['admin']}>
+                                <ServicesPage />
+                            </ProtectedRoute>
+                        } />
                         <Route path="usuarios" element={<UsersPage />} />
                         <Route path="reportes" element={<DevelopmentPage title="Reportes" />} />
                         <Route path="configuracion" element={<DevelopmentPage title="Configuración" />} />
-                        {/* Ejemplo de redirección legacy */}
-                        <Route path="equipos" element={<Navigate to="/bombas" replace />} />
+                        {/* Redirecciones legacy */}
+                        <Route path="equipos" element={<Navigate to="/inventario" replace />} />
                     </Route>
 
                     {/* Ruta 404 para cualquier otra ruta no definida */}
