@@ -1,27 +1,20 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Pump } from '../../../types';
 
-import { useCatalogLoader, usePumpWithStoreSync, useLatestInventories } from "../hooks";
+import { useCatalogLoader } from "../hooks";
 import { PumpsTable, PumpsToolbar, QRScannerModal, LatestInventoriesTable } from "../components";
+import { PageLoader } from "../../../components";
 import AddPumpModal from "../modals/AddPumpModal.tsx";
 import EditPumpModal from "../modals/EditPumpModal.tsx";
 import { DeletePumpModal } from "../modals";
+import { useLatestInventoriesStore } from '../store';
 
 
 const PumpsPage = () => {
     console.log('🚀 Renderizando PumpsPage');
-    const { remove } = usePumpWithStoreSync();
     const { loading, error } = useCatalogLoader();
-
-    // Hook para últimos inventarios
-    const {
-        latestInventories,
-        isLoading: isLoadingLatest,
-        error: latestError,
-        limit,
-        updateLimit,
-        refreshLatestInventories,
-    } = useLatestInventories();
+    const fetchLatestInventories  = useLatestInventoriesStore((state) => state.fetchLatestInventories);
+    const limit = useLatestInventoriesStore((state) => state.limit);
 
     // Estados para modales
     const [showAddModal, setShowAddModal] = useState(false);
@@ -29,12 +22,14 @@ const PumpsPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
 
-
     // Estados para operaciones CRUD
     const [selectedPump, setSelectedPump] = useState<Pump | null>(null);
     const [bombaToDelete, setPumpToDelete] = useState<Pump | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
 
+    useEffect(() => {
+        console.log('🔄 Fetching latest inventories with limit:', limit);
+        fetchLatestInventories();
+    }, []);
 
     // Handlers para QR Scanner
     const handleQRScan = useCallback(() => {
@@ -53,7 +48,7 @@ const PumpsPage = () => {
 
     const handleAddSuccess = useCallback(async () => {
         setShowAddModal(false);
-
+        fetchLatestInventories();
     }, []);
 
     const handleEdit = useCallback((bomba: Pump) => {
@@ -64,6 +59,7 @@ const PumpsPage = () => {
     const handleEditSuccess = useCallback(async () => {
         setShowEditModal(false);
         setSelectedPump(null);
+        fetchLatestInventories();
     }, []);
 
     const handleDelete = useCallback((bomba: Pump) => {
@@ -71,31 +67,40 @@ const PumpsPage = () => {
         setShowDeleteModal(true);
     }, []);
 
-    const handleConfirmDelete = useCallback(async () => {
-        if (!bombaToDelete) return;
-
-        setIsDeleting(true);
-        try {
-            await remove(bombaToDelete.id);
-            setShowDeleteModal(false);
-            setPumpToDelete(null);
-        } catch (error) {
-            console.error('Error al eliminar bomba:', error);
-        } finally {
-            setIsDeleting(false);
-        }
-    }, [bombaToDelete, remove]);
+    const handleDeleteSuccess = useCallback(() => {
+        setShowDeleteModal(false);
+        setPumpToDelete(null);
+        fetchLatestInventories();
+    }, []);
 
     const handleCancelDelete = useCallback(() => {
         setShowDeleteModal(false);
         setPumpToDelete(null);
     }, []);
 
-    if (error) return <div>Erroorroror</div>
-    if (loading) {
+    if (error) {
         return (
-            <div>Cargando data maestra ...</div>
-        )
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                <div className="text-center p-8">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+                        <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Error al cargar datos</h3>
+                    <p className="text-sm text-gray-600 mb-4">{error}</p>
+                    <button 
+                        onClick={() => window.location.reload()} 
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        );
+    }
+    if (loading) {
+        return <PageLoader />;
     }
 
 
@@ -115,15 +120,10 @@ const PumpsPage = () => {
 
             {/* Sección de Últimos Inventarios */}
             <LatestInventoriesTable
-                inventories={latestInventories}
-                isLoading={isLoadingLatest}
-                error={latestError}
-                limit={limit}
-                onLimitChange={updateLimit}
-                onRefresh={refreshLatestInventories}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />
+            
 
             {/* Modales */}
             <QRScannerModal
@@ -153,9 +153,8 @@ const PumpsPage = () => {
             <DeletePumpModal
                 isOpen={showDeleteModal}
                 onClose={handleCancelDelete}
-                onConfirm={handleConfirmDelete}
+                onSuccess={handleDeleteSuccess}
                 bomba={bombaToDelete}
-                isDeleting={isDeleting}
             />
         </div>
     );

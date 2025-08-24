@@ -1,4 +1,4 @@
-export const API_BASE = 'https://192.168.1.121:3001';
+export const API_BASE = 'http://localhost:4000';
 
 export const API_ENDPOINTS = {
   auth: {
@@ -37,8 +37,8 @@ export const API_ENDPOINTS = {
         `${API_BASE}/inventory/overdue-maintenance-by-institution/${institutionId}`,
     getByServiceIdAndInstitutionId: (serviceId: number, institutionId: number) =>
         `${API_BASE}/inventory/institution/${institutionId}/service/${serviceId}`,
-    getLastInventories: (limit: number) =>
-        `${API_BASE}/inventory/latest?limit=${limit}`,
+    getLastInventories: (limit: number, userId: number) =>
+        `${API_BASE}/inventory/latest?limit=${limit}&userId=${userId}`,
   },
   pumpModels: {
     getAll: `${API_BASE}/models`,

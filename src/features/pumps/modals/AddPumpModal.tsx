@@ -7,14 +7,13 @@ import { Button, Input, Modal, Autocomplete, Select } from '../../../components'
 import { Plus } from 'lucide-react';
 
 import { useAuth } from "../../auth/hooks";
-import { useCatalogsStore } from "../store";
+import { useCatalogsStore, usePumpStore } from "../store";
 import { bombaSchema, type BombaSchemaType } from "../schemas/pumpSchema.ts";
 import {
     transformInstitucionesForAutocomplete,
     transformModelosForSelect,
     transformServiciosForAutocomplete
 } from "../utils";
-import { usePumpWithStoreSync } from "../hooks";
 
 interface AddBombaModalProps {
     isOpen: boolean;
@@ -24,8 +23,8 @@ interface AddBombaModalProps {
 
 const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess }) => {
     const { user } = useAuth();
-    const { create, loadingAction, errorAction } = usePumpWithStoreSync();
-    const { notifySuccess } = useNotifications();
+    const { addPump, isLoading, error } = usePumpStore();
+    const { notifySuccess, notifyError } = useNotifications();
     const { institutions, services, pumpModels } = useCatalogsStore();
 
     const {
@@ -43,6 +42,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
             serviceId: 0,
             status: 'Operativo',
             lastMaintenanceDate: '',
+            manufactureDate: '',
         },
     });
 
@@ -71,25 +71,28 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
         const payload = {
             ...data,
             lastMaintenanceDate: data.lastMaintenanceDate?.trim() || undefined,
+            manufactureDate: data.manufactureDate?.trim() || undefined,
             inventoryTakerId: user.id,
             inventoryDate: now,
             createdAt: now,
         };
 
-        const result = await create(payload);
-
-        if (result) {
-            notifySuccess('Bomba registrada', `Bomba registrada correctamente con ID: ${result}`);
-            setShowConfirmClose(false); // ✅ Resetear estado de confirmación al éxito
-            reset();
-            onSuccess?.();
-            onClose();
+        try {
+            const result = await addPump(payload);
+            if (result) {
+                notifySuccess('Bomba registrada', `Bomba registrada correctamente con ID: ${result}`);
+                setShowConfirmClose(false);
+                reset();
+                onSuccess?.();
+                onClose();
+            }
+        } catch (err) {
+            notifyError('Error', 'No se pudo crear la bomba');
         }
-        // No necesitamos catch porque el hook ya maneja los errores y los muestra en errorAction
     };
 
     const handleClose = () => {
-        if (loadingAction) return;
+        if (isLoading) return;
         if (isDirty) {
             setShowConfirmClose(true);
         } else {
@@ -113,7 +116,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
             >
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     {/* Mostrar errores de la API */}
-                    {errorAction && (
+                    {error && (
                         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
                             <div className="flex">
                                 <div className="flex-shrink-0">
@@ -123,7 +126,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                                 </div>
                                 <div className="ml-3">
                                     <p className="text-sm text-red-800">
-                                        <strong>Error:</strong> {errorAction}
+                                        <strong>Error:</strong> {error}
                                     </p>
                                 </div>
                             </div>
@@ -140,7 +143,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                                     label="Número de Serie *"
                                     {...field}
                                     error={errors.serialNumber?.message}
-                                    disabled={loadingAction}
+                                    disabled={isLoading}
                                 />
                             )}
                         />
@@ -154,7 +157,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                                     label="Código QR *"
                                     {...field}
                                     error={errors.qrCode?.message}
-                                    disabled={loadingAction}
+                                    disabled={isLoading}
                                 />
                             )}
                         />
@@ -185,7 +188,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                                     </label>
                                     <select 
                                         {...field} 
-                                        disabled={loadingAction} 
+                                        disabled={isLoading} 
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
                                         <option value="Operativo">Operativo</option>
@@ -225,6 +228,21 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                             )}
                         />
 
+                        {/* Fecha de Fabricación */}
+                        <Controller
+                            control={control}
+                            name="manufactureDate"
+                            render={({ field }) => (
+                                <Input
+                                    label="Fecha de Fabricación"
+                                    type="date"
+                                    {...field}
+                                    error={errors.manufactureDate?.message}
+                                    disabled={isLoading}
+                                />
+                            )}
+                        />
+
                         {/* Fecha de mantenimiento */}
                         <Controller
                             control={control}
@@ -235,26 +253,10 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                                     type="date"
                                     {...field}
                                     error={errors.lastMaintenanceDate?.message}
-                                    disabled={loadingAction}
+                                    disabled={isLoading}
                                 />
                             )}
                         />
-
-                        {/* Campo informativo para fecha de inventario */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Fecha de Inventario
-                            </label>
-                            <Input
-                                type="date"
-                                value={new Date().toISOString().split('T')[0]}
-                                disabled={true}
-                                readOnly={true}
-                            />
-                            <p className="text-xs text-blue-600 mt-1">
-                                ℹ️ Se usa automáticamente la fecha actual (hoy) al crear la bomba
-                            </p>
-                        </div>
                     </div>
 
                     {/* Botones */}
@@ -263,12 +265,12 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                             type="button"
                             onClick={handleClose}
                             variant="secondary"
-                            disabled={loadingAction}
+                            disabled={isLoading}
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={loadingAction}>
-                            {loadingAction ? (
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? (
                                 'Guardando...'
                             ) : (
                                 <>

@@ -6,6 +6,7 @@ export const usePumpsTable = () => {
     // Selectores individuales optimizados
     const pumpData = usePumpStore((state) => state.pumpData);
     const isLoading = usePumpStore((state) => state.isLoading);
+    const error = usePumpStore((state) => state.error);
 
     // Función de formateo de fecha memoizada
     const formatDate = useCallback((dateString: string) => {
@@ -30,6 +31,7 @@ export const usePumpsTable = () => {
     return {
         pumpData,
         isLoading,
+        error,
         formatDate,
         getStatusColor
     };

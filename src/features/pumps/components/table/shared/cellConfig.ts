@@ -38,6 +38,11 @@ export const CELL_CONFIG_MAP: Record<string, CellConfig> = {
         type: 'text',
         getValue: (item) => item.service
     },
+    manufactureDate: {
+        type: 'text',
+        textProps: { textColor: 'gray-600' },
+        getValue: (item, formatDate) => formatDate!(item.manufactureDate || "")
+    },
     inventoryDate: {
         type: 'text',
         textProps: { textColor: 'gray-600' },

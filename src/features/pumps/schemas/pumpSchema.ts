@@ -8,6 +8,7 @@ export const bombaSchema = z.object({
     serviceId: z.number().min(1, 'Debe seleccionar un servicio'),
     status: z.enum(['Operativo', 'Inoperativo']),
     lastMaintenanceDate: z.string().optional().or(z.literal('')),
+    manufactureDate: z.string().optional().or(z.literal('')),
 });
 
 export type BombaSchemaType = z.infer<typeof bombaSchema>;

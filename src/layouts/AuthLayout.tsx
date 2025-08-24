@@ -59,8 +59,8 @@ const AuthLayout: React.FC = () => {
       </div>
 
       {/* Right side - Auth form */}
-      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 min-h-screen">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-14 xl:px-18 min-h-screen">
+        <div className="mx-auto w-full max-w-lg lg:w-140">
           {/* Mobile header - Only visible on small screens */}
           <div className="lg:hidden text-center mb-8">
             <div className="flex justify-center items-center mb-6">

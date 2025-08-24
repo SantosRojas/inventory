@@ -1,50 +1,50 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo} from 'react';
 import type { Pump } from '../../../types';
 import { PumpsTableDesktop, PumpsTableMobile, LoadingState, usePumpsTable } from './table';
+import { useLatestInventoriesStore } from '../store';
+import { useAuthStore } from '../../auth/store/store';
 
 interface LatestInventoriesTableProps {
-  inventories: Pump[];
-  isLoading: boolean;
-  error: string | null;
-  limit: number;
-  onLimitChange: (limit: number) => void;
-  onRefresh: () => void;
   onEdit: (pump: Pump) => void;
   onDelete: (pump: Pump) => void;
 }
 
 const LatestInventoriesTable = memo(({
-  inventories,
-  isLoading,
-  error,
-  limit,
-  onLimitChange,
-  onRefresh,
   onEdit,
   onDelete,
 }: LatestInventoriesTableProps) => {
-  const { formatDate, getStatusColor } = usePumpsTable();
-  
-  // Estado local para el input - evita renders innecesarios
-  const [localLimit, setLocalLimit] = useState(limit.toString());
+  // Hook interno para manejar los datos
+  const {
+    latestInventories,
+    isLoading,
+    error,
+    limit,
+    updateLimit,
+    fetchLatestInventories,
+  } = useLatestInventoriesStore();
+  const { token, user } = useAuthStore();
 
-  // Sincronizar el estado local cuando cambie el limit global
-  useEffect(() => {
-    setLocalLimit(limit.toString());
-  }, [limit]);
+  const { formatDate, getStatusColor } = usePumpsTable();
 
   const handleLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Solo actualiza el estado local, no el global
-    setLocalLimit(e.target.value);
+   
+    const newLimit = parseInt(e.target.value);
+    if (!isNaN(newLimit) && newLimit > 0 && newLimit <= 100) {
+      updateLimit(newLimit);
+      console.log('✅ Límite actualizado a:', newLimit);
+    }
   };
 
   const handleRefresh = () => {
     // Actualiza el estado global y ejecuta la búsqueda
-    const newLimit = parseInt(localLimit);
-    if (!isNaN(newLimit) && newLimit > 0 && newLimit <= 100) {
-      onLimitChange(newLimit);
+    console.log("actualizando listado")
+    if (token && user && user.id) {
+      fetchLatestInventories(
+        limit,
+        user.id,
+        token
+      );
     }
-    onRefresh();
   };
 
   if (error) {
@@ -64,6 +64,11 @@ const LatestInventoriesTable = memo(({
     );
   }
 
+  // No renderizar si no hay datos y no está cargando
+  if (!isLoading && latestInventories.length === 0) {
+    return null;
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header con controles */}
@@ -72,10 +77,7 @@ const LatestInventoriesTable = memo(({
           <div>
             <h3 className="text-lg font-semibold text-gray-900">📋 Últimos Inventarios</h3>
             <p className="text-sm text-gray-600 mt-1">
-              {isLoading ? 'Cargando...' : `Mostrando los últimos ${inventories.length} inventarios registrados`}
-              {!isLoading && inventories.length > 0 && (
-                <span className="text-gray-500"> • Presiona "Actualizar" para aplicar cambios en el límite</span>
-              )}
+              {isLoading ? 'Cargando...' : `Mostrando los últimos ${latestInventories.length} inventarios registrados`}
             </p>
           </div>
           
@@ -89,7 +91,7 @@ const LatestInventoriesTable = memo(({
                 type="number"
                 min="1"
                 max="100"
-                value={localLimit}
+                value={limit}
                 onChange={handleLimitChange}
                 className="w-20 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 disabled={isLoading}
@@ -111,7 +113,7 @@ const LatestInventoriesTable = memo(({
       {/* Contenido de la tabla */}
       {isLoading ? (
         <LoadingState />
-      ) : inventories.length === 0 ? (
+      ) : latestInventories.length === 0 ? (
         <div className="p-8 text-center">
           <div className="text-gray-400 text-lg mb-2">📭</div>
           <div className="text-gray-600 font-medium">No hay inventarios registrados</div>
@@ -120,7 +122,7 @@ const LatestInventoriesTable = memo(({
       ) : (
         <>
           <PumpsTableDesktop
-            pumpData={inventories}
+            pumpData={latestInventories}
             formatDate={formatDate}
             getStatusColor={getStatusColor}
             onEdit={onEdit}
@@ -128,7 +130,7 @@ const LatestInventoriesTable = memo(({
           />
           
           <PumpsTableMobile
-            pumpData={inventories}
+            pumpData={latestInventories}
             formatDate={formatDate}
             getStatusColor={getStatusColor}
             onEdit={onEdit}

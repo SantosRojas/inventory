@@ -122,13 +122,6 @@ const LoginPage: React.FC = () => {
                         <span className="px-2 bg-white text-gray-500">Credenciales de prueba</span>
                     </div>
                 </div>
-
-                <div className="mt-3 text-center">
-                    <div className="text-xs text-gray-500 space-y-1">
-                        <p><strong>Email:</strong> admin@hospital.com</p>
-                        <p><strong>Contraseña:</strong> admin123</p>
-                    </div>
-                </div>
             </div>
         </div>
     );

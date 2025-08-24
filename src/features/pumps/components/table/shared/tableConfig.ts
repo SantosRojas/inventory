@@ -40,6 +40,11 @@ export const TABLE_COLUMNS: ColumnConfig[] = [
         width: 'w-[110px]'
     },
     {
+        key: 'manufactureDate',
+        title: 'Fecha Fabricación',
+        width: 'w-[110px]'
+    },
+    {
         key: 'inventoryDate',
         title: 'Fecha Inventario',
         width: 'w-[100px]'
@@ -65,7 +70,7 @@ export const TABLE_COLUMNS: ColumnConfig[] = [
 
 // Configuración de campos para vista móvil
 export interface MobileFieldConfig {
-    key: keyof import('../../../../../types').Pump | 'inventoryDate' | 'lastMaintenanceDate';
+    key: keyof import('../../../../../types').Pump | 'manufactureDate' | 'inventoryDate' | 'lastMaintenanceDate';
     label: string;
     isMono?: boolean;
     isDate?: boolean;
@@ -88,6 +93,11 @@ export const MOBILE_FIELDS: MobileFieldConfig[] = [
     {
         key: 'inventoryManager',
         label: 'Responsable'
+    },
+    {
+        key: 'manufactureDate',
+        label: 'Fecha Fabricación',
+        isDate: true
     },
     {
         key: 'inventoryDate',

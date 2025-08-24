@@ -44,6 +44,7 @@ export interface Pump {
     serialNumber: string;
     qrCode: string;
     inventoryDate: string; // La API retorna strings ISO
+    manufactureDate?: string; // Fecha de fabricación
     status: PumpStatus;
     lastMaintenanceDate?: string | null; // La API retorna strings ISO o null
     createdAt: string; // La API retorna strings ISO
@@ -65,6 +66,7 @@ export interface CreatePump {
     serviceId: number;
     status: 'Operativo' | 'Inoperativo';
     lastMaintenanceDate?: string; // Solo string, sin null - es opcional
+    manufactureDate?: string; // Fecha de fabricación
     inventoryTakerId: number;
     inventoryDate: string;
     createdAt: string; // Fecha de creación obligatoria en camelCase
@@ -81,6 +83,7 @@ export interface UpdatePump {
     lastMaintenanceDate?: string; // Solo string, sin null
     inventoryTakerId?: number;
     inventoryDate?: string;
+    manufactureDate?: string;
 }
 
 // Interfaces para Dashboard y estadísticas (globales)

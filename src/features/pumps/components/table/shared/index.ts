@@ -4,6 +4,7 @@ export { default as TextCell } from './TextCell';
 export { default as StatusCell } from './StatusCell';
 export { default as ActionsCell } from './ActionsCell';
 export { default as SmartCell } from './SmartCell';
+export { default as ErrorSearchPump } from './ErrorSearchPump';
 
 // State components
 export { default as LoadingState } from './LoadingState';

@@ -5,7 +5,7 @@ import type { Pump, UpdatePump } from '../../../types';
 import { useNotifications } from '../../../hooks/useNotifications';
 import { useCatalogsStore } from "../store";
 import { useAuth } from '../../auth/hooks';
-import { usePumpWithStoreSync } from "../hooks";
+import { usePumpStore } from "../store";
 import { transformInstitucionesForAutocomplete, transformModelosForSelect, transformServiciosForAutocomplete } from "../utils";
 interface EditBombaModalProps {
     isOpen: boolean;
@@ -16,8 +16,8 @@ interface EditBombaModalProps {
 
 const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSuccess, bomba }) => {
     const { user } = useAuth();
-    const { update, loadingAction, errorAction } = usePumpWithStoreSync();
-    const { notifySuccess } = useNotifications();
+    const { updatePump, isLoading, error } = usePumpStore();
+    const { notifySuccess, notifyError } = useNotifications();
     const {
         institutions,
         services,
@@ -25,7 +25,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
     } = useCatalogsStore();
 
     // Verificar si el user es admin
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === 'admin' || user?.role === 'root';
 
     const [formData, setFormData] = useState<UpdatePump>({
         serialNumber: '',
@@ -35,7 +35,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         serviceId: 0,
         status: 'Operativo',
         lastMaintenanceDate: '',
-        inventoryDate: '',
+        manufactureDate: '',
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -76,7 +76,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                 serviceId: servicioEncontrado?.id || 0,
                 status: bomba.status || 'Operativo',
                 lastMaintenanceDate: formatDateForInputLocal(bomba.lastMaintenanceDate),
-                inventoryDate: formatDateForInputLocal(bomba.inventoryDate),
+                manufactureDate: formatDateForInputLocal(bomba.manufactureDate),
             });
         }
     }, [bomba, isOpen, pumpModels, institutions, services]);
@@ -94,10 +94,23 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
 
         const modeloOriginal = pumpModels.find(m => m.name === bomba.model);
 
-        // Verificar cambios en campos que todos pueden editar
-        const commonFieldsChanged = (
+        // Verificar cambios en campos que solo admin puede editar
+        const adminOnlyFieldsChanged = (
             formData.serialNumber !== (bomba.serialNumber || '') ||
             formData.modelId !== (modeloOriginal?.id || 0)
+        );
+
+        // Verificar cambios en campos que todos pueden editar
+        const institucionOriginal = institutions.find(i => i.name === bomba.institution);
+        const servicioOriginal = services.find(s => s.name === bomba.service);
+
+        const commonFieldsChanged = (
+            formData.qrCode !== (bomba.qrCode || '') ||
+            formData.institutionId !== (institucionOriginal?.id || 0) ||
+            formData.serviceId !== (servicioOriginal?.id || 0) ||
+            formData.status !== (bomba.status || 'Operativo') ||
+            formData.lastMaintenanceDate !== formatDateForInputLocal(bomba.lastMaintenanceDate) ||
+            formData.manufactureDate !== formatDateForInputLocal(bomba.manufactureDate)
         );
 
         // Si el user no es admin, solo considerar campos que puede editar
@@ -106,19 +119,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         }
 
         // Si es admin, verificar todos los campos
-        const institucionOriginal = institutions.find(i => i.name === bomba.institution);
-        const servicioOriginal = services.find(s => s.name === bomba.service);
-
-        const adminFieldsChanged = (
-            formData.qrCode !== (bomba.qrCode || '') ||
-            formData.institutionId !== (institucionOriginal?.id || 0) ||
-            formData.serviceId !== (servicioOriginal?.id || 0) ||
-            formData.status !== (bomba.status || 'Operativo') ||
-            formData.lastMaintenanceDate !== formatDateForInputLocal(bomba.lastMaintenanceDate) ||
-            formData.inventoryDate !== formatDateForInputLocal(bomba.inventoryDate)
-        );
-
-        return commonFieldsChanged || adminFieldsChanged;
+        return adminOnlyFieldsChanged || commonFieldsChanged;
     };
 
     const handleInputChange = (field: keyof typeof formData, value: string | number | undefined) => {
@@ -139,9 +140,9 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
 
     // Campos requeridos según el rol del usuario
     const getRequiredFields = () => {
-        const commonFields = ['serialNumber', 'modelId'];
-        const adminFields = ['qrCode', 'institutionId', 'serviceId']; // Removí inventoryDate
-        return isAdmin ? [...commonFields, ...adminFields] : commonFields;
+        const commonFields = ['qrCode', 'institutionId', 'serviceId']; // Campos que todos pueden editar
+        const adminOnlyFields = ['serialNumber', 'modelId']; // Solo admins pueden editar estos
+        return isAdmin ? [...commonFields, ...adminOnlyFields] : commonFields;
     };
 
     const validateForm = (): boolean => {
@@ -175,38 +176,44 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
 
         // Preparar los datos para actualización basados en los permisos del user
         const updateData: UpdatePump = {
-            serialNumber: formData.serialNumber,
-            modelId: formData.modelId,
+            // Campos que todos pueden editar
+            qrCode: formData.qrCode,
+            institutionId: formData.institutionId,
+            serviceId: formData.serviceId,
+            status: formData.status,
+            
+            // Usar siempre la fecha actual para inventoryDate
+            inventoryDate: new Date().toISOString().split('T')[0],
         };
+
+        // Incluir manufactureDate si tiene un valor válido
+        if (formData.manufactureDate && formData.manufactureDate.trim()) {
+            updateData.manufactureDate = formData.manufactureDate;
+        }
+
+        // Solo incluir lastMaintenanceDate si tiene un valor válido
+        if (formData.lastMaintenanceDate && formData.lastMaintenanceDate.trim()) {
+            updateData.lastMaintenanceDate = formData.lastMaintenanceDate;
+        }
 
         // Solo admins pueden actualizar estos campos
         if (isAdmin) {
-            updateData.qrCode = formData.qrCode;
-            updateData.institutionId = formData.institutionId;
-            updateData.serviceId = formData.serviceId;
-            updateData.status = formData.status;
-            
-            // Usar siempre la fecha actual para inventoryDate
-            updateData.inventoryDate = new Date().toISOString().split('T')[0];
-
-            // Solo incluir lastMaintenanceDate si tiene un valor válido
-            if (formData.lastMaintenanceDate && formData.lastMaintenanceDate.trim()) {
-                updateData.lastMaintenanceDate = formData.lastMaintenanceDate;
-            }
+            updateData.serialNumber = formData.serialNumber;
+            updateData.modelId = formData.modelId;
         }
 
-        const result = await update(bomba.id, updateData);
-
-        if (result) {
+        try {
+            await updatePump(bomba.id, updateData);
             notifySuccess('Bomba actualizada', 'La bomba se ha actualizado correctamente');
             onSuccess?.();
             onClose();
+        } catch (err) {
+            notifyError('Error', 'No se pudo actualizar la bomba');
         }
-        // No necesitamos catch porque el hook ya maneja los errores y los muestra en errorAction
     };
 
     const handleClose = () => {
-        if (!loadingAction) {
+        if (!isLoading) {
             // Si hay cambios en el formulario, mostrar confirmación
             if (hasFormChanges() && !showConfirmClose) {
                 setShowConfirmClose(true);
@@ -229,7 +236,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             serviceId: 0,
             status: 'Operativo',
             lastMaintenanceDate: '',
-            inventoryDate: '',
+            manufactureDate: '',
         });
         setErrors({});
     };
@@ -268,8 +275,8 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                             </div>
                             <div className="ml-3">
                                 <p className="text-sm text-blue-800">
-                                    <strong>Permisos limitados:</strong> Solo puedes editar el número de serie y el modelo.
-                                    Los demás campos requieren permisos de administrador.
+                                    <strong>Permisos limitados:</strong> Solo los administradores pueden editar el número de serie y el modelo.
+                                    Puedes editar todos los demás campos.
                                 </p>
                             </div>
                         </div>
@@ -278,7 +285,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Mostrar errores de la API */}
-                    {errorAction && (
+                    {error && (
                         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
                             <div className="flex">
                                 <div className="flex-shrink-0">
@@ -288,7 +295,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                                 </div>
                                 <div className="ml-3">
                                     <p className="text-sm text-red-800">
-                                        <strong>Error:</strong> {errorAction}
+                                        <strong>Error:</strong> {error}
                                     </p>
                                 </div>
                             </div>
@@ -296,10 +303,10 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Número de Serie - Editable por todos */}
+                        {/* Número de Serie - Solo admin */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Número de Serie *
+                                Número de Serie * {!isAdmin && <span className="text-sm text-gray-500">(Solo lectura)</span>}
                             </label>
                             <Input
                                 type="text"
@@ -308,14 +315,20 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                                 onChange={(e) => handleInputChange('serialNumber', e.target.value)}
                                 placeholder="Ingrese el número de serie"
                                 error={errors.serialNumber}
-                                disabled={loadingAction}
+                                disabled={isLoading || !isAdmin}
+                                readOnly={!isAdmin}
                             />
+                            {!isAdmin && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Solo los administradores pueden editar este campo
+                                </p>
+                            )}
                         </div>
 
-                        {/* Código QR - Solo admin */}
+                        {/* Código QR - Editable por todos */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Código QR * {!isAdmin && <span className="text-sm text-gray-500">(Solo lectura)</span>}
+                                Código QR *
                             </label>
                             <Input
                                 type="text"
@@ -324,17 +337,11 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                                 onChange={(e) => handleInputChange('qrCode', e.target.value)}
                                 placeholder="Ingrese el código QR"
                                 error={errors.qrCode}
-                                disabled={loadingAction || !isAdmin}
-                                readOnly={!isAdmin}
+                                disabled={isLoading}
                             />
-                            {!isAdmin && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Solo los administradores pueden editar este campo
-                                </p>
-                            )}
                         </div>
 
-                        {/* Modelo - Editable por todos */}
+                        {/* Modelo - Solo admin */}
                         <div>
                             <Select
                                 items={transformModelosForSelect(pumpModels && pumpModels.length > 0 ? pumpModels : [
@@ -343,16 +350,21 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                                 ])}
                                 value={formData.modelId || 0}
                                 onChange={(value) => handleInputChange('modelId', value as number)}
-                                label="Modelo *"
+                                label={`Modelo * ${!isAdmin ? '(Solo lectura)' : ''}`}
                                 placeholder="Seleccione un modelo"
                                 formatOption={(modelo) => `${modelo.name} - ${modelo.code}`}
                                 emptyMessage="No hay modelos disponibles"
                                 error={errors.modelId}
-                                disabled={loadingAction}
+                                disabled={isLoading || !isAdmin}
                             />
+                            {!isAdmin && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Solo los administradores pueden editar este campo
+                                </p>
+                            )}
                         </div>
 
-                        {/* Institución - Solo admin */}
+                        {/* Institución - Editable por todos */}
                         <div>
                             <Autocomplete
                                 id="edit-institution-autocomplete"
@@ -360,21 +372,15 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                                 items={transformInstitucionesForAutocomplete(institutions)}
                                 value={formData.institutionId || 0}
                                 onChange={(value) => handleInputChange('institutionId', value)}
-                                label={`Institución * ${!isAdmin ? '(Solo lectura)' : ''}`}
+                                label="Institución *"
                                 placeholder="Seleccione una institución"
                                 emptyMessage="No se encontraron instituciones"
                                 error={errors.institutionId}
-                                disabled={loadingAction || !isAdmin}
-                                readOnly={!isAdmin}
+                                disabled={isLoading}
                             />
-                            {!isAdmin && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Solo los administradores pueden editar este campo
-                                </p>
-                            )}
                         </div>
 
-                        {/* Servicio - Solo admin */}
+                        {/* Servicio - Editable por todos */}
                         <div>
                             <Autocomplete
                                 id="edit-service-autocomplete"
@@ -382,86 +388,58 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                                 items={transformServiciosForAutocomplete(services)}
                                 value={formData.serviceId || 0}
                                 onChange={(value) => handleInputChange('serviceId', value)}
-                                label={`Servicio * ${!isAdmin ? '(Solo lectura)' : ''}`}
+                                label="Servicio *"
                                 placeholder="Seleccione un servicio"
                                 emptyMessage="No se encontraron servicios"
                                 error={errors.serviceId}
-                                disabled={loadingAction || !isAdmin}
-                                readOnly={!isAdmin}
+                                disabled={isLoading}
                             />
-                            {!isAdmin && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Solo los administradores pueden editar este campo
-                                </p>
-                            )}
                         </div>
 
-                        {/* Estado - Solo admin */}
+                        {/* Estado - Editable por todos */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Estado * {!isAdmin && <span className="text-sm text-gray-500">(Solo lectura)</span>}
+                                Estado *
                             </label>
                             <select
                                 id="edit-bomba-status"
                                 name="status"
                                 value={formData.status || 'Operativo'}
                                 onChange={(e) => handleInputChange('status', e.target.value as 'Operativo' | 'Inoperativo')}
-                                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${!isAdmin ? 'bg-gray-100 cursor-not-allowed' : ''
-                                    }`}
-                                disabled={loadingAction || !isAdmin}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                disabled={isLoading}
                             >
                                 <option value="Operativo">Operativo</option>
                                 <option value="Inoperativo">Inoperativo</option>
                             </select>
-                            {!isAdmin && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Solo los administradores pueden editar este campo
-                                </p>
-                            )}
                         </div>
 
-                        {/* Fecha de Inventario - Solo admin */}
+                        {/* Fecha de Fabricación - Editable por todos */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Fecha de Inventario {!isAdmin && <span className="text-sm text-gray-500">(Solo lectura)</span>}
+                                Fecha de Fabricación
                             </label>
                             <Input
                                 type="date"
-                                name="inventoryDate"
-                                value={new Date().toISOString().split('T')[0]} // Mostrar fecha actual
-                                onChange={(e) => handleInputChange('inventoryDate', e.target.value)}
-                                disabled={true} // Siempre deshabilitado ya que se usa fecha actual
-                                readOnly={true}
+                                name="manufactureDate"
+                                value={formData.manufactureDate || ''}
+                                onChange={(e) => handleInputChange('manufactureDate', e.target.value)}
+                                disabled={isLoading}
                             />
-                            {isAdmin ? (
-                                <p className="text-xs text-blue-600 mt-1">
-                                    ℹ️ Se usa automáticamente la fecha actual (hoy) al guardar cambios
-                                </p>
-                            ) : (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Solo los administradores pueden editar este campo
-                                </p>
-                            )}
                         </div>
 
-                        {/* Última Fecha de Mantenimiento - Solo admin */}
+                        {/* Última Fecha de Mantenimiento - Editable por todos */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Última Fecha de Mantenimiento {!isAdmin && <span className="text-sm text-gray-500">(Solo lectura)</span>}
+                                Última Fecha de Mantenimiento
                             </label>
                             <Input
                                 type="date"
                                 name="lastMaintenanceDate"
                                 value={formData.lastMaintenanceDate || ''}
                                 onChange={(e) => handleInputChange('lastMaintenanceDate', e.target.value || '')}
-                                disabled={loadingAction || !isAdmin}
-                                readOnly={!isAdmin}
+                                disabled={isLoading}
                             />
-                            {!isAdmin && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Solo los administradores pueden editar este campo
-                                </p>
-                            )}
                         </div>
                     </div>
 
@@ -471,7 +449,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                             type="button"
                             variant="secondary"
                             onClick={handleClose}
-                            disabled={loadingAction}
+                            disabled={isLoading}
                         >
                             Cancelar
                         </Button>
@@ -479,9 +457,9 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                             type="submit"
                             variant="primary"
                             icon={Save}
-                            disabled={loadingAction}
+                            disabled={isLoading}
                         >
-                            {loadingAction ? 'Guardando...' : 'Guardar Cambios'}
+                            {isLoading ? 'Guardando...' : 'Guardar Cambios'}
                         </Button>
                     </div>
                 </form>

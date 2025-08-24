@@ -40,7 +40,7 @@ const RegisterPage: React.FC = () => {
                 <p className="text-sm text-gray-600">
                     ¿Ya tienes una cuenta?{' '}
                     <Link
-                        to="/login"
+                        to="/auth/login"
                         className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
                     >
                         Inicia sesión aquí

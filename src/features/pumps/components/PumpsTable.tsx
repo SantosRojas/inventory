@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import type { Pump } from '../../../types';
-import { PumpsTableDesktop, PumpsTableMobile, LoadingState, EmptyTableState, usePumpsTable } from './table';
+import { PumpsTableDesktop, PumpsTableMobile, LoadingState, EmptyTableState, usePumpsTable, ErrorSearchPump } from './table';
 
 interface PumpsTableProps {
-    onEdit:  (pump: Pump) => void;
+    onEdit: (pump: Pump) => void;
     onDelete: (pump: Pump) => void;
 }
 
@@ -11,14 +11,35 @@ const PumpsTable = memo(({
     onEdit,
     onDelete,
 }: PumpsTableProps) => {
-    const { pumpData, isLoading, formatDate, getStatusColor } = usePumpsTable();
+    const { pumpData, isLoading, error, formatDate, getStatusColor } = usePumpsTable();
 
-    if(isLoading) {
+    const defaultIcon = (
+        <svg
+            className="mx-auto h-14 w-14 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7"
+            />
+        </svg>
+    );
+
+
+    if (isLoading) {
         return <LoadingState />;
     }
 
-    if(!pumpData || pumpData.length === 0) {
-        return <EmptyTableState />;
+    if (error) {
+        return <ErrorSearchPump />;
+    }
+
+    if (!pumpData || (pumpData.length === 0)) {
+        return <EmptyTableState icon={defaultIcon} />;
     }
 
     return (
@@ -31,7 +52,7 @@ const PumpsTable = memo(({
                     onEdit={onEdit}
                     onDelete={onDelete}
                 />
-                
+
                 <PumpsTableMobile
                     pumpData={pumpData}
                     formatDate={formatDate}

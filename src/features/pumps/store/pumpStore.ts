@@ -89,6 +89,7 @@ export const usePumpStore = create<PumpState>((set) => ({
     const successDeletePump = await deletePump(id);
 
     if (successDeletePump) {
+      console.log("Pump deleted successfully");
       set((state) => ({
         pumpData: state.pumpData
           ? state.pumpData.filter((pump) => pump.id !== id)

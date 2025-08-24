@@ -8,7 +8,7 @@ interface EmptyTableStateProps {
 }
 
 const EmptyTableState = memo(({ 
-    title = "No se encontraron bombas", 
+    title = "Aqui se mostraran los resultados de su busqueda", 
     message = "Intente buscar por serie o qr.",
     icon
 }: EmptyTableStateProps) => {

@@ -2,22 +2,43 @@ import React from 'react';
 import { Button, Modal } from '../../../components';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import type { Pump } from '../../../types';
+import { usePumpStore } from '../store';
+import { useNotifications } from '../../../hooks/useNotifications';
 
 interface DeleteBombaModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: () => void;
+    onSuccess?: () => void;
     bomba: Pump | null;
-    isDeleting?: boolean;
 }
 
 const DeletePumpModal: React.FC<DeleteBombaModalProps> = ({
                                                                isOpen,
                                                                onClose,
-                                                               onConfirm,
+                                                               onSuccess,
                                                                bomba,
-                                                               isDeleting = false
                                                            }) => {
+    const { removePump, isLoading } = usePumpStore();
+    const { notifySuccess, notifyError } = useNotifications();
+
+    const handleConfirmDelete = async () => {
+        if (!bomba) return;
+
+        try {
+            const success = await removePump(bomba.id);
+            if (success) {
+                notifySuccess('Bomba eliminada', `La bomba ${bomba.serialNumber} ha sido eliminada correctamente`);
+                onSuccess?.();
+                onClose();
+            } else {
+                notifyError('Error', 'No se pudo eliminar la bomba');
+            }
+        } catch (error) {
+            console.error('Error al eliminar bomba:', error);
+            notifyError('Error', 'Ocurrió un error al eliminar la bomba');
+        }
+    };
+
     if (!isOpen || !bomba) return null;
 
     return (
@@ -85,7 +106,7 @@ const DeletePumpModal: React.FC<DeleteBombaModalProps> = ({
                         type="button"
                         variant="secondary"
                         onClick={onClose}
-                        disabled={isDeleting}
+                        disabled={isLoading}
                     >
                         Cancelar
                     </Button>
@@ -93,11 +114,11 @@ const DeletePumpModal: React.FC<DeleteBombaModalProps> = ({
                         type="button"
                         variant="primary"
                         icon={Trash2}
-                        onClick={onConfirm}
-                        disabled={isDeleting}
+                        onClick={handleConfirmDelete}
+                        disabled={isLoading}
                         className="bg-red-600 hover:bg-red-700 focus:ring-red-500"
                     >
-                        {isDeleting ? 'Eliminando...' : 'Eliminar Bomba'}
+                        {isLoading ? 'Eliminando...' : 'Eliminar Bomba'}
                     </Button>
                 </div>
             </div>

@@ -22,6 +22,8 @@ const PumpsTableMobileCard = memo(({
     // Función helper para obtener el valor del campo
     const getFieldValue = (fieldKey: string) => {
         switch (fieldKey) {
+            case 'manufactureDate':
+                return formatDate(item.manufactureDate || "");
             case 'inventoryDate':
                 return formatDate(item.inventoryDate);
             case 'lastMaintenanceDate':
