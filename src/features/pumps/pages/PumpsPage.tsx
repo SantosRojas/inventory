@@ -34,11 +34,6 @@ const PumpsPage = () => {
         setShowQRModal(true);
     }, []);
 
-    const handleQRResult = useCallback((result: string) => {
-        console.log('📱 Código QR escaneado:', result);
-        setShowQRModal(false);
-    }, []);
-
     // Handlers para operaciones CRUD
     const handleAdd = useCallback(() => {
         setShowAddModal(true);
@@ -127,7 +122,6 @@ const PumpsPage = () => {
             <QRScannerModal
                 isOpen={showQRModal}
                 onClose={() => setShowQRModal(false)}
-                onScan={handleQRResult}
             />
 
             <AddPumpModal
