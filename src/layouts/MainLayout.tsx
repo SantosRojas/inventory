@@ -62,7 +62,7 @@ const Sidebar = ({
       <div className="flex items-center justify-between h-16 px-4 bg-gray-900">
         <div className="flex items-center space-x-2 text-white">
           <Activity className="h-6 w-6" />
-          {!collapsed && <span className="font-semibold text-base">InventarioMed</span>}
+          {!collapsed && <span className="font-semibold text-base">InventarioApp</span>}
         </div>
         {!isMobile && (
           <button

@@ -1,8 +1,11 @@
 {
-  "name": "inventory",
+  "name": "inventario-app",
+  "description": "Sistema de gestión de inventario de bombas con escáner QR",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "keywords": ["inventario", "bombas", "QR", "gestión", "react", "typescript"],
+  "author": "InventarioApp Team",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

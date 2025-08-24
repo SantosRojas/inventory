@@ -12,7 +12,7 @@ const AuthLayout: React.FC = () => {
           <div className="flex justify-center mb-8">
             <div className="flex items-center">
               <Activity className="h-12 w-12 text-white" />
-              <span className="ml-3 text-3xl font-bold text-white">B|BRAUN</span>
+              <span className="ml-3 text-3xl font-bold text-white">InventarioApp</span>
             </div>
           </div>
           
@@ -21,7 +21,7 @@ const AuthLayout: React.FC = () => {
           </h1>
           
           <p className="text-xl text-blue-100 mb-8">
-            Optimiza el control y la administración de bombas de infusión con eficiencia y precisión.
+            Controla y administra tu inventario de bombas con tecnología QR y gestión inteligente.
           </p>
           
           <div className="space-y-4 text-blue-100">
@@ -65,14 +65,14 @@ const AuthLayout: React.FC = () => {
           <div className="lg:hidden text-center mb-8">
             <div className="flex justify-center items-center mb-6">
               <Activity className="h-10 w-10 text-blue-600" />
-              <span className="ml-3 text-2xl font-bold text-gray-900">B|BRAUN</span>
+              <span className="ml-3 text-2xl font-bold text-gray-900">InventarioApp</span>
             </div>
             <div className="px-4">
               <h1 className="text-lg font-semibold text-gray-900 mb-2">
                 Sistema de Inventario
               </h1>
               <p className="text-sm text-gray-600">
-                Gestión eficiente de bombas de infusión
+                Gestión inteligente con tecnología QR
               </p>
             </div>
           </div>

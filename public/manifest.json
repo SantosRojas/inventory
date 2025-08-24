@@ -1,0 +1,22 @@
+{
+  "name": "InventarioApp - Gestión de Bombas",
+  "short_name": "InventarioApp",
+  "description": "Sistema completo para la gestión y control de inventario de equipos de bombeo con tecnología QR",
+  "theme_color": "#3B82F6",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/inventory-favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "es",
+  "dir": "ltr"
+}
