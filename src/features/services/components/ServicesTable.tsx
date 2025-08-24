@@ -1,161 +1,180 @@
-import { memo, useCallback } from 'react';
-import { Edit, Trash2, Settings } from 'lucide-react';
-import type { ServiceExtended } from '../types';
+import { memo, useCallback } from "react";
+import { Edit, Trash2, Settings } from "lucide-react";
+import type { ServiceExtended } from "../types";
 
 interface ServicesTableProps {
-    services: ServiceExtended[];
-    onEdit: (service: ServiceExtended) => void;
-    onDelete: (service: ServiceExtended) => void;
-    isLoading?: boolean;
+  services: ServiceExtended[];
+  onEdit: (service: ServiceExtended) => void;
+  onDelete: (service: ServiceExtended) => void;
+  isLoading?: boolean;
 }
 
-// Componente de fila memoizado para evitar re-renders innecesarios
-const ServiceRow = memo(({ 
-    service, 
-    onEdit, 
-    onDelete 
-}: {
+/* ----------------------------
+ *  Loading State
+ * ---------------------------- */
+const LoadingState = () => (
+  <div className="rounded-xl shadow-sm border bg-card border-[var(--color-border)] p-6">
+    <div className="animate-pulse space-y-4">
+      <div className="h-4 rounded w-1/4 bg-secondary"></div>
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="h-12 rounded bg-secondary"></div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+/* ----------------------------
+ *  Empty State
+ * ---------------------------- */
+const EmptyState = () => (
+  <div className="rounded-xl shadow-sm border bg-card border-[var(--color-border)] p-8 text-center">
+    <Settings className="mx-auto h-12 w-12 text-muted" />
+    <h3 className="mt-2 text-sm font-medium text-primary">No hay servicios</h3>
+    <p className="mt-1 text-sm text-secondary">
+      Comienza agregando un nuevo servicio.
+    </p>
+  </div>
+);
+
+/* ----------------------------
+ *  Desktop Row
+ * ---------------------------- */
+const ServiceRow = memo(
+  ({
+    service,
+    onEdit,
+    onDelete,
+  }: {
     service: ServiceExtended;
     onEdit: (service: ServiceExtended) => void;
     onDelete: (service: ServiceExtended) => void;
-}) => {
+  }) => {
     const handleEdit = useCallback(() => onEdit(service), [onEdit, service]);
     const handleDelete = useCallback(() => onDelete(service), [onDelete, service]);
 
     return (
-        <tr className="hover:bg-gray-50">
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">
-                    {service.name}
-                </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div className="flex justify-end space-x-2">
-                    <button
-                        onClick={handleEdit}
-                        className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
-                        title="Editar servicio"
-                        aria-label={`Editar ${service.name}`}
-                    >
-                        <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
-                        title="Eliminar servicio"
-                        aria-label={`Eliminar ${service.name}`}
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </button>
-                </div>
-            </td>
-        </tr>
+      <tr className="hover:bg-gray-50 transition-colors bg-card">
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className="text-sm font-medium text-primary">{service.name}</span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={handleEdit}
+              className="p-1 rounded transition-all duration-200 hover:scale-105 text-[var(--color-primary)] bg-[var(--color-primary-light)]"
+              title="Editar servicio"
+              aria-label={`Editar ${service.name}`}
+            >
+              <Edit className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleDelete}
+              className="p-1 rounded transition-all duration-200 hover:scale-105 text-[var(--color-error)] bg-[var(--color-error-light)]"
+              title="Eliminar servicio"
+              aria-label={`Eliminar ${service.name}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
     );
-});
+  }
+);
+ServiceRow.displayName = "ServiceRow";
 
-ServiceRow.displayName = 'ServiceRow';
+/* ----------------------------
+ *  Mobile Card
+ * ---------------------------- */
+const MobileServiceCard = ({
+  service,
+  onEdit,
+  onDelete,
+}: {
+  service: ServiceExtended;
+  onEdit: (service: ServiceExtended) => void;
+  onDelete: (service: ServiceExtended) => void;
+}) => (
+  <div className="p-4 space-y-3 hover:bg-gray-50 transition-colors bg-card">
+    <div className="flex justify-between items-start">
+      <h3 className="text-sm font-medium text-primary">{service.name}</h3>
+      <div className="flex space-x-2 ml-4">
+        <button
+          onClick={() => onEdit(service)}
+          className="p-2 rounded transition-all duration-200 hover:scale-105 text-[var(--color-primary)] bg-[var(--color-primary-light)]"
+          title="Editar"
+        >
+          <Edit className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => onDelete(service)}
+          className="p-2 rounded transition-all duration-200 hover:scale-105 text-[var(--color-error)] bg-[var(--color-error-light)]"
+          title="Eliminar"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
-const ServicesTable = memo(({
-    services,
-    onEdit,
-    onDelete,
-    isLoading = false
-}: ServicesTableProps) => {
-    if (isLoading) {
-        return (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-6">
-                    <div className="animate-pulse space-y-4">
-                        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                        <div className="space-y-3">
-                            {[...Array(5)].map((_, i) => (
-                                <div key={i} className="h-12 bg-gray-200 rounded"></div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!services || services.length === 0) {
-        return (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-8 text-center">
-                    <Settings className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No hay servicios</h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                        Comienza agregando un nuevo servicio.
-                    </p>
-                </div>
-            </div>
-        );
-    }
+/* ----------------------------
+ *  Services Table
+ * ---------------------------- */
+const ServicesTable = memo(
+  ({ services, onEdit, onDelete, isLoading = false }: ServicesTableProps) => {
+    if (isLoading) return <LoadingState />;
+    if (!services || services.length === 0) return <EmptyState />;
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {/* Vista Desktop */}
-            <div className="hidden md:block">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Servicio
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Acciones
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {services.map((service, index) => (
-                            <ServiceRow
-                                key={service.id ? `service-${service.id}` : `temp-${index}`}
-                                service={service}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
-                            />
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Vista Mobile */}
-            <div className="md:hidden">
-                <div className="divide-y divide-gray-200">
-                    {services.map((service, index) => (
-                        <div key={service.id ? `mobile-service-${service.id}` : `mobile-temp-${index}`} className="p-4 space-y-3">
-                            <div className="flex justify-between items-start">
-                                <div className="flex-1">
-                                    <h3 className="text-sm font-medium text-gray-900">
-                                        {service.name}
-                                    </h3>
-                                </div>
-                                <div className="flex space-x-2 ml-4">
-                                    <button
-                                        onClick={() => onEdit(service)}
-                                        className="text-blue-600 hover:text-blue-900 p-2 rounded hover:bg-blue-50"
-                                        title="Editar"
-                                    >
-                                        <Edit className="h-4 w-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => onDelete(service)}
-                                        className="text-red-600 hover:text-red-900 p-2 rounded hover:bg-red-50"
-                                        title="Eliminar"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+      <div className="rounded-xl shadow-sm border bg-card border-[var(--color-border)] overflow-x-hidden">
+        {/* Desktop */}
+        <div className="hidden md:block">
+          <div className="max-h-[calc(100vh-15rem)] overflow-y-auto scrollbar-none">
+            <table className="min-w-full divide-y border-[var(--color-border)]">
+              <thead className="sticky top-0 z-10 bg-secondary">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted">
+                    Servicio
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y bg-card border-[var(--color-border)]">
+                {services.map((service, index) => (
+                  <ServiceRow
+                    key={service.id ?? `temp-${index}`}
+                    service={service}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-    );
-});
 
-ServicesTable.displayName = 'ServicesTable';
+        {/* Mobile */}
+        <div className="md:hidden">
+          <div className="max-h-[calc(100vh-22rem)] overflow-y-auto scrollbar-none divide-y border-[var(--color-border)]">
+            {services.map((service, index) => (
+              <MobileServiceCard
+                key={service.id ?? `mobile-temp-${index}`}
+                service={service}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+ServicesTable.displayName = "ServicesTable";
 
 export default ServicesTable;

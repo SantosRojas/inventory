@@ -81,17 +81,24 @@ const UserCard = memo(({
     const { label: roleLabel, colorClass: roleColorClass } = getRoleInfo(user);
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+        <div className="rounded-xl shadow-sm border p-2 sm:p-4 hover:shadow-md transition-all duration-200"
+             style={{
+                backgroundColor: 'var(--color-bg-card)',
+                borderColor: 'var(--color-border)',
+                boxShadow: 'var(--shadow-sm)'
+             }}
+        >
             {/* Header con avatar y nombre */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                     <div className="flex-shrink-0 h-12 w-12">
-                        <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
-                            <User className="h-6 w-6 text-gray-500" />
+                        <div className="h-12 w-12 rounded-full flex items-center justify-center"
+                             style={{ backgroundColor: 'var(--color-bg-secondary)' }}>
+                            <User className="h-6 w-6" style={{ color: 'var(--color-text-muted)' }} />
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                             {user.firstName} {user.lastName}
                         </h3>
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${roleColorClass}`}>
@@ -108,53 +115,83 @@ const UserCard = memo(({
 
             {/* Información de contacto */}
             <div className="space-y-3 mb-4">
-                <div className="flex items-center text-sm text-gray-600">
-                    <Mail className="h-4 w-4 mr-2 text-gray-400" />
+                <div className="flex items-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                    <Mail className="h-4 w-4 mr-2" style={{ color: 'var(--color-text-muted)' }} />
                     <span className="truncate">{user.email}</span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
-                    <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                <div className="flex items-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                    <Phone className="h-4 w-4 mr-2" style={{ color: 'var(--color-text-muted)' }} />
                     <span>{user.cellPhone}</span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                <div className="flex items-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                    <Calendar className="h-4 w-4 mr-2" style={{ color: 'var(--color-text-muted)' }} />
                     <span>Registrado el {new Date(user.createdAt).toLocaleDateString()}</span>
                 </div>
             </div>
 
             {/* Acciones */}
-            <div className="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+            <div className="flex justify-end space-x-2 pt-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
                 {canEdit && (
                     <button
                         onClick={handleEdit}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-105"
+                        style={{
+                            color: 'var(--color-primary)',
+                            backgroundColor: 'var(--color-primary-light)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--color-primary-light)';
+                        }}
                         title="Editar usuario"
                         aria-label={`Editar ${user.firstName} ${user.lastName}`}
                     >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Editar
+                        <Edit className="h-4 w-4" />
+                        <span className="ml-1 hidden sm:inline lg:hidden xl:inline">Editar</span>
                     </button>
                 )}
                 {canChangePassword && (
                     <button
                         onClick={handleChangePassword}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-yellow-600 bg-yellow-50 rounded-lg hover:bg-yellow-100 hover:text-yellow-700 transition-colors"
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-105"
+                        style={{
+                            color: 'var(--color-warning)',
+                            backgroundColor: 'var(--color-warning-light)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--color-warning-light)';
+                        }}
                         title="Cambiar contraseña"
                         aria-label={`Cambiar contraseña de ${user.firstName} ${user.lastName}`}
                     >
-                        <Key className="h-4 w-4 mr-1" />
-                        Contraseña
+                        <Key className="h-4 w-4" />
+                        <span className="ml-1 hidden sm:inline lg:hidden xl:inline">Contraseña</span>
                     </button>
                 )}
                 {canDelete && (
                     <button
                         onClick={handleDelete}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors"
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-105"
+                        style={{
+                            color: 'var(--color-error)',
+                            backgroundColor: 'var(--color-error-light)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--color-error-light)';
+                        }}
                         title="Eliminar usuario"
                         aria-label={`Eliminar ${user.firstName} ${user.lastName}`}
                     >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Eliminar
+                        <Trash2 className="h-4 w-4" />
+                        <span className="ml-1 hidden sm:inline lg:hidden xl:inline">Eliminar</span>
                     </button>
                 )}
             </div>
@@ -175,40 +212,52 @@ const UsersTable = memo(({
 }: UsersTableProps) => {
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                    <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div className="animate-pulse">
-                            <div className="flex items-center space-x-3 mb-4">
-                                <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
-                                <div className="space-y-2">
-                                    <div className="h-4 bg-gray-200 rounded w-32"></div>
-                                    <div className="h-3 bg-gray-200 rounded w-20"></div>
+            <div 
+                className="max-h-96 overflow-y-auto scrollbar-none"
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-1">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="rounded-xl shadow-sm border p-6"
+                             style={{
+                                backgroundColor: 'var(--color-bg-card)',
+                                borderColor: 'var(--color-border)'
+                             }}>
+                            <div className="animate-pulse">
+                                <div className="flex items-center space-x-3 mb-4">
+                                    <div className="h-12 w-12 rounded-full" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
+                                    <div className="space-y-2">
+                                        <div className="h-4 rounded w-32" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
+                                        <div className="h-3 rounded w-20" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 mb-4">
+                                    <div className="h-3 rounded w-full" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
+                                    <div className="h-3 rounded w-24" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
+                                    <div className="h-3 rounded w-32" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
+                                </div>
+                                <div className="flex justify-end space-x-2 pt-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                                    <div className="h-8 rounded w-16" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
+                                    <div className="h-8 rounded w-20" style={{ backgroundColor: 'var(--color-bg-secondary)' }}></div>
                                 </div>
                             </div>
-                            <div className="space-y-3 mb-4">
-                                <div className="h-3 bg-gray-200 rounded w-full"></div>
-                                <div className="h-3 bg-gray-200 rounded w-24"></div>
-                                <div className="h-3 bg-gray-200 rounded w-32"></div>
-                            </div>
-                            <div className="flex justify-end space-x-2 pt-4 border-t border-gray-100">
-                                <div className="h-8 bg-gray-200 rounded w-16"></div>
-                                <div className="h-8 bg-gray-200 rounded w-20"></div>
-                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
         );
     }
 
     if (!users || users.length === 0) {
         return (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="rounded-xl shadow-sm border"
+                 style={{
+                    backgroundColor: 'var(--color-bg-card)',
+                    borderColor: 'var(--color-border)'
+                 }}>
                 <div className="p-8 text-center">
-                    <User className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No hay usuarios</h3>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <User className="mx-auto h-12 w-12" style={{ color: 'var(--color-text-muted)' }} />
+                    <h3 className="mt-2 text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>No hay usuarios</h3>
+                    <p className="mt-1 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                         Comienza agregando un nuevo usuario.
                     </p>
                 </div>
@@ -217,18 +266,22 @@ const UsersTable = memo(({
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {users.map((user, index) => (
-                <UserCard
-                    key={user.id ? `user-${user.id}` : `temp-${index}`}
-                    user={user}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onChangePassword={onChangePassword}
-                    currentUserId={currentUserId}
-                    permissions={permissions}
-                />
-            ))}
+        <div 
+            className="max-h-[calc(100vh-20rem)] sm:max-h-[calc(100vh-15rem)] overflow-y-auto scrollbar-none"
+        >
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-1">
+                {users.map((user, index) => (
+                    <UserCard
+                        key={user.id ? `user-${user.id}` : `temp-${index}`}
+                        user={user}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onChangePassword={onChangePassword}
+                        currentUserId={currentUserId}
+                        permissions={permissions}
+                    />
+                ))}
+            </div>
         </div>
     );
 });

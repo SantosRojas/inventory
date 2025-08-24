@@ -22,14 +22,11 @@ const Button: React.FC<ButtonProps> = ({
       'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variantClasses = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500',
-    secondary:
-        'bg-gray-200 hover:bg-gray-300 text-gray-900 focus:ring-gray-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-    success:
-        'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
-    outline:
-        'border-2 border-blue-300 text-blue-700 hover:bg-blue-50 focus:ring-blue-300', // NUEVA variante para el botón QR
+    primary: 'text-white focus:ring-2 focus:ring-offset-2 transition-all duration-200',
+    secondary: 'focus:ring-2 focus:ring-offset-2 transition-all duration-200',
+    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 focus:ring-2 focus:ring-offset-2 transition-all duration-200',
+    success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 focus:ring-2 focus:ring-offset-2 transition-all duration-200',
+    outline: 'border-2 focus:ring-2 focus:ring-offset-2 transition-all duration-200',
   };
 
   const sizeClasses = {
@@ -40,11 +37,46 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   return (
-      <button
-          className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-          disabled={disabled || isLoading}
-          {...props}
-      >
+    <button
+      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      disabled={disabled || isLoading}
+      style={{
+        backgroundColor: variant === 'primary' 
+          ? 'var(--color-primary)' 
+          : variant === 'secondary' 
+          ? 'var(--color-bg-tertiary)' 
+          : variant === 'outline'
+          ? 'transparent'
+          : undefined,
+        color: variant === 'primary' 
+          ? 'var(--color-text-inverse)' 
+          : variant === 'secondary' 
+          ? 'var(--color-text-primary)'
+          : variant === 'outline'
+          ? 'var(--color-primary)'
+          : undefined,
+        borderColor: variant === 'outline' ? 'var(--color-primary)' : undefined,
+      }}
+      onMouseEnter={(e) => {
+        if (variant === 'primary') {
+          e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
+        } else if (variant === 'secondary') {
+          e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+        } else if (variant === 'outline') {
+          e.currentTarget.style.backgroundColor = 'var(--color-primary-light)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (variant === 'primary') {
+          e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+        } else if (variant === 'secondary') {
+          e.currentTarget.style.backgroundColor = 'var(--color-bg-tertiary)';
+        } else if (variant === 'outline') {
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }
+      }}
+      {...props}
+    >
         {isLoading ? (
             <svg
                 className="animate-spin -ml-1 mr-2 h-4 w-4 text-current"

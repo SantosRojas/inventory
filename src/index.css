@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* Clase personalizada para ocultar scrollbar */
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none !important;  /* Firefox */
+    -ms-overflow-style: none !important;  /* IE and Edge */
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    width: 0px !important;
+    height: 0px !important;
+    background: transparent !important;
+  }
+}
