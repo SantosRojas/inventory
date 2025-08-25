@@ -5,8 +5,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from 'recharts';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
@@ -240,7 +239,7 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
             />
             <YAxis />
             <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ paddingTop: '10px' }} iconType="rect" />
+            {/* Quitamos la leyenda de Recharts para usar nuestra leyenda personalizada */}
             {models.map((modelName, index) => (
               <Bar
                 key={modelName}
@@ -253,6 +252,31 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Leyenda compacta personalizada para todas las pantallas */}
+      {models.length > 0 && (
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <p className="text-xs font-medium text-gray-700 mb-2">Modelos:</p>
+          <div className={`grid gap-1 text-xs ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
+            {models.map((modelName, index) => (
+              <div key={modelName} className="flex items-center gap-1">
+                <div
+                  className="w-3 h-3 rounded-sm flex-shrink-0"
+                  style={{ backgroundColor: MODEL_COLORS[index % MODEL_COLORS.length] }}
+                />
+                <span className="truncate" title={modelName}>
+                  {isMobile && modelName.length > 12 
+                    ? `${modelName.substring(0, 9)}...` 
+                    : !isMobile && modelName.length > 15
+                    ? `${modelName.substring(0, 12)}...`
+                    : modelName
+                  }
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Controles de paginación */}
       {totalPages > 1 && (

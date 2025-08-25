@@ -6,7 +6,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 import { ChevronLeft, ChevronRight, Search, SortAsc, SortDesc } from 'lucide-react';
@@ -297,7 +296,7 @@ export const InventoryProgressByInstitutionCharts: React.FC<
               />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ paddingTop: '10px' }} iconType="rect" />
+              {/* Quitamos la leyenda de Recharts para usar nuestra leyenda personalizada */}
               <Bar
                   dataKey="inventariadas"
                   stackId="progress"
@@ -315,6 +314,23 @@ export const InventoryProgressByInstitutionCharts: React.FC<
             </BarChart>
           </ResponsiveContainer>
         </div>
+
+        {/* Leyenda compacta personalizada para todas las pantallas */}
+        {(
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs font-medium text-gray-700 mb-2">Estado del inventario:</p>
+            <div className={`flex gap-4 text-xs ${isMobile ? 'justify-center' : 'justify-start'}`}>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-sm bg-green-500" />
+                <span>Inventariadas 2025</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-sm bg-gray-400" />
+                <span>Pendientes</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Controles de paginación */}
         {totalPages > 1 && (
