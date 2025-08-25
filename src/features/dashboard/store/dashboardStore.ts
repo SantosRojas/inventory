@@ -7,7 +7,6 @@ import type {
     ModelDistributionResponse,
     ModelDistributionByInstitutionResponse,
     InventoryProgressByInstitutionResponse,
-    InventoryProgressByServiceResponse,
     TopInventoryTakersResponse,
     OverdueMaintenanceResponse,
 } from '../types';
@@ -17,7 +16,6 @@ interface DashboardState {
         modelDistribution: ModelDistributionResponse | null;
         modelDistributionByInstitution: ModelDistributionByInstitutionResponse | null;
         inventoryProgressByInstitution: InventoryProgressByInstitutionResponse | null;
-        inventoryProgressByService: InventoryProgressByServiceResponse | null;
         topInventoryTakers: TopInventoryTakersResponse | null;
         overdueMaintenance: OverdueMaintenanceResponse | null;
         loadedAt: string | null; } | null; loading: boolean; error: string | null;

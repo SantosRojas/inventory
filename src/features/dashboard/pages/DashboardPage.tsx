@@ -19,9 +19,6 @@ const LazyCharts = {
   InventoryProgressByInstitution: React.lazy(() =>
       import('../components/charts').then(mod => ({ default: mod.InventoryProgressByInstitutionCharts }))
   ),
-  InventoryProgressByService: React.lazy(() =>
-      import('../components/charts').then(mod => ({ default: mod.InventoryProgressByServiceCharts }))
-  ),
   TopInventoryTakers: React.lazy(() =>
       import('../components/charts').then(mod => ({ default: mod.TopInventoryTakersChart }))
   ),
@@ -129,7 +126,6 @@ export const DashboardPage = () => {
         modelDistribution,
         modelDistributionByInstitution,
         inventoryProgressByInstitution,
-        inventoryProgressByService,
         topInventoryTakers,
         overdueMaintenance,
         loadedAt,
@@ -213,17 +209,6 @@ export const DashboardPage = () => {
                     />
                 </ChartSection>
             )}
-
-            {/* Progreso por servicio */}
-            {inventoryProgressByService && (
-                <LightChartSection height="h-96">
-                    <LazyCharts.InventoryProgressByService
-                        data={inventoryProgressByService}
-                        summaryData={summary}
-                    />
-                </LightChartSection>
-            )}
-
 
             {/* Footer */}
             <div className="text-center text-sm text-gray-500 py-4">

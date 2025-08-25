@@ -4,7 +4,6 @@ import type {
     ModelDistributionResponse,
     ModelDistributionByInstitutionResponse,
     InventoryProgressByInstitutionResponse,
-    InventoryProgressByServiceResponse,
     TopInventoryTakersResponse,
     OverdueMaintenanceResponse,
 } from '../types';
@@ -16,7 +15,6 @@ export interface DashboardData {
     modelDistribution: ModelDistributionResponse | null;
     modelDistributionByInstitution: ModelDistributionByInstitutionResponse | null;
     inventoryProgressByInstitution: InventoryProgressByInstitutionResponse | null;
-    inventoryProgressByService: InventoryProgressByServiceResponse | null;
     topInventoryTakers: TopInventoryTakersResponse | null;
     overdueMaintenance: OverdueMaintenanceResponse | null;
 }
@@ -41,7 +39,6 @@ export const fetchDashboardData = async (
         modelDistribution,
         modelDistributionByInstitution,
         inventoryProgressByInstitution,
-        inventoryProgressByService,
         topInventoryTakers,
         overdueMaintenance,
     ] = await Promise.all([
@@ -53,9 +50,6 @@ export const fetchDashboardData = async (
         fetchAndValidate<InventoryProgressByInstitutionResponse>(
             API_ENDPOINTS.dashboard.inventoryProgressByInstitution(userId)
         ),
-        fetchAndValidate<InventoryProgressByServiceResponse>(
-            API_ENDPOINTS.dashboard.inventoryProgressByService(userId)
-        ),
         fetchAndValidate<TopInventoryTakersResponse>(API_ENDPOINTS.dashboard.topInventoryTakers(userId)),
         fetchAndValidate<OverdueMaintenanceResponse>(API_ENDPOINTS.dashboard.overdueMaintenance()),
     ]);
@@ -65,7 +59,6 @@ export const fetchDashboardData = async (
         modelDistribution,
         modelDistributionByInstitution,
         inventoryProgressByInstitution,
-        inventoryProgressByService,
         topInventoryTakers,
         overdueMaintenance,
     };

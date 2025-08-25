@@ -21,6 +21,7 @@ const InstitutionsPage = lazy(() => import('../features/institutions/pages/Insti
 const ServicesPage = lazy(() => import('../features/services/pages/ServicesPage'));
 const UsersPage = lazy(() => import('../features/users/pages/UsersPage'));
 const ModelsPage = lazy(() => import('../features/models/pages/ModelsPage'));
+const ReportsPage = lazy(() => import('../features/reports/pages/ReportsPage'));
 
 
 // Componente para mostrar páginas en desarrollo
@@ -76,7 +77,7 @@ const AppRoutes = () => {
                             </ProtectedRoute>
                         } />
                         <Route path="usuarios" element={<UsersPage />} />
-                        <Route path="reportes" element={<DevelopmentPage title="Reportes" />} />
+                        <Route path="reportes" element={<ReportsPage />} />
                         <Route path="configuracion" element={<DevelopmentPage title="Configuración" />} />
                         {/* Redirecciones legacy */}
                         <Route path="equipos" element={<Navigate to="/inventario" replace />} />
