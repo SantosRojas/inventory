@@ -5,7 +5,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
@@ -13,6 +12,8 @@ import { ChevronLeft, ChevronRight, Search, SortAsc, SortDesc } from 'lucide-rea
 import { useMediaQuery } from 'react-responsive';
 import type { TopInventoryTakersResponse } from '../../types';
 import { useAuth } from '../../../auth/hooks';
+import { ChartTooltip, TooltipTitle, TooltipValue } from '../../../../components';
+import { useChartAxisStyles } from '../../../../hooks';
 
 interface Props {
   data?: TopInventoryTakersResponse;
@@ -26,6 +27,7 @@ interface ChartItem {
 const TopInventoryTakersChart = ({ data }: Props) => {
   const { user } = useAuth();
   const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
+  const { xAxisProps, yAxisProps, gridProps } = useChartAxisStyles(isMobile);
   
   // Estados para la paginación y filtros
   const [currentPage, setCurrentPage] = useState(0);
@@ -137,13 +139,15 @@ const TopInventoryTakersChart = ({ data }: Props) => {
       const { name, value } = payload[0].payload;
 
       return (
-          <div className="bg-white rounded-lg shadow-md border border-gray-200 p-3 text-sm text-gray-800">
-            <p className="font-semibold">{name}</p>
-            <p>
-              Equipos inventariados:{' '}
-              <span className="font-medium text-blue-600">{value.toLocaleString()}</span>
-            </p>
-          </div>
+          <ChartTooltip active={active}>
+            <TooltipTitle>{name}</TooltipTitle>
+            <TooltipValue 
+              label="Equipos inventariados" 
+              value={value.toLocaleString()} 
+              color="#3B82F6" 
+              showDot 
+            />
+          </ChartTooltip>
       );
     }
     return null;
@@ -226,19 +230,17 @@ const TopInventoryTakersChart = ({ data }: Props) => {
               data={paginatedData}
               margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid {...gridProps} />
             <XAxis 
               dataKey="name" 
-              tick={{ fontSize: isMobile ? 10 : 12 }}  
+              {...xAxisProps}
               angle={-45} 
               textAnchor='end'
               height={isMobile ? 60 : 80}
               tickFormatter={formatName}
             />
-            <YAxis />
+            <YAxis {...yAxisProps} />
             <Tooltip content={<CustomTooltip />} />
-            {/* Solo mostrar leyenda en desktop para evitar interferencia en móvil */}
-            {!isMobile && <Legend wrapperStyle={{ paddingTop: '10px' }} iconType="rect" />}
             <Bar 
               dataKey="value" 
               name="Equipos Inventariados" 
@@ -250,12 +252,22 @@ const TopInventoryTakersChart = ({ data }: Props) => {
         </div>
 
         {/* Leyenda compacta personalizada para todas las pantallas */}
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs font-medium text-gray-700 mb-2">Métrica:</p>
+        <div 
+          className="mt-4 p-3 rounded-lg"
+          style={{ backgroundColor: 'var(--color-bg-secondary)' }}
+        >
+          <p 
+            className="text-xs font-medium mb-2"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Métrica:
+          </p>
           <div className={`flex gap-4 text-xs ${isMobile ? 'justify-center' : 'justify-start'}`}>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-sm bg-blue-500" />
-              <span>Equipos Inventariados</span>
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                Equipos Inventariados
+              </span>
             </div>
           </div>
         </div>

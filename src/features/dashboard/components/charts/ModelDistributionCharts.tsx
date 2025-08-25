@@ -3,6 +3,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { ChevronLeft, ChevronRight, Search, SortAsc, SortDesc } from 'lucide-react';
 import type { ModelDistributionResponse, SummaryResponse } from '../../types';
 import { useMediaQuery } from 'react-responsive';
+import { ChartTooltip, TooltipTitle, TooltipValue, TooltipPercentage } from '../../../../components';
+import { useChartAxisStyles } from '../../../../hooks';
 
 
 interface ModelDistributionChartsProps {
@@ -12,6 +14,7 @@ interface ModelDistributionChartsProps {
 
 export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = ({ data, summaryData }) => {
   const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
+  const { xAxisProps, yAxisProps, gridProps } = useChartAxisStyles(isMobile);
   
   // Estados para la paginación y filtros
   const [currentPage, setCurrentPage] = useState(0);
@@ -110,13 +113,16 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
       const data = payload[0].payload;
       const percentage = ((data.count / total) * 100).toFixed(1);
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-semibold text-gray-900">{label}</p>
-          <p className="text-blue-600">
-            <span className="font-medium">{data.count.toLocaleString()}</span> bombas
-          </p>
-          <p className="text-gray-600 text-sm">{percentage}% del total</p>
-        </div>
+        <ChartTooltip active={active}>
+          <TooltipTitle>{label}</TooltipTitle>
+          <TooltipValue 
+            label="Bombas" 
+            value={data.count.toLocaleString()} 
+            color="#3B82F6" 
+            showDot 
+          />
+          <TooltipPercentage percentage={percentage} />
+        </ChartTooltip>
       );
     }
     return null;
@@ -198,16 +204,16 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
             data={paginatedData}
             margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid {...gridProps} />
             <XAxis
               dataKey="modelName"
-              tick={{ fontSize: isMobile ? 10 : 12 }}
+              {...xAxisProps}
               angle={-45}
               textAnchor="end"
               height={isMobile ? 60 : 80}
               tickFormatter={formatModelName}
             />
-            <YAxis />
+            <YAxis {...yAxisProps} />
             <Tooltip content={<CustomTooltip />} />
             <Bar 
               dataKey="count" 
@@ -220,11 +226,19 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
       </div>
 
       {/* Leyenda personalizada */}
-      <div className="mt-4 bg-gray-50 p-3 rounded-lg">
+      <div 
+        className="mt-4 p-3 rounded-lg"
+        style={{ backgroundColor: 'var(--color-bg-secondary)' }}
+      >
         <div className="flex items-center justify-center gap-2">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-blue-500 rounded-sm"></div>
-            <span className="text-xs text-gray-700">Cantidad de Bombas</span>
+            <span 
+              className="text-xs"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              Cantidad de Bombas
+            </span>
           </div>
         </div>
       </div>

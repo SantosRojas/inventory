@@ -9,3 +9,4 @@ export { default as NotificationContainer } from './NotificationContainer';
 export { default as LazyCard } from './LazyCard';
 export { default as PageLoader } from './PageLoader';
 export { default as ThemeSelector } from './ThemeSelector';
+export { default as ChartTooltip, TooltipTitle, TooltipValue, TooltipPercentage, TooltipSeparator } from './ChartTooltip';

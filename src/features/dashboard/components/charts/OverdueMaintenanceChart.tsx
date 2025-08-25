@@ -11,6 +11,8 @@ import {
 import { ChevronLeft, ChevronRight, Search, SortAsc, SortDesc } from 'lucide-react';
 import type { OverdueMaintenanceResponse } from '../../types';
 import { useMediaQuery } from 'react-responsive';
+import { ChartTooltip, TooltipTitle, TooltipValue } from '../../../../components';
+import { useChartAxisStyles } from '../../../../hooks';
 
 interface Props {
     data?: OverdueMaintenanceResponse;
@@ -23,6 +25,7 @@ interface ChartItem {
 
 const OverdueMaintenanceChart = ({ data }: Props) => {
     const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
+    const { xAxisProps, yAxisProps, gridProps } = useChartAxisStyles(isMobile);
     
     // Estados para la paginación y filtros
     const [currentPage, setCurrentPage] = useState(0);
@@ -130,18 +133,19 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
             const { value } = payload[0].payload;
             const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
             return (
-                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-3 text-sm text-gray-800">
-                    <p className="font-semibold">{label}</p>
-                    <p>
-                        Cantidad:{' '}
-                        <span className="font-medium text-red-500">
-                            {value.toLocaleString()}
-                        </span>
-                    </p>
-                    <p className="text-gray-600">
-                        <span className="font-medium">{percentage}%</span> del total
-                    </p>
-                </div>
+                <ChartTooltip active={active}>
+                    <TooltipTitle>{label}</TooltipTitle>
+                    <TooltipValue 
+                        label="Cantidad" 
+                        value={value.toLocaleString()} 
+                        color="#EF4444" 
+                        showDot 
+                    />
+                    <TooltipValue 
+                        label="Porcentaje" 
+                        value={`${percentage}% del total`} 
+                    />
+                </ChartTooltip>
             );
         }
         return null;
@@ -226,16 +230,16 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
                         data={paginatedData}
                         margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <CartesianGrid {...gridProps} />
                         <XAxis
                             dataKey="name"
-                            tick={{ fontSize: isMobile ? 10 : 12 }}
+                            {...xAxisProps}
                             angle={-45}
                             textAnchor="end"
                             height={isMobile ? 60 : 80}
                             tickFormatter={formatInstitutionName}
                         />
-                        <YAxis />
+                        <YAxis {...yAxisProps} />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar 
                             dataKey="value" 
@@ -248,11 +252,19 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
             </div>
 
             {/* Leyenda personalizada */}
-            <div className="mt-4 bg-gray-50 p-3 rounded-lg">
+            <div 
+                className="mt-4 p-3 rounded-lg"
+                style={{ backgroundColor: 'var(--color-bg-secondary)' }}
+            >
                 <div className="flex items-center justify-center gap-2">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
-                        <span className="text-xs text-gray-700">Mantenimiento Vencido</span>
+                        <span 
+                            className="text-xs"
+                            style={{ color: 'var(--color-text-secondary)' }}
+                        >
+                            Mantenimiento Vencido
+                        </span>
                     </div>
                 </div>
             </div>

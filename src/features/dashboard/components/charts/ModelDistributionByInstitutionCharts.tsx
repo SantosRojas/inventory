@@ -10,6 +10,8 @@ import {
 import React, { useCallback, useMemo, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { ChevronLeft, ChevronRight, Search, SortAsc, SortDesc } from 'lucide-react';
+import { ChartTooltip, TooltipTitle, TooltipValue, TooltipSeparator } from '../../../../components';
+import { useChartAxisStyles } from '../../../../hooks';
 
 interface ModelDistributionByInstitutionResponse {
   totalPumps: number;
@@ -33,6 +35,7 @@ const MODEL_COLORS = [
 export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByInstitutionChartsProps> = ({ data }) => {
   // Hook para detectar el tamaño de pantalla
   const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
+  const { xAxisProps, yAxisProps, gridProps } = useChartAxisStyles(isMobile);
   
   // Estados para la paginación y filtros
   const [currentPage, setCurrentPage] = useState(0);
@@ -129,20 +132,27 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
     const total = payload.reduce((sum: number, entry) => sum + entry.value, 0);
 
     return (
-      <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
-        <p className="font-semibold text-gray-900 mb-2">{label}</p>
-        <p className="text-sm text-gray-600 mb-2">
-          Total: <span className="font-medium">{total.toLocaleString()}</span> bombas
-        </p>
-        {payload.map((entry, index: number) => (
-          entry.value > 0 && (
-            <div key={index} className="flex items-center gap-2 text-sm">
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }}></div>
-              <span>{entry.dataKey}: <span className="font-medium">{entry.value.toLocaleString()}</span></span>
-            </div>
-          )
-        ))}
-      </div>
+      <ChartTooltip active={active}>
+        <TooltipTitle>{label}</TooltipTitle>
+        <TooltipValue 
+          label="Total" 
+          value={`${total.toLocaleString()} bombas`} 
+        />
+        <TooltipSeparator />
+        <div className="space-y-1">
+          {payload.map((entry, index: number) => (
+            entry.value > 0 && (
+              <TooltipValue
+                key={index}
+                color={entry.color}
+                showDot
+                label={entry.dataKey}
+                value={entry.value.toLocaleString()}
+              />
+            )
+          ))}
+        </div>
+      </ChartTooltip>
     );
   }, []);
 
@@ -228,16 +238,16 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
             data={paginatedData}
             margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid {...gridProps} />
             <XAxis
               dataKey="institutionName"
-              tick={{ fontSize: isMobile ? 10 : 12 }}
+              {...xAxisProps}
               angle={-45}
               textAnchor="end"
               height={isMobile ? 60 : 80}
               tickFormatter={formatInstitutionName}
             />
-            <YAxis />
+            <YAxis {...yAxisProps} />
             <Tooltip content={<CustomTooltip />} />
             {/* Quitamos la leyenda de Recharts para usar nuestra leyenda personalizada */}
             {models.map((modelName, index) => (
@@ -255,8 +265,16 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
 
       {/* Leyenda compacta personalizada para todas las pantallas */}
       {models.length > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-xs font-medium text-gray-700 mb-2">Modelos:</p>
+        <div 
+          className="mt-4 p-3 rounded-lg"
+          style={{ backgroundColor: 'var(--color-bg-secondary)' }}
+        >
+          <p 
+            className="text-xs font-medium mb-2"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            Modelos:
+          </p>
           <div className={`grid gap-1 text-xs ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
             {models.map((modelName, index) => (
               <div key={modelName} className="flex items-center gap-1">
@@ -264,7 +282,11 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
                   className="w-3 h-3 rounded-sm flex-shrink-0"
                   style={{ backgroundColor: MODEL_COLORS[index % MODEL_COLORS.length] }}
                 />
-                <span className="truncate" title={modelName}>
+                <span 
+                  className="truncate" 
+                  title={modelName}
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
                   {isMobile && modelName.length > 12 
                     ? `${modelName.substring(0, 9)}...` 
                     : !isMobile && modelName.length > 15

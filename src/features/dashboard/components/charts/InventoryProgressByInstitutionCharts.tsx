@@ -14,6 +14,8 @@ import type {
   SummaryResponse,
 } from '../../types';
 import { useMediaQuery } from 'react-responsive';
+import { ChartTooltip, TooltipTitle, TooltipValue, TooltipSeparator } from '../../../../components';
+import { useChartAxisStyles } from '../../../../hooks';
 
 interface InventoryProgressByInstitutionChartsProps {
   data: InventoryProgressByInstitutionResponse;
@@ -41,6 +43,7 @@ export const InventoryProgressByInstitutionCharts: React.FC<
 > = ({ data, summaryData }) => {
   // Hook para detectar el tamaño de pantalla
   const isMobile = useMediaQuery({ query: "(max-width: 900px)" });
+  const { xAxisProps, yAxisProps, gridProps } = useChartAxisStyles(isMobile);
   
   // Estados para la paginación y filtros
   const [currentPage, setCurrentPage] = useState(0);
@@ -154,33 +157,32 @@ export const InventoryProgressByInstitutionCharts: React.FC<
       const data = payload[0].payload;
 
       return (
-          <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-            <p className="font-semibold text-gray-900 mb-2">{label}</p>
+          <ChartTooltip active={active}>
+            <TooltipTitle>{label}</TooltipTitle>
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-3 h-3 rounded-sm bg-green-500" />
-                <span>
-                Inventariadas:{' '}
-                  <span className="font-medium">{data.inventariadas.toLocaleString()}</span>
-              </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-3 h-3 rounded-sm bg-gray-400" />
-                <span>
-                Pendientes:{' '}
-                  <span className="font-medium">{data.pendientes.toLocaleString()}</span>
-              </span>
-              </div>
-              <div className="border-t pt-1 mt-2">
-                <p className="text-sm text-gray-600">
-                  Total: <span className="font-medium">{data.total.toLocaleString()}</span> bombas
-                </p>
-                <p className="text-sm text-green-600">
-                  Progreso: <span className="font-medium">{data.percentage}%</span>
-                </p>
-              </div>
+              <TooltipValue 
+                color="#10B981" 
+                showDot 
+                label="Inventariadas" 
+                value={data.inventariadas.toLocaleString()} 
+              />
+              <TooltipValue 
+                color="#6B7280" 
+                showDot 
+                label="Pendientes" 
+                value={data.pendientes.toLocaleString()} 
+              />
+              <TooltipSeparator />
+              <TooltipValue 
+                label="Total" 
+                value={`${data.total.toLocaleString()} bombas`} 
+              />
+              <TooltipValue 
+                label="Progreso" 
+                value={`${data.percentage}%`} 
+              />
             </div>
-          </div>
+          </ChartTooltip>
       );
     }
     return null;
@@ -285,16 +287,16 @@ export const InventoryProgressByInstitutionCharts: React.FC<
                 data={paginatedData}
                 margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid {...gridProps} />
               <XAxis
                 dataKey="institutionName"
-                tick={{ fontSize: isMobile ? 10 : 12 }}
+                {...xAxisProps}
                 angle={-45}
                 textAnchor="end"
                 height={isMobile ? 60 : 80}
                 tickFormatter={formatInstitutionName}
               />
-              <YAxis />
+              <YAxis {...yAxisProps} />
               <Tooltip content={<CustomTooltip />} />
               {/* Quitamos la leyenda de Recharts para usar nuestra leyenda personalizada */}
               <Bar
@@ -317,16 +319,28 @@ export const InventoryProgressByInstitutionCharts: React.FC<
 
         {/* Leyenda compacta personalizada para todas las pantallas */}
         {(
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs font-medium text-gray-700 mb-2">Estado del inventario:</p>
+          <div 
+            className="mt-4 p-3 rounded-lg"
+            style={{ backgroundColor: 'var(--color-bg-secondary)' }}
+          >
+            <p 
+              className="text-xs font-medium mb-2"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              Estado del inventario:
+            </p>
             <div className={`flex gap-4 text-xs ${isMobile ? 'justify-center' : 'justify-start'}`}>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded-sm bg-green-500" />
-                <span>Inventariadas 2025</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>
+                  Inventariadas 2025
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded-sm bg-gray-400" />
-                <span>Pendientes</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>
+                  Pendientes
+                </span>
               </div>
             </div>
           </div>
@@ -394,10 +408,23 @@ export const InventoryProgressByInstitutionCharts: React.FC<
           </div>
         )}
 
-        <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+        <div 
+          className="mt-6 p-4 rounded-lg"
+          style={{ backgroundColor: 'var(--color-bg-secondary)' }}
+        >
           <div className="flex justify-between items-center mb-2">
-            <h4 className="text-sm font-medium text-gray-700">Progreso General del Sistema</h4>
-            <span className="text-sm font-medium text-green-600">{overallProgress}%</span>
+            <h4 
+              className="text-sm font-medium"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
+              Progreso General del Sistema
+            </h4>
+            <span 
+              className="text-sm font-medium text-green-600"
+              style={{ color: 'var(--color-success)' }}
+            >
+              {overallProgress}%
+            </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
             <div
