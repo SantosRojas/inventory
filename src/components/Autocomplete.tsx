@@ -179,7 +179,11 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
   return (
     <div className="relative" ref={dropdownRef}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
+        <label 
+          htmlFor={id} 
+          className="block text-sm font-medium mb-1"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           {label}
         </label>
       )}
@@ -199,10 +203,15 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
           disabled={disabled}
           readOnly={readOnly}
           className={`
-            w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2
-            ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'}
-            ${disabled || readOnly ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+            w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 transition-colors
+            ${error ? 'focus:ring-red-500' : 'focus:ring-blue-500'}
+            ${disabled || readOnly ? 'cursor-not-allowed opacity-50' : ''}
           `}
+          style={{
+            backgroundColor: disabled || readOnly ? 'var(--color-bg-secondary)' : 'var(--color-bg-primary)',
+            borderColor: error ? '#ef4444' : 'var(--color-border)',
+            color: 'var(--color-text-primary)'
+          }}
         />
         
         {/* Botones del lado derecho */}
@@ -211,21 +220,25 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 hover:bg-gray-100 rounded-full mr-1"
+              className="p-1 rounded-full mr-1 transition-colors hover:opacity-80"
               tabIndex={-1}
             >
-              <X className="h-4 w-4 text-gray-400" />
+              <X 
+                className="h-4 w-4"
+                style={{ color: 'var(--color-text-muted)' }}
+              />
             </button>
           )}
           <button
             type="button"
             onClick={handleDropdownToggle}
-            className="p-1 hover:bg-gray-100 rounded-full"
+            className="p-1 rounded-full transition-colors hover:opacity-80"
             disabled={disabled || readOnly}
             tabIndex={-1}
           >
             <ChevronDown 
-              className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+              className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              style={{ color: 'var(--color-text-muted)' }}
             />
           </button>
         </div>
@@ -233,29 +246,47 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div 
+          className="absolute z-50 w-full mt-1 border rounded-md shadow-lg max-h-60 overflow-y-auto"
+          style={{
+            backgroundColor: 'var(--color-bg-primary)',
+            borderColor: 'var(--color-border)',
+            boxShadow: 'var(--shadow-lg)'
+          }}
+        >
           {filteredItems.length > 0 ? (
             filteredItems.map((item, index) => (
               <div
                 key={item.id}
-                className={`
-                  px-3 py-2 cursor-pointer flex items-center justify-between transition-colors
-                  ${index === highlightedIndex ? 'bg-blue-50 text-blue-900' : 'hover:bg-gray-50'}
-                  ${value === item.id ? 'bg-blue-100 text-blue-900 font-medium' : 'text-gray-900'}
-                `}
+                className="px-3 py-2 cursor-pointer flex items-center justify-between transition-colors"
+                style={{
+                  backgroundColor: index === highlightedIndex 
+                    ? 'var(--color-primary-light)' 
+                    : (value === item.id ? 'var(--color-primary-light)' : 'transparent'),
+                  color: value === item.id ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                  fontWeight: value === item.id ? '500' : 'normal'
+                }}
                 onClick={() => handleSelect(item)}
                 onMouseEnter={() => setHighlightedIndex(index)}
               >
                 <span className="truncate">{item.name}</span>
                 {value === item.id && (
-                  <svg className="w-4 h-4 text-blue-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                  <svg 
+                    className="w-4 h-4 flex-shrink-0 ml-2" 
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                    style={{ color: 'var(--color-primary)' }}
+                  >
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 )}
               </div>
             ))
           ) : (
-            <div className="px-3 py-8 text-gray-500 text-center text-sm">
+            <div 
+              className="px-3 py-8 text-center text-sm"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
               {emptyMessage}
             </div>
           )}
@@ -264,7 +295,12 @@ const Autocomplete: React.FC<AutocompleteProps> = ({
 
       {/* Error message */}
       {error && (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
+        <p 
+          className="text-sm mt-1"
+          style={{ color: 'var(--color-error)' }}
+        >
+          {error}
+        </p>
       )}
     </div>
   );

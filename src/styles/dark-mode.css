@@ -297,3 +297,39 @@ html {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
+
+/* Estilos específicos para Select y Autocomplete */
+.select-option:hover,
+.autocomplete-option:hover {
+  background-color: var(--color-bg-hover) !important;
+}
+
+.select-dropdown,
+.autocomplete-dropdown {
+  background-color: var(--color-bg-primary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Estilos para mejorar la visibilidad de opciones en hover */
+.dark .select-option:hover,
+.dark .autocomplete-option:hover {
+  background-color: var(--color-bg-hover) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* Asegurar que los placeholders se vean correctamente */
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--color-text-muted) !important;
+  opacity: 1;
+}
+
+/* Mejorar contraste para elementos interactivos */
+.dark button:hover {
+  background-color: var(--color-bg-hover);
+}
+
+.dark .hover\:opacity-80:hover {
+  opacity: 0.8;
+}
