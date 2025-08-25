@@ -31,19 +31,24 @@ const ProtectedRoute = ({
     }
 
     // Verificación de roles si se especifica
-    if (requiredRole && user && !requiredRole.includes(user.role)) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                        Acceso Denegado
-                    </h2>
-                    <p className="text-gray-600">
-                        No tienes permisos para acceder a esta página.
-                    </p>
+    if (requiredRole && user) {
+        // El usuario root tiene acceso a todas las páginas
+        const hasAccess = user.role === 'root' || requiredRole.includes(user.role);
+        
+        if (!hasAccess) {
+            return (
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                            Acceso Denegado
+                        </h2>
+                        <p className="text-gray-600">
+                            No tienes permisos para acceder a esta página.
+                        </p>
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        }
     }
 
     return <>{children}</>;

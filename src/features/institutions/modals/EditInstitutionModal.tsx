@@ -33,7 +33,6 @@ const EditInstitutionModal: React.FC<EditInstitutionModalProps> = ({
         control,
         formState: { errors, isDirty },
         reset,
-        setValue
     } = useForm<InstitutionFormData>({
         resolver: zodResolver(institutionSchema),
         defaultValues: {
@@ -45,10 +44,13 @@ const EditInstitutionModal: React.FC<EditInstitutionModalProps> = ({
     // Inicializar formulario con datos de la institución
     useEffect(() => {
         if (institution && isOpen) {
-            setValue('name', institution.name || '');
-            setValue('code', institution.code || '');
+            // Usar reset con opciones para evitar marcar como dirty
+            reset({
+                name: institution.name || '',
+                code: institution.code || ''
+            }, { keepDirty: false, keepTouched: false });
         }
-    }, [institution, isOpen, setValue]);
+    }, [institution?.id, isOpen, reset]);
 
     // Resetear estado de confirmación cuando se abre el modal
     useEffect(() => {

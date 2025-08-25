@@ -34,7 +34,6 @@ export const getAllRoles = async (): Promise<Role[]> => {
         }
         
         const data: RolesResponse = await response.json();
-        console.log('✅ Datos de roles recibidos:', data);
         
         if (!data.success) {
             throw new Error('Error al obtener los roles del servidor');
@@ -58,10 +57,11 @@ export const getAllRoles = async (): Promise<Role[]> => {
  */
 export const getDefaultRoles = (): Role[] => {
     return [
-        { id: 1, name: 'admin', description: 'Administrador del sistema con todos los permisos' },
-        { id: 2, name: 'sales_representative', description: 'Puede gestionar inventarios y reportar incidentes' },
-        { id: 3, name: 'technician', description: 'Puede gestionar inventarios y realizar mantenimientos' },
-        { id: 4, name: 'guest', description: 'Puede reportar incidentes pero no tiene acceso a la gestión de inventarios' }
+        { id: 1, name: 'root', description: 'Administrador del sistema con todos los permisos sobre los administradores' },
+        { id: 2, name: 'admin', description: 'Administrador del sistema con todos los permisos' },
+        { id: 3, name: 'sales_representative', description: 'Puede gestionar inventarios y reportar incidentes' },
+        { id: 4, name: 'technician', description: 'Puede gestionar inventarios y realizar mantenimientos' },
+        { id: 5, name: 'guest', description: 'Puede reportar incidentes pero no tiene acceso a la gestión de inventarios' }
     ];
 };
 
@@ -80,6 +80,7 @@ export const formatRolesForSelect = (roles: Role[]) => {
  */
 export const getRoleDisplayName = (roleName: string): string => {
     const roleNames: Record<string, string> = {
+        'root': 'Root',
         'admin': 'Administrador',
         'sales_representative': 'Representante de Ventas',
         'technician': 'Técnico',

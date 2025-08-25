@@ -62,7 +62,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 }) => {
     const { updateUserPassword } = useUserStore();
     const { notifySuccess, notifyError } = useNotifications();
-    const { currentUserId } = useUserPermissions();
+    const { currentUserId, canChangeUserPassword } = useUserPermissions();
     
     // Estados locales
     const [isLoading, setIsLoading] = useState(false);
@@ -72,6 +72,9 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     
     // Verificar si el usuario está cambiando su propia contraseña
     const isOwnPassword = user?.id === currentUserId;
+    
+    // Verificar permisos para cambiar contraseña
+    const hasPermission = user ? canChangeUserPassword(user) : false;
     
     // Seleccionar schema según el contexto - más simple y claro
     const schema = useMemo(() => 
@@ -150,6 +153,22 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     };
 
     if (!user) return null;
+
+    // Si no tiene permisos y no es su propia contraseña, mostrar mensaje de error
+    if (!hasPermission && !isOwnPassword) {
+        return (
+            <Modal isOpen={isOpen} onClose={handleClose} title="Sin Permisos">
+                <div className="text-center py-8">
+                    <div className="text-red-500 text-lg mb-4">
+                        No tienes permisos para cambiar la contraseña de este usuario
+                    </div>
+                    <Button onClick={handleClose} variant="outline">
+                        Cerrar
+                    </Button>
+                </div>
+            </Modal>
+        );
+    }
 
     return (
         <Modal isOpen={isOpen} onClose={handleClose} title="Cambiar Contraseña">

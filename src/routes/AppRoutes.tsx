@@ -62,17 +62,17 @@ const AppRoutes = () => {
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="inventario" element={<InventoryPage />} />
                         <Route path="modelos" element={
-                            <ProtectedRoute requiredRole={['admin']}>
+                            <ProtectedRoute requiredRole={['admin', 'root']}>
                                 <ModelsPage />
                             </ProtectedRoute>
                         } />
                         <Route path="instituciones" element={
-                            <ProtectedRoute requiredRole={['admin']}>
+                            <ProtectedRoute requiredRole={['admin', 'root']}>
                                 <InstitutionsPage />
                             </ProtectedRoute>
                         } />
                         <Route path="servicios" element={
-                            <ProtectedRoute requiredRole={['admin']}>
+                            <ProtectedRoute requiredRole={['admin', 'root']}>
                                 <ServicesPage />
                             </ProtectedRoute>
                         } />

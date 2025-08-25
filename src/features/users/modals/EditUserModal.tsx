@@ -25,16 +25,40 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 }) => {
     const { updateUser } = useUserStore();
     const { notifySuccess, notifyError } = useNotifications();
-    const { canEditUserRole, canEditUserPersonalInfo } = useUserPermissions();
-    const { roleOptions, getRoleIdByName } = useRoles();
+    const { canEditUserRole, canEditUserPersonalInfo, getAvailableRoles } = useUserPermissions();
+    const { getRoleIdByName, isLoading: rolesLoading } = useRoles();
     
     // Estados locales
     const [isLoading, setIsLoading] = useState(false);
     const [showConfirmClose, setShowConfirmClose] = useState(false);
     
-    // Verificar permisos para este usuario
-    const canEditRole = user ? canEditUserRole(user) : false;
-    const canEditPersonalInfo = user ? canEditUserPersonalInfo(user) : false;
+    // Memoizar los permisos para evitar recálculos constantes
+    const canEditRole = useMemo(() => 
+        user ? canEditUserRole(user) : false, 
+        [user?.id, user?.role, canEditUserRole]
+    );
+    
+    const canEditPersonalInfo = useMemo(() => 
+        user ? canEditUserPersonalInfo(user) : false, 
+        [user?.id, user?.role, canEditUserPersonalInfo]
+    );
+    
+    // Obtener roles disponibles para este usuario específico (memoizado para evitar re-renders)
+    const availableRoles = useMemo(() => {
+        return user ? getAvailableRoles(user) : [];
+    }, [user?.id, user?.role, getAvailableRoles]);
+    
+    // Convertir los roles disponibles al formato esperado por el componente Select
+    const roleOptionsForUser = useMemo(() => {
+        if (rolesLoading || !availableRoles.length) {
+            return [];
+        }
+        
+        return availableRoles.map(role => ({
+            id: role.id,
+            name: role.displayName
+        }));
+    }, [availableRoles, rolesLoading]);
 
     // Si no puede editar nada, no mostrar el modal
     if (!canEditRole && !canEditPersonalInfo) {
@@ -56,7 +80,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         control,
         formState: { errors, isDirty },
         reset,
-        setValue,
     } = useForm<UpdateUserFormData>({
         resolver: dynamicSchema ? zodResolver(dynamicSchema) : undefined,
         defaultValues: {
@@ -64,42 +87,36 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             lastName: '',
             cellPhone: '',
             email: '',
-            roleId: 4 // ID del rol 'guest' por defecto
+            roleId: undefined
         }
     });
 
-
-    // Inicializar formulario con datos del usuario
+    // Resetear el formulario solo cuando cambie el usuario o se abra el modal
     useEffect(() => {
-        if (user && isOpen && roleOptions.length > 0) {
-            console.log("🔄 Inicializando formulario:", {
-                user,
-                canEditPersonalInfo,
-                canEditRole,
-                usingZodValidation: !!dynamicSchema,
-                roleOptions
-            });
+        if (user && isOpen) {
+            const values: Partial<UpdateUserFormData> = {};
             
             if (canEditPersonalInfo) {
-                setValue('firstName', user.firstName || '');
-                setValue('lastName', user.lastName || '');
-                setValue('cellPhone', user.cellPhone || '');
-                setValue('email', user.email || '');
-                console.log("✅ Campos personales inicializados");
+                values.firstName = user.firstName || '';
+                values.lastName = user.lastName || '';
+                values.cellPhone = user.cellPhone || '';
+                values.email = user.email || '';
             }
-            if (canEditRole) {
-                // Obtener el roleId basado en el nombre del rol del usuario
-                const userRoleId = user.roleId || getRoleIdByName(user.role || 'guest') || 4;
-                console.log("🔧 Inicializando rol:", {
-                    userRole: user.role,
-                    userRoleId: user.roleId,
-                    calculatedRoleId: userRoleId,
-                    roleOptions: roleOptions.map(r => ({ id: r.id, name: r.name }))
-                });
-                setValue('roleId', userRoleId);
+            
+            if (canEditRole && !rolesLoading) {
+                const userRoleId = getRoleIdByName(user.role || 'guest');
+                if (userRoleId !== undefined) {
+                    values.roleId = userRoleId;
+                } else {
+                    const fallbackRole = availableRoles.find(r => r.name === user.role);
+                    values.roleId = fallbackRole ? fallbackRole.id : 5;
+                }
             }
+            
+            // Usar reset con keepDirty: false para evitar marcar el formulario como dirty
+            reset(values, { keepDirty: false, keepTouched: false });
         }
-    }, [user, isOpen, roleOptions.length]); // Simplificadas las dependencias
+    }, [user?.id, isOpen]); // Solo dependencias esenciales
 
     // Resetear estado de confirmación cuando se abre el modal
     useEffect(() => {
@@ -196,10 +213,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 size="md"
             >
                 <form 
-                    onSubmit={(e) => {
-                        console.log("📝 Form onSubmit event triggered");
-                        handleSubmit(onSubmit)(e);
-                    }} 
+                    onSubmit={handleSubmit(onSubmit)} 
                     className="space-y-6"
                 >
                     {/* Mensaje informativo solo para admins editando roles */}
@@ -296,14 +310,15 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                                 render={({ field }) => (
                                     <Select
                                         label="Rol"
-                                        items={roleOptions}
-                                        value={field.value || 4}
+                                        items={roleOptionsForUser}
+                                        value={field.value ?? ''}
                                         onChange={(value) => {
                                             const numericValue = Number(value);
                                             field.onChange(numericValue);
                                         }}
                                         error={errors.roleId?.message}
-                                        disabled={isLoading}
+                                        disabled={isLoading || roleOptionsForUser.length === 0}
+                                        placeholder="Seleccione un rol"
                                     />
                                 )}
                             />
@@ -323,7 +338,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                             type="submit"
                             disabled={isLoading}
                             className="flex items-center gap-2"
-                            onClick={() => console.log("🔘 Botón submit clickeado")}
                         >
                             <Save className="h-4 w-4" />
                             {isLoading ? 'Guardando...' : 'Guardar cambios'}

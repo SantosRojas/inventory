@@ -7,7 +7,7 @@ export const useAuth = () => {
     const isLoading = useAuthStore((state) => state.isLoading);
 
     const isAuthenticated = !!token && !!user && !isLoading;
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === 'admin' || user?.role === 'root';
 
     return {
         user,

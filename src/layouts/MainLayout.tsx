@@ -237,13 +237,13 @@ const MainLayout = () => {
 
   // Filtrar elementos de navegación según el rol del usuario
   const getFilteredNavItems = () => {
-    const isAdmin = user?.role === 'admin';
+    const isAdminOrRoot = user?.role === 'admin' || user?.role === 'root';
     
-    if (isAdmin) {
+    if (isAdminOrRoot) {
       return NAV_ITEMS;
     }
     
-    // Para usuarios no admin, cambiar "Usuarios" por "Mi Perfil" y excluir páginas de admin
+    // Para usuarios no admin/root, cambiar "Usuarios" por "Mi Perfil" y excluir páginas de admin
     return NAV_ITEMS
       .filter(item => !['Modelos', 'Instituciones', 'Servicios'].includes(item.name))
       .map(item => 
@@ -339,7 +339,14 @@ const MainLayout = () => {
             </div>
             <div className="hidden lg:block text-sm">
               <div className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{user?.firstName}</div>
-              <div className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{user?.role}</div>
+              <div className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
+                {user?.role === 'root' ? 'Root' : 
+                 user?.role === 'admin' ? 'Administrador' :
+                 user?.role === 'sales_representative' ? 'Representante de Ventas' :
+                 user?.role === 'technician' ? 'Técnico' :
+                 user?.role === 'guest' ? 'Invitado' :
+                 user?.role}
+              </div>
             </div>
             <Button variant="secondary" size="sm" icon={LogOut} onClick={logout}>
               <span className="hidden sm:inline">Salir</span>

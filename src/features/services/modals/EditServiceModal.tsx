@@ -33,7 +33,6 @@ const EditServiceModal: React.FC<EditServiceModalProps> = ({
         control,
         formState: { errors, isDirty },
         reset,
-        setValue
     } = useForm<ServiceFormData>({
         resolver: zodResolver(serviceSchema),
         defaultValues: {
@@ -44,9 +43,10 @@ const EditServiceModal: React.FC<EditServiceModalProps> = ({
     // Inicializar formulario con datos del servicio
     useEffect(() => {
         if (service && isOpen) {
-            setValue('name', service.name || '');
+            // Usar reset con opciones para evitar marcar como dirty
+            reset({ name: service.name || '' }, { keepDirty: false, keepTouched: false });
         }
-    }, [service, isOpen, setValue]);
+    }, [service?.id, isOpen, reset]);
 
     // Resetear estado de confirmación cuando se abre el modal
     useEffect(() => {

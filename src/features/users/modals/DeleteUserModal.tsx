@@ -3,6 +3,7 @@ import { Button, Modal } from '../../../components';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import type { UserExtended } from '../types';
 import { getRoleDisplayName } from '../../../services/rolesService';
+import { useUserPermissions } from '../hooks';
 
 interface DeleteUserModalProps {
     isOpen: boolean;
@@ -19,7 +20,39 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
     user,
     isDeleting
 }) => {
+    const { canDeleteUser } = useUserPermissions();
+    
     if (!isOpen || !user) return null;
+
+    // Verificar permisos para eliminar usuario
+    const hasPermission = canDeleteUser(user);
+    
+    // Si no tiene permisos, mostrar mensaje de error
+    if (!hasPermission) {
+        return (
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                title="Sin Permisos"
+                size="md"
+            >
+                <div className="text-center py-8">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
+                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                    </div>
+                    <div className="text-red-500 text-lg mb-4">
+                        No tienes permisos para eliminar este usuario
+                    </div>
+                    <div className="text-sm text-gray-600 mb-6">
+                        Usuario: {user.firstName} {user.lastName} ({getRoleDisplayName(user.role)})
+                    </div>
+                    <Button onClick={onClose} variant="outline">
+                        Cerrar
+                    </Button>
+                </div>
+            </Modal>
+        );
+    }
 
     return (
         <Modal
