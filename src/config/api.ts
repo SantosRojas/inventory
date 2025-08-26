@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   },
   users: {
     getAll: `${API_BASE}/users`,
+    getFilteredUsers:`${API_BASE}/users/filtered`,
     create: `${API_BASE}/users`,
     profile: `${API_BASE}/users/profile`,
     getById: (id: number) => `${API_BASE}/users/${id}`,
@@ -37,8 +38,8 @@ export const API_ENDPOINTS = {
         `${API_BASE}/inventory/overdue-maintenance-by-institution/${institutionId}`,
     getByServiceIdAndInstitutionId: (serviceId: number, institutionId: number) =>
         `${API_BASE}/inventory/institution/${institutionId}/service/${serviceId}`,
-    getLastInventories: (limit: number, userId: number) =>
-        `${API_BASE}/inventory/latest?limit=${limit}&userId=${userId}`,
+    getLastInventories: (limit: number) =>
+        `${API_BASE}/inventory/latest?limit=${limit}`,
   },
   pumpModels: {
     getAll: `${API_BASE}/models`,

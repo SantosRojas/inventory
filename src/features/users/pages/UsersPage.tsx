@@ -24,9 +24,6 @@ const UsersPage = () => {
     
     // Hook de permisos para controlar acceso
     const {
-        canEditUser,
-        canDeleteUser,
-        canChangeUserPassword,
         getFilteredUsers,
         isAdmin,
         currentUserId
@@ -61,13 +58,10 @@ const UsersPage = () => {
     }, [fetchAllUsers]);
 
     const handleEdit = useCallback((user: UserExtended) => {
-        if (!canEditUser(user)) {
-            notifyError('No tienes permisos para editar este usuario');
-            return;
-        }
+        // Simplificado: si el usuario está en la lista, se puede editar
         setSelectedUser(user);
         setShowEditModal(true);
-    }, [canEditUser, notifyError]);
+    }, []);
 
     const handleEditSuccess = useCallback(() => {
         setShowEditModal(false);
@@ -76,13 +70,10 @@ const UsersPage = () => {
     }, []);
 
     const handleChangePassword = useCallback((user: UserExtended) => {
-        if (!canChangeUserPassword(user)) {
-            notifyError('No tienes permisos para cambiar la contraseña de este usuario');
-            return;
-        }
+        // Simplificado: si el usuario está en la lista, se puede cambiar la contraseña
         setSelectedUser(user);
         setShowPasswordModal(true);
-    }, [canChangeUserPassword, notifyError]);
+    }, []);
 
     const handlePasswordSuccess = useCallback(() => {
         setShowPasswordModal(false);
@@ -90,13 +81,9 @@ const UsersPage = () => {
     }, []);
 
     const handleDelete = useCallback((user: UserExtended) => {
-        if (!canDeleteUser(user)) {
-            notifyError('No tienes permisos para eliminar este usuario');
-            return;
-        }
         setUserToDelete(user);
         setShowDeleteModal(true);
-    }, [canDeleteUser, notifyError]);
+    }, []);
 
     const handleConfirmDelete = useCallback(async () => {
         if (!userToDelete) return;
@@ -238,11 +225,6 @@ const UsersPage = () => {
                     onChangePassword={handleChangePassword}
                     isLoading={isLoading}
                     currentUserId={currentUserId || undefined}
-                    permissions={{
-                        canEditUser,
-                        canDeleteUser,
-                        canChangeUserPassword
-                    }}
                 />
             </div>
 

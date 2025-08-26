@@ -3,7 +3,6 @@ import { Button, Modal } from '../../../components';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import type { UserExtended } from '../types';
 import { getRoleDisplayName } from '../../../services/rolesService';
-import { useUserPermissions } from '../hooks';
 
 interface DeleteUserModalProps {
     isOpen: boolean;
@@ -20,12 +19,10 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
     user,
     isDeleting
 }) => {
-    const { canDeleteUser } = useUserPermissions();
-    
     if (!isOpen || !user) return null;
 
-    // Verificar permisos para eliminar usuario
-    const hasPermission = canDeleteUser(user);
+    // Simplificado: Si el modal se abre es porque ya se verificaron los permisos
+    const hasPermission = true;
     
     // Si no tiene permisos, mostrar mensaje de error
     if (!hasPermission) {

@@ -175,13 +175,18 @@ const TopInventoryTakersChart = ({ data }: Props) => {
         <div className="mb-4 space-y-3">
           {/* Búsqueda */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
             <input
               type="text"
               placeholder="Buscar inventariador..."
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              style={{
+                backgroundColor: 'var(--color-bg-primary)',
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-text-primary)'
+              }}
             />
           </div>
 
@@ -190,22 +195,44 @@ const TopInventoryTakersChart = ({ data }: Props) => {
             <div className="flex gap-2 flex-1">
               <button
                 onClick={() => handleSortChange('value')}
-                className={`flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors ${
-                  sortBy === 'value' 
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                    : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                }`}
+                className="flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors border"
+                style={{
+                  backgroundColor: sortBy === 'value' ? 'var(--color-info-light)' : 'var(--color-bg-secondary)',
+                  color: sortBy === 'value' ? 'var(--color-info)' : 'var(--color-text-secondary)',
+                  borderColor: sortBy === 'value' ? 'var(--color-info)' : 'var(--color-border)'
+                }}
+                onMouseEnter={(e) => {
+                  if (sortBy !== 'value') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (sortBy !== 'value') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                  }
+                }}
               >
                 {sortBy === 'value' && (sortOrder === 'desc' ? <SortDesc className="h-3 w-3" /> : <SortAsc className="h-3 w-3" />)}
                 Equipos
               </button>
               <button
                 onClick={() => handleSortChange('name')}
-                className={`flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors ${
-                  sortBy === 'name' 
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                    : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                }`}
+                className="flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors border"
+                style={{
+                  backgroundColor: sortBy === 'name' ? 'var(--color-info-light)' : 'var(--color-bg-secondary)',
+                  color: sortBy === 'name' ? 'var(--color-info)' : 'var(--color-text-secondary)',
+                  borderColor: sortBy === 'name' ? 'var(--color-info)' : 'var(--color-border)'
+                }}
+                onMouseEnter={(e) => {
+                  if (sortBy !== 'name') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (sortBy !== 'name') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                  }
+                }}
               >
                 {sortBy === 'name' && (sortOrder === 'desc' ? <SortDesc className="h-3 w-3" /> : <SortAsc className="h-3 w-3" />)}
                 {isMobile ? 'A-Z' : 'Nombre'}
@@ -275,16 +302,31 @@ const TopInventoryTakersChart = ({ data }: Props) => {
         {/* Controles de paginación */}
         {totalPages > 1 && (
           <div className={`mt-4 space-y-3 ${isMobile ? '' : 'flex items-center justify-between'}`}>
-            <div className="text-sm text-gray-600 text-center">
+            <div className="text-sm text-center" style={{ color: 'var(--color-text-secondary)' }}>
               Página {currentPage + 1} de {totalPages} • {paginatedData.length} de {filteredCount} inventariadores
             </div>
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 0}
-                className={`p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`p-2 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   isMobile ? 'w-10 h-10' : ''
                 }`}
+                style={{
+                  borderColor: 'var(--color-border)',
+                  color: 'var(--color-text-secondary)',
+                  backgroundColor: 'var(--color-bg-primary)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+                  }
+                }}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -309,11 +351,25 @@ const TopInventoryTakersChart = ({ data }: Props) => {
                     <button
                       key={pageNumber}
                       onClick={() => handlePageChange(pageNumber)}
-                      className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} rounded-lg text-sm transition-colors ${
-                        pageNumber === currentPage
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                      className={`${isMobile ? 'w-10 h-10' : 'w-8 h-8'} rounded-lg text-sm transition-colors`}
+                      style={{
+                        backgroundColor: pageNumber === currentPage 
+                          ? 'var(--color-primary)' 
+                          : 'var(--color-bg-secondary)',
+                        color: pageNumber === currentPage 
+                          ? 'var(--color-text-inverse)' 
+                          : 'var(--color-text-secondary)'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (pageNumber !== currentPage) {
+                          e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (pageNumber !== currentPage) {
+                          e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                        }
+                      }}
                     >
                       {pageNumber + 1}
                     </button>
@@ -324,9 +380,24 @@ const TopInventoryTakersChart = ({ data }: Props) => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages - 1}
-                className={`p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`p-2 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   isMobile ? 'w-10 h-10' : ''
                 }`}
+                style={{
+                  borderColor: 'var(--color-border)',
+                  color: 'var(--color-text-secondary)',
+                  backgroundColor: 'var(--color-bg-primary)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!e.currentTarget.disabled) {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
+                  }
+                }}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>

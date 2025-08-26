@@ -222,13 +222,18 @@ export const InventoryProgressByInstitutionCharts: React.FC<
         <div className="mb-4 space-y-3">
           {/* Búsqueda */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
             <input
               type="text"
               placeholder="Buscar institución..."
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              style={{
+                backgroundColor: 'var(--color-bg-primary)',
+                borderColor: 'var(--color-border)',
+                color: 'var(--color-text-primary)'
+              }}
             />
           </div>
 
@@ -237,33 +242,66 @@ export const InventoryProgressByInstitutionCharts: React.FC<
             <div className="flex gap-2 flex-1">
               <button
                 onClick={() => handleSortChange('percentage')}
-                className={`flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors ${
-                  sortBy === 'percentage' 
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                    : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                }`}
+                className="flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors border"
+                style={{
+                  backgroundColor: sortBy === 'percentage' ? 'var(--color-info-light)' : 'var(--color-bg-secondary)',
+                  color: sortBy === 'percentage' ? 'var(--color-info)' : 'var(--color-text-secondary)',
+                  borderColor: sortBy === 'percentage' ? 'var(--color-info)' : 'var(--color-border)'
+                }}
+                onMouseEnter={(e) => {
+                  if (sortBy !== 'percentage') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (sortBy !== 'percentage') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                  }
+                }}
               >
                 {sortBy === 'percentage' && (sortOrder === 'desc' ? <SortDesc className="h-3 w-3" /> : <SortAsc className="h-3 w-3" />)}
                 % Progreso
               </button>
               <button
                 onClick={() => handleSortChange('total')}
-                className={`flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors ${
-                  sortBy === 'total' 
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                    : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                }`}
+                className="flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors border"
+                style={{
+                  backgroundColor: sortBy === 'total' ? 'var(--color-info-light)' : 'var(--color-bg-secondary)',
+                  color: sortBy === 'total' ? 'var(--color-info)' : 'var(--color-text-secondary)',
+                  borderColor: sortBy === 'total' ? 'var(--color-info)' : 'var(--color-border)'
+                }}
+                onMouseEnter={(e) => {
+                  if (sortBy !== 'total') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (sortBy !== 'total') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                  }
+                }}
               >
                 {sortBy === 'total' && (sortOrder === 'desc' ? <SortDesc className="h-3 w-3" /> : <SortAsc className="h-3 w-3" />)}
                 Total
               </button>
               <button
                 onClick={() => handleSortChange('name')}
-                className={`flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors ${
-                  sortBy === 'name' 
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                    : 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                }`}
+                className="flex-1 px-3 py-2 text-sm rounded-lg flex items-center justify-center gap-1 transition-colors border"
+                style={{
+                  backgroundColor: sortBy === 'name' ? 'var(--color-info-light)' : 'var(--color-bg-secondary)',
+                  color: sortBy === 'name' ? 'var(--color-info)' : 'var(--color-text-secondary)',
+                  borderColor: sortBy === 'name' ? 'var(--color-info)' : 'var(--color-border)'
+                }}
+                onMouseEnter={(e) => {
+                  if (sortBy !== 'name') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (sortBy !== 'name') {
+                    e.currentTarget.style.backgroundColor = 'var(--color-bg-secondary)';
+                  }
+                }}
               >
                 {sortBy === 'name' && (sortOrder === 'desc' ? <SortDesc className="h-3 w-3" /> : <SortAsc className="h-3 w-3" />)}
                 {isMobile ? 'A-Z' : 'Nombre'}

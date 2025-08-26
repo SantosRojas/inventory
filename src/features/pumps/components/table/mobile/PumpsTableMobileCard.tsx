@@ -34,12 +34,31 @@ const PumpsTableMobileCard = memo(({
     };
 
     return (
-        <div className="p-4 hover:bg-gray-50 transition-colors duration-150">
+        <div 
+            className="p-4 transition-colors duration-150 cursor-pointer"
+            style={{
+                backgroundColor: 'var(--color-bg-card)',
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-bg-card)';
+            }}
+        >
             {/* Header section */}
             <div className="flex justify-between items-start mb-3">
                 <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{item.model}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 
+                        className="text-lg font-semibold" 
+                        style={{ color: 'var(--color-text-primary)' }}
+                    >
+                        {item.model}
+                    </h3>
+                    <p 
+                        className="text-sm" 
+                        style={{ color: 'var(--color-text-secondary)' }}
+                    >
                         S/N: <span className="font-mono">{item.serialNumber}</span>
                     </p>
                 </div>

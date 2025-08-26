@@ -14,9 +14,7 @@ interface PumpsTableRowProps {
 
 // Constantes para estilos de filas
 const ROW_STYLES = {
-    base: "hover:bg-blue-50 transition-colors duration-150",
-    even: "bg-white",
-    odd: "bg-gray-50"
+    base: "transition-colors duration-150",
 } as const;
 
 const PumpsTableRow = memo(({
@@ -27,10 +25,22 @@ const PumpsTableRow = memo(({
     onEdit,
     onDelete
 }: PumpsTableRowProps) => {
-    const rowBackgroundClass = index % 2 === 0 ? ROW_STYLES.even : ROW_STYLES.odd;
+    const isEven = index % 2 === 0;
     
     return (
-        <tr className={`${ROW_STYLES.base} ${rowBackgroundClass}`}>
+        <tr 
+            className={ROW_STYLES.base}
+            style={{
+                backgroundColor: isEven ? 'var(--color-bg-primary)' : 'var(--color-bg-secondary)'
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+            }}
+            onMouseLeave={(e) => {
+                const isEven = index % 2 === 0;
+                e.currentTarget.style.backgroundColor = isEven ? 'var(--color-bg-primary)' : 'var(--color-bg-secondary)';
+            }}
+        >
             {TABLE_COLUMNS.map((column) => (
                 <SmartCell
                     key={column.key}

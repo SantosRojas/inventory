@@ -34,8 +34,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     
     // Memoizar los permisos para evitar recálculos constantes
     const canEditRole = useMemo(() => 
-        user ? canEditUserRole(user) : false, 
-        [user?.id, user?.role, canEditUserRole]
+        user ? canEditUserRole() : false, 
+        [user?.id, canEditUserRole]
     );
     
     const canEditPersonalInfo = useMemo(() => 
@@ -43,10 +43,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         [user?.id, user?.role, canEditUserPersonalInfo]
     );
     
-    // Obtener roles disponibles para este usuario específico (memoizado para evitar re-renders)
+    // Obtener roles disponibles (simplificado - no depende del usuario específico)
     const availableRoles = useMemo(() => {
-        return user ? getAvailableRoles(user) : [];
-    }, [user?.id, user?.role, getAvailableRoles]);
+        return getAvailableRoles();
+    }, [getAvailableRoles]);
     
     // Convertir los roles disponibles al formato esperado por el componente Select
     const roleOptionsForUser = useMemo(() => {

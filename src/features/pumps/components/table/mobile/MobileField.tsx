@@ -1,5 +1,4 @@
 import { memo } from 'react';
-import { TEXT_STYLES } from '../shared/styles';
 
 interface MobileFieldProps {
     label: string;
@@ -12,14 +11,20 @@ const MobileField = memo(({
     value, 
     isMonospace = false 
 }: MobileFieldProps) => {
-    const valueClass = isMonospace ? TEXT_STYLES.fontMono : "";
+    const valueClass = isMonospace ? "font-mono" : "";
     
     return (
         <div className="mb-2">
-            <p className={`${TEXT_STYLES.textXs} ${TEXT_STYLES.fontMedium} ${TEXT_STYLES.textGray500} uppercase tracking-wide`}>
+            <p 
+                className="text-xs font-medium uppercase tracking-wide"
+                style={{ color: 'var(--color-text-muted)' }}
+            >
                 {label}
             </p>
-            <div className={`${TEXT_STYLES.textSm} ${TEXT_STYLES.textGray900} ${valueClass}`}>
+            <div 
+                className={`text-sm ${valueClass}`}
+                style={{ color: 'var(--color-text-primary)' }}
+            >
                 {value}
             </div>
         </div>

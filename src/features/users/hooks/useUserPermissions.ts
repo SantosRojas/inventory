@@ -34,14 +34,10 @@ export const useUserPermissions = () => {
         };
     }, [currentUser]);
 
-    const canEditUser = (targetUser: UserExtended): boolean => {
-        if (!currentUser) return false;
-        
-        // Los usuarios pueden editar su propia información
-        if (currentUser.id === targetUser.id) return true;
-        
-        // Solo admins y root pueden editar otros usuarios
-        return permissions.isAdmin;
+    // Simplificado: El backend ya filtra los usuarios según permisos
+    // Si el usuario aparece en la lista, se puede editar
+    const canEditUser = (): boolean => {
+        return !!currentUser; // Si hay usuario logueado, puede editar los usuarios que ve
     };
 
     const canDeleteUser = (targetUser: UserExtended): boolean => {
@@ -53,54 +49,19 @@ export const useUserPermissions = () => {
         // Root no puede ser eliminado por nadie
         if ((targetUser.role as string) === 'root') return false;
         
-        // Solo root puede eliminar administradores
-        if ((targetUser.role as string) === 'admin' && !permissions.isRoot) return false;
-        
-        // Solo los admins (incluye root) pueden eliminar otros usuarios
+        // Para otros usuarios, si están en la lista del backend, se pueden eliminar
         return permissions.isAdmin;
     };
 
-    const canChangeUserPassword = (targetUser: UserExtended): boolean => {
-        if (!currentUser) return false;
-        
-        // Los usuarios pueden cambiar su propia contraseña
-        if (currentUser.id === targetUser.id) return true;
-        
-        // Root puede cambiar contraseñas de todos
-        if (permissions.isRoot) return true;
-        
-        // Admins (no root) NO pueden cambiar contraseñas de root o otros admins
-        if (permissions.isAdmin && !permissions.isRoot) {
-            const userRole = targetUser.role as string;
-            return userRole !== 'root' && userRole !== 'admin';
-        }
-        
-        return false;
+    const canChangeUserPassword = (): boolean => {
+        return !!currentUser; // Simplificado: el backend controla los permisos
     };
 
-    const canEditUserRole = useCallback((targetUser: UserExtended): boolean => {
+    const canEditUserRole = useCallback((): boolean => {
         if (!currentUser) return false;
-        
-        // No se puede cambiar el rol de uno mismo
-        if (currentUser.id === targetUser.id) return false;
-        
-        // Solo root puede cambiar roles de administradores
-        if ((targetUser.role as string) === 'admin' && !permissions.isRoot) return false;
-        
-        // Nadie puede cambiar el rol de root
-        if ((targetUser.role as string) === 'root') return false;
-        
-        // Root puede cambiar roles de todos (excepto root)
-        if (permissions.isRoot) return true;
-        
-        // Admins (no root) solo pueden cambiar roles de usuarios que no son admin ni root
-        if (permissions.isAdmin && !permissions.isRoot) {
-            const userRole = targetUser.role as string;
-            return userRole !== 'admin' && userRole !== 'root';
-        }
-        
-        return false;
-    }, [currentUser, permissions.isRoot, permissions.isAdmin]);
+        // Simplificado: solo los admins pueden editar roles
+        return permissions.isAdmin;
+    }, [currentUser, permissions.isAdmin]);
 
     const canEditUserPersonalInfo = useCallback((targetUser: UserExtended): boolean => {
         if (!currentUser) return false;
@@ -114,16 +75,11 @@ export const useUserPermissions = () => {
     }, [currentUser]);
 
     const getFilteredUsers = (users: UserExtended[]): UserExtended[] => {
-        if (!currentUser) return [];
-        
-        // Los admins ven todos los usuarios
-        if (permissions.isAdmin) return users;
-        
-        // Los usuarios regulares solo ven su propio perfil
-        return users.filter(user => user.id === currentUser.id);
+        // El backend ya filtra los usuarios según permisos, solo devolvemos la lista
+        return users;
     };
 
-    const getAvailableRoles = useCallback((targetUser?: UserExtended) => {
+    const getAvailableRoles = useCallback(() => {
         if (!permissions.isAdmin) return [];
         
         // Roles base disponibles (IDs corregidos según backend)
@@ -136,20 +92,6 @@ export const useUserPermissions = () => {
         // Solo root puede asignar el rol de admin
         if (permissions.isRoot) {
             baseRoles.unshift({ id: 2, name: 'admin', displayName: 'Administrador' });
-        }
-        
-        // Si no hay usuario objetivo, devolver todos los roles disponibles
-        if (!targetUser) return baseRoles;
-        
-        // Filtrar roles según el usuario objetivo
-        if ((targetUser.role as string) === 'root') {
-            // Nadie puede cambiar el rol de root
-            return [];
-        }
-        
-        if ((targetUser.role as string) === 'admin' && !permissions.isRoot) {
-            // Solo root puede cambiar roles de admin
-            return [];
         }
         
         return baseRoles;

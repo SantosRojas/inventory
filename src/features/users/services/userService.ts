@@ -72,7 +72,7 @@ function getAuthHeaders(): HeadersInit {
  * Obtiene todos los usuarios
  */
 export async function getAllUsers(): Promise<UserExtended[]> {
-    const endPoint = API_ENDPOINTS.users.getAll;
+    const endPoint = API_ENDPOINTS.users.getFilteredUsers;
     const res = await fetch(endPoint, {
         headers: getAuthHeaders()
     });

@@ -10,11 +10,6 @@ interface UsersTableProps {
     onChangePassword: (user: UserExtended) => void;
     isLoading?: boolean;
     currentUserId?: number;
-    permissions?: {
-        canEditUser: (user: UserExtended) => boolean;
-        canDeleteUser: (user: UserExtended) => boolean;
-        canChangeUserPassword: (user: UserExtended) => boolean;
-    };
 }
 
 // Mapeo de roles para mostrar
@@ -54,19 +49,13 @@ const UserCard = memo(({
     onEdit, 
     onDelete, 
     onChangePassword,
-    currentUserId,
-    permissions
+    currentUserId
 }: {
     user: UserExtended;
     onEdit: (user: UserExtended) => void;
     onDelete: (user: UserExtended) => void;
     onChangePassword: (user: UserExtended) => void;
     currentUserId?: number;
-    permissions?: {
-        canEditUser: (user: UserExtended) => boolean;
-        canDeleteUser: (user: UserExtended) => boolean;
-        canChangeUserPassword: (user: UserExtended) => boolean;
-    };
 }) => {
     const handleEdit = useCallback(() => onEdit(user), [onEdit, user]);
     const handleDelete = useCallback(() => onDelete(user), [onDelete, user]);
@@ -74,10 +63,11 @@ const UserCard = memo(({
     
     const isCurrentUser = currentUserId === user.id;
     
-    // Verificar permisos
-    const canEdit = permissions?.canEditUser(user) ?? true;
-    const canDelete = permissions?.canDeleteUser(user) ?? !isCurrentUser;
-    const canChangePassword = permissions?.canChangeUserPassword(user) ?? true;
+    // Simplificado: Si el usuario está en la lista, se pueden realizar todas las acciones
+    // excepto eliminarse a sí mismo o eliminar root
+    const canEdit = true;
+    const canDelete = !isCurrentUser && user.role !== 'root';
+    const canChangePassword = true;
 
     // Obtener información del rol
     const { label: roleLabel, colorClass: roleColorClass } = getRoleInfo(user);
@@ -209,8 +199,7 @@ const UsersTable = memo(({
     onDelete,
     onChangePassword,
     isLoading = false,
-    currentUserId,
-    permissions
+    currentUserId
 }: UsersTableProps) => {
     if (isLoading) {
         return (
@@ -280,7 +269,6 @@ const UsersTable = memo(({
                         onDelete={onDelete}
                         onChangePassword={onChangePassword}
                         currentUserId={currentUserId}
-                        permissions={permissions}
                     />
                 ))}
             </div>

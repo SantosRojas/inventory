@@ -15,8 +15,7 @@ interface PumpsTableDesktopProps {
 const TABLE_STYLES = {
     container: "hidden lg:block",
     wrapper: "overflow-x-auto overflow-y-visible",
-    table: "w-full table-fixed divide-y divide-gray-200 min-w-[1000px]",
-    tbody: "bg-white divide-y divide-gray-100"
+    table: "w-full table-fixed min-w-[1000px]",
 } as const;
 
 const PumpsTableDesktop = memo(({
@@ -29,9 +28,21 @@ const PumpsTableDesktop = memo(({
     return (
         <div className={TABLE_STYLES.container}>
             <div className={TABLE_STYLES.wrapper}>
-                <table className={TABLE_STYLES.table}>
+                <table 
+                    className={TABLE_STYLES.table}
+                    style={{
+                        borderTopColor: 'var(--color-border)',
+                        borderBottomColor: 'var(--color-border)'
+                    }}
+                >
                     <PumpsTableHeader />
-                    <tbody className={TABLE_STYLES.tbody}>
+                    <tbody 
+                        style={{
+                            backgroundColor: 'var(--color-bg-primary)',
+                            borderTopColor: 'var(--color-border-light)',
+                            borderBottomColor: 'var(--color-border-light)'
+                        }}
+                    >
                         {pumpData.map((item, index) => (
                             <PumpsTableRow
                                 key={item.id}
