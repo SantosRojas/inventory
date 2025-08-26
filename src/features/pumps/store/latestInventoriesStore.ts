@@ -24,7 +24,7 @@ export const useLatestInventoriesStore = create<LatestInventoriesState>((set) =>
     if (!token || !user?.id) return;
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(API_ENDPOINTS.pumps.getLastInventories(requestedLimit, user?.id), {
+      const response = await fetch(API_ENDPOINTS.pumps.getLastInventories(requestedLimit), {
         headers: getHeaders(token),
       });
       const data = await response.json();

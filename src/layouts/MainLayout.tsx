@@ -11,7 +11,6 @@ import {
   Home,
   Package,
   BarChart3,
-  Search,
   Building,
   Stethoscope,
   Monitor,
@@ -304,29 +303,7 @@ const MainLayout = () => {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <div className="relative w-64 hidden sm:block">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5" style={{ color: 'var(--color-text-muted)' }} />
-              </div>
-              <input
-                type="search"
-                placeholder="Buscar..."
-                className="w-full pl-10 pr-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 transition-all border"
-                style={{
-                  backgroundColor: 'var(--color-bg-secondary)',
-                  color: 'var(--color-text-primary)',
-                  borderColor: 'var(--color-border)',
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--color-primary)';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'var(--color-border)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-            </div>
+            
           </div>
 
           <div className="flex items-center space-x-4">
