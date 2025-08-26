@@ -19,8 +19,8 @@ import { useAuth } from '../features/auth/hooks';
 import { useAuthStore } from '../features/auth/store/store';
 
 const NAV_ITEMS = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Inventario', href: '/inventario', icon: Package },
+  { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Usuarios', href: '/usuarios', icon: Users },
   { name: 'Modelos', href: '/modelos', icon: Monitor },
   { name: 'Instituciones', href: '/instituciones', icon: Building },
@@ -71,9 +71,6 @@ const Sidebar = ({
              borderBottom: '1px solid var(--color-border)'
            }}>
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'space-x-2'}`} style={{ color: 'var(--color-text-primary)' }}>
-          <div className="p-1.5 rounded-lg" style={{ backgroundColor: 'var(--color-primary)' }}>
-            <Activity className="h-5 w-5" style={{ color: 'var(--color-text-inverse)' }} />
-          </div>
           {!collapsed && <span className="font-semibold text-base">InventarioApp</span>}
         </div>
         {!isMobile && (
@@ -94,7 +91,9 @@ const Sidebar = ({
             }}
             title={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
           >
-            <Activity className="h-4 w-4" />
+            <div className="p-1.5 rounded-lg" style={{ backgroundColor: 'var(--color-primary)' }}>
+            <Activity className="h-5 w-5" style={{ color: 'var(--color-text-inverse)' }} />
+          </div>
           </button>
         )}
         {isMobile && (

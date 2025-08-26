@@ -1,4 +1,4 @@
-export const API_BASE = 'http://192.168.1.121:4000';
+export const API_BASE = 'http://localhost:4000';
 
 export const API_ENDPOINTS = {
   auth: {
@@ -66,16 +66,16 @@ export const API_ENDPOINTS = {
     delete: (id: number) => `${API_BASE}/services/${id}`,
   },
   dashboard: {
-    summary: (userId: number) => `${API_BASE}/dashboard/summary/${userId}`,
-    modelDistribution: (userId: number) => `${API_BASE}/dashboard/model-distribution/${userId}`,
-    modelDistributionByInstitution: (userId: number) =>
-        `${API_BASE}/dashboard/model-distribution/by-institution/${userId}`,
-    inventoryProgressByInstitution: (userId: number) =>
-        `${API_BASE}/dashboard/inventory-progress/by-institution/${userId}`,
-    inventoryProgressByService: (userId: number) =>
-        `${API_BASE}/dashboard/inventory-progress/by-service/${userId}`,
-    topInventoryTakers: (userId: number) =>
-        `${API_BASE}/dashboard/top-inventory-takers/${userId}`,
+    summary: () => `${API_BASE}/dashboard/summary`,
+    modelDistribution: () => `${API_BASE}/dashboard/model-distribution`,
+    modelDistributionByInstitution: () =>
+        `${API_BASE}/dashboard/model-distribution/by-institution`,
+    inventoryProgressByInstitution: () =>
+        `${API_BASE}/dashboard/inventory-progress/by-institution`,
+    inventoryProgressByService: () =>
+        `${API_BASE}/dashboard/inventory-progress/by-service`,
+    topInventoryTakers: () =>
+        `${API_BASE}/dashboard/top-inventory-takers`,
     overdueMaintenance: () => `${API_BASE}/dashboard/overdue-maintenance/by-institution`,
   },
 };

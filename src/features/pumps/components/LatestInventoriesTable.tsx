@@ -3,6 +3,7 @@ import type { Pump } from '../../../types';
 import { PumpsTableDesktop, PumpsTableMobile, LoadingState, usePumpsTable } from './table';
 import { useLatestInventoriesStore } from '../store';
 import { useAuthStore } from '../../auth/store/store';
+import { Loader, RefreshCcw } from 'lucide-react';
 
 interface LatestInventoriesTableProps {
   onEdit: (pump: Pump) => void;
@@ -104,7 +105,8 @@ const LatestInventoriesTable = memo(({
               disabled={isLoading}
               className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 transition-colors text-sm flex items-center gap-1"
             >
-              {isLoading ? '⏳' : '🔄'} Actualizar
+              {isLoading ? <Loader className={`h-4 w-4`} style={{ color: 'var(--color-secondary)' }}/> : <RefreshCcw className={`h-4 w-4`} style={{ color: 'var(--color-secondary)' }} />}
+              <span className='hidden sm:inline'>Actualizar</span>
             </button>
           </div>
         </div>

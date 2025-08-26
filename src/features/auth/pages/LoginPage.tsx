@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
 
     // 🔒 Redirigir si ya está autenticado
     if (isAuthenticated && !isLoading) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to="/inventario" replace />;
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

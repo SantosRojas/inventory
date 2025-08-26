@@ -15,7 +15,7 @@ const RegisterPage: React.FC = () => {
 
     // Redireccionar si ya está autenticado
     if (isAuthenticated && !isLoading) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to="/inventario" replace />;
     }
 
     return (

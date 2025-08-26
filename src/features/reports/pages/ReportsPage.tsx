@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense } from 'react';
 import { useAuth } from '../../auth/hooks';
 import { useReportsStore } from '../store/reportsStore';
+import { PageLoader } from '../../../components';
 
 // Lazy load del gráfico desde dashboard
 const LazyCharts = {
@@ -59,7 +60,9 @@ export const ReportsPage = () => {
 
     if (isAuthLoading) return <StateMessage icon="🔄" text="Inicializando autenticación..."/>;
     if (!user) return <StateMessage icon="⚠️" text="No hay usuario autenticado" color="text-red-600"/>;
-    if (loading) return <StateMessage icon="🔄" text="Cargando datos de reportes..."/>;
+    if (loading) {
+        return <PageLoader />;
+    }
     if (error) {
         return (
             <div className="p-6">

@@ -19,7 +19,7 @@ interface DashboardState {
         topInventoryTakers: TopInventoryTakersResponse | null;
         overdueMaintenance: OverdueMaintenanceResponse | null;
         loadedAt: string | null; } | null; loading: boolean; error: string | null;
-        getDashboardData: (userId: number, token?: string) => Promise<void>; clear: () => void;
+        getDashboardData: (token?: string) => Promise<void>; clear: () => void;
 }
 export const useDashboardStore = create<DashboardState>()(
     persist(
@@ -28,11 +28,11 @@ export const useDashboardStore = create<DashboardState>()(
             loading: false,
             error: null,
 
-            getDashboardData: async (userId:number, token = '') => {
+            getDashboardData: async (token='') => {
                 set({ loading: true, error: null });
 
                 try {
-                    const dashboardData = await fetchDashboardData(userId, token);
+                    const dashboardData = await fetchDashboardData(token);
 
                     set({
                         data: {

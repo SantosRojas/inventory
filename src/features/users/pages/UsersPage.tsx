@@ -11,6 +11,7 @@ import {
     ChangePasswordModal, 
     DeleteUserModal 
 } from "../modals";
+import { PageLoader } from '../../../components';
 
 const UsersPage = () => {
     const { 
@@ -118,6 +119,10 @@ const UsersPage = () => {
         setShowDeleteModal(false);
         setUserToDelete(null);
     }, []);
+
+    if (isLoading) {
+        return <PageLoader />;
+    }
 
     if (error) {
         return (

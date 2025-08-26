@@ -11,7 +11,7 @@ import {
     EditServiceModal, 
     DeleteServiceModal 
 } from "../modals";
-import { Button } from '../../../components';
+import { Button, PageLoader } from '../../../components';
 
 const ServicesPage = () => {
     const { 
@@ -106,6 +106,10 @@ const ServicesPage = () => {
         setShowDeleteModal(false);
         setServiceToDelete(null);
     }, []);
+
+    if (isLoading) {
+        return <PageLoader />;
+    }
 
     if (error) {
         return (

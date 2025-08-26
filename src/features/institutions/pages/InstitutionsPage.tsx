@@ -11,7 +11,7 @@ import {
     EditInstitutionModal, 
     DeleteInstitutionModal 
 } from "../modals";
-import { Button } from '../../../components';
+import { Button, PageLoader } from '../../../components';
 
 const InstitutionsPage = () => {
     const { 
@@ -106,6 +106,10 @@ const InstitutionsPage = () => {
         setShowDeleteModal(false);
         setInstitutionToDelete(null);
     }, []);
+
+    if (isLoading) {
+        return <PageLoader />;
+    }
 
     if (error) {
         return (

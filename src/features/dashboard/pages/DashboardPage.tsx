@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense } from 'react';
-import { LazyCard } from '../../../components';
+import { LazyCard, PageLoader } from '../../../components';
 import { useAuth } from '../../auth/hooks';
 import { useDashboardStore } from '../store/dashboardStore';
 import {EmptyState} from "../components";
@@ -88,7 +88,7 @@ export const DashboardPage = () => {
     useEffect(() => {
         if (user?.id) {
             console.log("inciando")
-            getDashboardData(user.id, token ? token : "");
+            getDashboardData(token ? token : "");
         }
     }, [user?.id, getDashboardData, token]);
 
@@ -101,7 +101,9 @@ export const DashboardPage = () => {
 
     if (isAuthLoading) return <StateMessage icon="🔄" text="Inicializando autenticación..."/>;
     if (!user) return <StateMessage icon="⚠️" text="No hay usuario autenticado" color="text-red-600"/>;
-    if (loading) return <StateMessage icon="🔄" text="Cargando datos del dashboard..."/>;
+    if (loading) {
+        return <PageLoader />;
+    }
     if (error) {
         return (
             <div className="p-6">
@@ -109,7 +111,7 @@ export const DashboardPage = () => {
                     <h3 className="text-lg font-medium text-red-800 mb-2">❌ Error al cargar el dashboard</h3>
                     <p className="text-red-600 mb-4">{error}</p>
                     <button
-                        onClick={() => getDashboardData(user.id, token)}
+                        onClick={() => getDashboardData(token)}
                         className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                     >
                         🔄 Reintentar
@@ -130,6 +132,7 @@ export const DashboardPage = () => {
         overdueMaintenance,
         loadedAt,
     } = data;
+
 
 
     const isAdmin = !!summary?.adminData;
@@ -156,7 +159,7 @@ export const DashboardPage = () => {
                     </p>
                 </div>
                 <button
-                    onClick={() => user?.id && getDashboardData(user.id, token)}
+                    onClick={() => user?.id && getDashboardData(token)}
                     className="bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap flex-shrink-0"
                     disabled={!user?.id || !token}
                 >

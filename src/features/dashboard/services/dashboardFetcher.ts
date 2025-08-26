@@ -20,7 +20,6 @@ export interface DashboardData {
 }
 
 export const fetchDashboardData = async (
-    userId: number,
     token: string
 ): Promise<DashboardData> => {
     const fetchAndValidate = async <T>(url: string): Promise<T | null> => {
@@ -42,15 +41,15 @@ export const fetchDashboardData = async (
         topInventoryTakers,
         overdueMaintenance,
     ] = await Promise.all([
-        fetchAndValidate<SummaryResponse>(API_ENDPOINTS.dashboard.summary(userId)),
-        fetchAndValidate<ModelDistributionResponse>(API_ENDPOINTS.dashboard.modelDistribution(userId)),
+        fetchAndValidate<SummaryResponse>(API_ENDPOINTS.dashboard.summary()),
+        fetchAndValidate<ModelDistributionResponse>(API_ENDPOINTS.dashboard.modelDistribution()),
         fetchAndValidate<ModelDistributionByInstitutionResponse>(
-            API_ENDPOINTS.dashboard.modelDistributionByInstitution(userId)
+            API_ENDPOINTS.dashboard.modelDistributionByInstitution()
         ),
         fetchAndValidate<InventoryProgressByInstitutionResponse>(
-            API_ENDPOINTS.dashboard.inventoryProgressByInstitution(userId)
+            API_ENDPOINTS.dashboard.inventoryProgressByInstitution()
         ),
-        fetchAndValidate<TopInventoryTakersResponse>(API_ENDPOINTS.dashboard.topInventoryTakers(userId)),
+        fetchAndValidate<TopInventoryTakersResponse>(API_ENDPOINTS.dashboard.topInventoryTakers()),
         fetchAndValidate<OverdueMaintenanceResponse>(API_ENDPOINTS.dashboard.overdueMaintenance()),
     ]);
 

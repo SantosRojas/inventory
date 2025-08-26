@@ -4,6 +4,7 @@ import { ModelList } from '../components/ModelList';
 import { CreateModelModal, EditModelModal, DeleteModelModal } from '../modals';
 import Button from '../../../components/Button';
 import type { Model } from '../types/models.types';
+import PageLoader from '../../../components/PageLoader.js';
 
 export const ModelsPage: React.FC = () => {
   const { 
@@ -47,6 +48,10 @@ export const ModelsPage: React.FC = () => {
       setSelectedModel(null);
     }, 150);
   };
+
+  if (loading) {
+        return <PageLoader />;
+    }
 
   // Pantalla de error si hay problemas al cargar
   if (error) {
