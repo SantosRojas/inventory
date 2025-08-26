@@ -98,24 +98,25 @@ const PumpsPage = () => {
 
 
     return (
-        <div className="flex flex-col h-full w-full overflow-hidden gap-4">
+        <div className="flex flex-col h-full w-full">
             {/* Toolbar */}
             <PumpsToolbar
                 onQRScan={handleQRScan}
                 onAdd={handleAdd}
             />
 
-            {/* Tabla principal de todos los inventarios */}
-            <PumpsTable
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+            {/* Contenido scrollable */}
+            <div className="flex-1 overflow-y-auto space-y-4 scrollbar-none">
+                <PumpsTable
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
 
-            {/* Sección de Últimos Inventarios */}
-            <LatestInventoriesTable
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+                <LatestInventoriesTable
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
+            </div>
             
 
             {/* Modales */}

@@ -48,7 +48,6 @@ const LightChartSection = ({
 export const ReportsPage = () => {
     const {user, isLoading: isAuthLoading, token: authToken} = useAuth();
     const {data, loading, error, getReportsData} = useReportsStore();
-    const loadedAt = useReportsStore(state => state.loadedAt);
 
     const token = authToken ? authToken : "";
 
@@ -84,26 +83,7 @@ export const ReportsPage = () => {
     } = data || {};
 
     return (
-        <div className="p-2 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 max-w-full overflow-hidden">
-            {/* Encabezado */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-                <div className="min-w-0 flex-1">
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">
-                        📊 Reportes de Inventario
-                    </h1>
-                    <p className="text-sm sm:text-base text-gray-600 mt-1 break-words">
-                        Análisis detallado del progreso del inventario por servicios
-                    </p>
-                </div>
-                <button
-                    onClick={() => user?.id && getReportsData(user.id, token)}
-                    className="bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap flex-shrink-0"
-                    disabled={!user?.id || !token}
-                >
-                    🔄 <span className="hidden sm:inline">Actualizar</span>
-                </button>
-            </div>
-
+        <>
             {/* Progreso por servicio */}
             {inventoryProgressByService && summary ? (
                 <LightChartSection height="h-96">
@@ -126,30 +106,8 @@ export const ReportsPage = () => {
                 </div>
             )}
 
-            {/* Información adicional */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-start">
-                    <div className="text-2xl mr-3">💡</div>
-                    <div>
-                        <h4 className="font-medium text-blue-900 mb-1">
-                            Información sobre los reportes
-                        </h4>
-                        <p className="text-blue-700 text-sm">
-                            Este reporte muestra el progreso del inventario agrupado por servicios, 
-                            permitiendo identificar qué servicios tienen mayor avance en sus inventarios.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Footer */}
-            <div className="text-center text-sm text-gray-500 py-4">
-                <p>
-                    Datos actualizados:{' '}
-                    {loadedAt ? new Date(loadedAt).toLocaleString() : 'N/A'}
-                </p>
-            </div>
-        </div>
+           
+        </>
     );
 };
 

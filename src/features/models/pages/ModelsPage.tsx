@@ -77,7 +77,7 @@ export const ModelsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full w-full gap-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
@@ -98,12 +98,14 @@ export const ModelsPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Lista de modelos */}
-      <ModelList
-        onEdit={openEditModal}
-        onDelete={openDeleteModal}
-        isLoading={loading}
-      />
+      <div className='flex-1 overflow-y-auto space-y-4 scrollbar-none'>
+        {/* Lista de modelos */}
+        <ModelList
+          onEdit={openEditModal}
+          onDelete={openDeleteModal}
+          isLoading={loading}
+        />
+      </div>
 
       {/* Modal de creación */}
       <CreateModelModal

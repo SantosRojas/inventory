@@ -28,7 +28,7 @@ export const ModelList: React.FC<ModelListProps> = ({
   return (
     <div className="space-y-4">
       {/* Barra de búsqueda */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between sticky top-0 z-10 bg-secondary">
         <div className="flex-1 max-w-md">
           <Input
             value={searchTerm}

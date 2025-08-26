@@ -134,7 +134,7 @@ const InstitutionsPage = () => {
     }
 
     return (
-        <div className="flex flex-col h-full w-full overflow-hidden gap-2 p-1 md:p-4">
+        <div className="flex flex-col h-full w-full gap-4 p-1 md:p-4">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>

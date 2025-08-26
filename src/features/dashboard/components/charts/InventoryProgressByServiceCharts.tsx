@@ -351,7 +351,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
   }
 
   return (
-    <div className="bg-white p-2 sm:p-4 lg:p-6 rounded-lg border space-y-4 sm:space-y-6 overflow-hidden">
+    <div className="p-1 sm:p-4 flex flex-col h-full w-full gap-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div className="min-w-0 flex-1">
@@ -389,6 +389,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
       </div>
 
       {/* Instituciones */}
+      <div className="flex-1 overflow-y-auto space-y-4 scrollbar-none">
       {filteredAndSortedInstitutions.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">
@@ -526,6 +527,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 };
