@@ -26,22 +26,24 @@ const NAV_ITEMS = [
 ];
 
  // Filtrar elementos de navegación según el rol del usuario
-  const getFilteredNavItems = (user: User) => {
-    const isAdminOrRoot = user?.role === 'admin' || user?.role === 'root';
+const getFilteredNavItems = (user: User) => {
+  const { role } = user || {};
+  const isAdminOrRoot = role === 'admin' || role === 'root';
+  const isGuest = role === 'guest';
 
-    if (isAdminOrRoot) {
-      return NAV_ITEMS;
-    }
+  if (isAdminOrRoot) return NAV_ITEMS;
 
-    // Para usuarios no admin/root, cambiar "Usuarios" por "Mi Perfil" y excluir páginas de admin
-    return NAV_ITEMS
-      .filter(item => !['Modelos', 'Instituciones', 'Servicios'].includes(item.name))
-      .map(item =>
-        item.name === 'Usuarios'
-          ? { ...item, name: 'Mi Perfil' }
-          : item
-      );
-  };
+  const excludedItems = isGuest
+    ? ['Inventario','Modelos', 'Instituciones', 'Servicios', 'Reportes', 'Dashboard', 'Configuración']
+    : ['Modelos', 'Instituciones', 'Servicios', 'Configuración'];
+
+  return NAV_ITEMS
+    .filter(item => !excludedItems.includes(item.name))
+    .map(item =>
+      item.name === 'Usuarios' ? { ...item, name: 'Mi Perfil' } : item
+    );
+};
+
 
 
 interface SideBarProps {

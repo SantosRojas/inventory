@@ -5,7 +5,6 @@ import { useTheme } from '../hooks';
 
 const AuthLayout: React.FC = () => {
   useTheme(); // Inicializar tema
-  console.log('AuthLayout');
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       {/* Left side - Branding - Hidden on mobile, visible on lg+ */}

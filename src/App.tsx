@@ -7,8 +7,8 @@ function App() {
     const validateToken = useAuthStore((state) => state.validateToken);
     useTheme(); // Inicializar tema
     
-    console.log('App');
     useEffect(() => {
+        console.log("--->>")
         validateToken().then(r => console.log("validado"+r))
     }, [validateToken])
     

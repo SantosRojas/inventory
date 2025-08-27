@@ -25,7 +25,7 @@ export const useReportsStore = create<ReportsStore>((set) => ({
         set({ loading: true, error: null });
 
         try {
-            const data = await fetchReportsData(userId, token);
+            const data = await fetchReportsData(token);
             set({
                 data,
                 loading: false,

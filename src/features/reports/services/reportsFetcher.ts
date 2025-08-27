@@ -11,7 +11,6 @@ export interface ReportsData {
 }
 
 export const fetchReportsData = async (
-    userId: number,
     token: string
 ): Promise<ReportsData> => {
     const fetchAndValidate = async <T>(url: string): Promise<T | null> => {
@@ -29,9 +28,9 @@ export const fetchReportsData = async (
         summary,
         inventoryProgressByService,
     ] = await Promise.all([
-        fetchAndValidate<SummaryResponse>(API_ENDPOINTS.dashboard.summary(userId)),
+        fetchAndValidate<SummaryResponse>(API_ENDPOINTS.dashboard.summary()),
         fetchAndValidate<InventoryProgressByServiceResponse>(
-            API_ENDPOINTS.dashboard.inventoryProgressByService(userId)
+            API_ENDPOINTS.dashboard.inventoryProgressByService()
         ),
     ]);
 
