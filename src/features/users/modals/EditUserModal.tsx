@@ -25,8 +25,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 }) => {
   const { updateUser } = useUserStore();
   const { notifySuccess, notifyError } = useNotifications();
-  const { canEditUserRole, canEditUserPersonalInfo } = useUserPermissions();
-  const { getRoleIdByName, isLoading: rolesLoading, roles } = useRoles();
+  const { isAdmin, isRoot,canEditUserRole, canEditUserPersonalInfo } = useUserPermissions();
+  const { getRoleIdByName, isLoading: rolesLoading, roleOptions } = useRoles();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
@@ -39,8 +39,15 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   // Roles disponibles (convertidos a opciones)
   const roleOptionsForUser = useMemo(() => {
     if (rolesLoading) return [];
-    return roles.map((r) => ({ id: r.id, name: r.description }));
-  }, [roles, rolesLoading]);
+    if(isRoot){
+      return  roleOptions.filter((roleOption) => roleOption.name!=="Root"&&roleOption.name!=="Administradort")
+    }
+    else if(isAdmin){
+      return roleOptions.filter((roleOption) => roleOption.name!=="Root" );
+    }
+
+    else return []
+  }, [roleOptions, rolesLoading]);
 
   // Schema dinámico
   const dynamicSchema = useMemo(() => {

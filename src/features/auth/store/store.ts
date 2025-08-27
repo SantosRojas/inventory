@@ -18,12 +18,13 @@ export const useAuthStore = create<AuthState>()(
         (set, get) => ({
             user: null,
             token: null,
-            isLoading: true,
+            isLoading: false,
 
             login: (user, token) => set({ user, token }),
             logout: () => set({ user: null, token: null }),
 
             validateToken: async () => {
+                set({ isLoading: true }); // Activar loading al iniciar validación
                 const token = get().token
                 if (!token) {
                     set({ isLoading: false })
