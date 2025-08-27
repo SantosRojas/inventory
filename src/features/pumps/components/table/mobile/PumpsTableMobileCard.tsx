@@ -40,7 +40,7 @@ const PumpsTableMobileCard = memo(({
                 backgroundColor: 'var(--color-bg-card)',
             }}
             onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)';
+                e.currentTarget.style.backgroundColor = 'var(--color-bg-primary)';
             }}
             onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'var(--color-bg-card)';

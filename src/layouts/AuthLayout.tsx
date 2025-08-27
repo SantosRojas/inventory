@@ -79,7 +79,7 @@ const AuthLayout: React.FC = () => {
                 Sistema de Inventario
               </h1>
               <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                Gestión inteligente con tecnología QR
+                Desarrollado por Santos Rojas
               </p>
             </div>
           </div>
