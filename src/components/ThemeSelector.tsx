@@ -25,7 +25,7 @@ const ThemeSelector = () => {
           <button
             key={key}
             onClick={() => setTheme(key)}
-            className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
+            className={`flex items-center space-x-2 px-2 sm:px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 relative ${
               isActive
                 ? 'shadow-sm'
                 : 'hover:shadow-sm'

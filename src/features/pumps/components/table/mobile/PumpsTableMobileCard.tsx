@@ -47,7 +47,7 @@ const PumpsTableMobileCard = memo(({
             }}
         >
             {/* Header section */}
-            <div className="flex justify-between items-start mb-3">
+            <div className="flex flex-col gap-2 sm:flex-row justify-between items-start mb-3">
                 <div>
                     <h3 
                         className="text-lg font-semibold" 

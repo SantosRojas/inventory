@@ -74,7 +74,7 @@ const LatestInventoriesTable = memo(({
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header con controles */}
       <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 md:flex-row items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">📋 Últimos Inventarios</h3>
             <p className="text-sm text-gray-600 mt-1">
