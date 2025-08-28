@@ -10,8 +10,13 @@ export const usePumpsTable = () => {
 
     // Función de formateo de fecha memoizada
     const formatDate = useCallback((dateString: string) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('es-ES');
+        if (!dateString || typeof dateString !== 'string') return 'Fecha inválida';
+
+        const [datePart] = dateString.split('T'); // "2025-08-28"
+        const [year, month, day] = datePart.split('-');
+
+        return `${day}/${month}/${year}`; // "28/08/2025"
+
     }, []);
 
     // Función de color de estado memoizada
@@ -23,7 +28,7 @@ export const usePumpsTable = () => {
             inoperativo: 'bg-red-100 text-red-800 border-red-200',
             default: 'bg-gray-100 text-gray-800 border-gray-200'
         } as const;
-        
+
         const normalizedStatus = status.toLowerCase() as keyof typeof STATUS_COLORS;
         return STATUS_COLORS[normalizedStatus] || STATUS_COLORS.default;
     }, []);

@@ -12,7 +12,6 @@ const PumpsTable = memo(({
     onDelete,
 }: PumpsTableProps) => {
     const { pumpData, isLoading, error, formatDate, getStatusColor } = usePumpsTable();
-
     const defaultIcon = (
         <svg
             className="mx-auto h-14 w-14 text-gray-400"

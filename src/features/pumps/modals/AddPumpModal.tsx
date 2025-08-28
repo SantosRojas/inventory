@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useNotifications } from '../../../hooks/useNotifications';
-import { Button, Input, Modal, Autocomplete, Select } from '../../../components';
+import { Button, Input, Modal, Autocomplete, Select, DateInput } from '../../../components';
 import { Plus } from 'lucide-react';
 
 import { useAuth } from "../../auth/hooks";
@@ -186,9 +186,9 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Estado *
                                     </label>
-                                    <select 
-                                        {...field} 
-                                        disabled={isLoading} 
+                                    <select
+                                        {...field}
+                                        disabled={isLoading}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
                                         <option value="Operativo">Operativo</option>
@@ -233,30 +233,30 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                             control={control}
                             name="manufactureDate"
                             render={({ field }) => (
-                                <Input
+                                <DateInput
                                     label="Fecha de Fabricación"
-                                    type="date"
-                                    {...field}
+                                    value={field.value}
+                                    onChange={field.onChange}
                                     error={errors.manufactureDate?.message}
                                     disabled={isLoading}
                                 />
                             )}
                         />
-
-                        {/* Fecha de mantenimiento */}
                         <Controller
                             control={control}
                             name="lastMaintenanceDate"
                             render={({ field }) => (
-                                <Input
+                                <DateInput
                                     label="Último mantenimiento"
-                                    type="date"
-                                    {...field}
+                                    value={field.value}
+                                    onChange={field.onChange}
                                     error={errors.lastMaintenanceDate?.message}
                                     disabled={isLoading}
                                 />
                             )}
                         />
+
+
                     </div>
 
                     {/* Botones */}

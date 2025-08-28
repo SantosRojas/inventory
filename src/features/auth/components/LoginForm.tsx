@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginInput } from '../schemas'
-import { loginUser } from '../services/api.ts'
 import { useAuthStore } from '../store/store.ts'
 import { useNavigate } from 'react-router-dom'
 
@@ -14,9 +13,7 @@ const LoginForm = () => {
 
     const onSubmit = async (data: LoginInput) => {
         try {
-            const { user, token } = await loginUser(data)
-            console.log("usuario autenticado")
-            login(user, token)
+            await login(data.email, data.password)
             navigate('/')
         } catch (err) {
             alert('Error al iniciar sesión')

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Modal, Autocomplete, Select } from '../../../components';
+import { Button, Input, Modal, Autocomplete, Select, DateInput } from '../../../components';
 import { Save } from 'lucide-react';
 import type { Pump, UpdatePump } from '../../../types';
 import { useNotifications } from '../../../hooks/useNotifications';
@@ -181,7 +181,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             institutionId: formData.institutionId,
             serviceId: formData.serviceId,
             status: formData.status,
-            
+
             // Usar siempre la fecha actual para inventoryDate
             inventoryDate: new Date().toISOString().split('T')[0],
 
@@ -204,6 +204,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             updateData.serialNumber = formData.serialNumber;
             updateData.modelId = formData.modelId;
         }
+        console.log(formData)
 
         try {
             await updatePump(bomba.id, updateData);
@@ -419,30 +420,26 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
 
                         {/* Fecha de Fabricación - Editable por todos */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Fecha de Fabricación
-                            </label>
-                            <Input
-                                type="date"
-                                name="manufactureDate"
-                                value={formData.manufactureDate || ''}
-                                onChange={(e) => handleInputChange('manufactureDate', e.target.value)}
+                            <DateInput
+                                name='manufactureDate'
+                                label="Fecha de Fabricación"
+                                value={formData.manufactureDate}
+                                onChange={(value) => handleInputChange('manufactureDate', value)}
+                                error={errors.manufactureDate}
                                 disabled={isLoading}
                             />
                         </div>
 
                         {/* Última Fecha de Mantenimiento - Editable por todos */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Última Fecha de Mantenimiento
-                            </label>
-                            <Input
-                                type="date"
-                                name="lastMaintenanceDate"
-                                value={formData.lastMaintenanceDate || ''}
-                                onChange={(e) => handleInputChange('lastMaintenanceDate', e.target.value || '')}
+                            <DateInput
+                                label="lastMaintenanceDate"
+                                value={formData.lastMaintenanceDate}
+                                onChange={(value) => handleInputChange('lastMaintenanceDate', value)}
+                                error={errors.lastMaintenanceDate}
                                 disabled={isLoading}
                             />
+
                         </div>
                     </div>
 
