@@ -10,7 +10,7 @@ export const usePumpsTable = () => {
 
     // Función de formateo de fecha memoizada
     const formatDate = useCallback((dateString: string) => {
-        if (!dateString || typeof dateString !== 'string') return 'Fecha inválida';
+        if (!dateString || typeof dateString !== 'string') return 'N/A';
 
         const [datePart] = dateString.split('T'); // "2025-08-28"
         const [year, month, day] = datePart.split('-');

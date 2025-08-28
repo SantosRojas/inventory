@@ -204,7 +204,6 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             updateData.serialNumber = formData.serialNumber;
             updateData.modelId = formData.modelId;
         }
-        console.log(formData)
 
         try {
             await updatePump(bomba.id, updateData);
@@ -433,7 +432,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                         {/* Última Fecha de Mantenimiento - Editable por todos */}
                         <div>
                             <DateInput
-                                label="lastMaintenanceDate"
+                                label="Último mantenimiento"
                                 value={formData.lastMaintenanceDate}
                                 onChange={(value) => handleInputChange('lastMaintenanceDate', value)}
                                 error={errors.lastMaintenanceDate}
