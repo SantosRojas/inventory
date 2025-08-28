@@ -82,7 +82,9 @@ const DateInput: React.FC<DateInputProps> = ({
       <input
         id={inputId}
         name={name}
-        type="number"
+        inputMode='numeric'
+        type="text"
+        pattern="[0-9\-]*"
         placeholder="YYYY-MM-DD"
         value={date}
         onChange={handleChange}
