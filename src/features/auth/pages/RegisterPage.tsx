@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import {useAuth} from "../hooks";
 import {RegisterForm} from "../components";
@@ -6,16 +6,9 @@ import {RegisterForm} from "../components";
 const RegisterPage: React.FC = () => {
     const { isAuthenticated, isLoading } = useAuth();
 
-    // Debug: ver el estado de autenticación
-    useEffect(() => {
-        if (isAuthenticated) {
-            console.log('👤 Usuario autenticado, redirigiendo al dashboard...');
-        }
-    }, [isAuthenticated]);
-
     // Redireccionar si ya está autenticado
     if (isAuthenticated && !isLoading) {
-        return <Navigate to="/inventario" replace />;
+        return <Navigate to="/" replace />;
     }
 
     return (

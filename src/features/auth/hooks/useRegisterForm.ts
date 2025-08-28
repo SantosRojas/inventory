@@ -3,12 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {useAuth} from "./useAuth.ts";
 import {useAuthStore} from "../store/store.ts";
-import {registerUser} from "../services/api.ts";
 import {type RegisterInput, registerSchema} from "../schemas";
 
 export const useRegisterForm = () => {
     const { isLoading } = useAuth();
-    const login = useAuthStore((state) => state.login)
+    const register = useAuthStore((state) => state.register);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState('');
 
@@ -41,8 +40,7 @@ export const useRegisterForm = () => {
                 // role: se omite porque el backend lo asigna automáticamente
             };
 
-            const result = await registerUser(registerData);
-            login(result.user,result.token)
+            await register(registerData);
 
         } catch (error) {
             console.error('Error during registration:', error);

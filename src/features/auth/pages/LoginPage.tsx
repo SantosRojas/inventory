@@ -3,7 +3,6 @@ import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { Button, Input } from '../../../components';
 import { LogIn } from 'lucide-react';
 import { useAuth } from "../hooks";
-import { loginUser } from "../services/api";
 import { useAuthStore } from "../store/store";
 
 interface LoginFormData {
@@ -37,8 +36,7 @@ const LoginPage: React.FC = () => {
         setError('');
 
         try {
-            const { user, token } = await loginUser(formData);
-            login(user, token);
+            await login(formData.email, formData.password);
             navigate('/');
         } catch (err) {
             console.error('Login error:', err);

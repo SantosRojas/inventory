@@ -35,7 +35,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         serviceId: 0,
         status: 'Operativo',
         lastMaintenanceDate: '',
-        manufactureDate: '',
+        manufactureDate: ''
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -184,6 +184,9 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             
             // Usar siempre la fecha actual para inventoryDate
             inventoryDate: new Date().toISOString().split('T')[0],
+
+            //Usar siempre el id del usuario actual
+            inventoryTakerId: user?.id || undefined,
         };
 
         // Incluir manufactureDate si tiene un valor válido

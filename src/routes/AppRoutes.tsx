@@ -78,7 +78,7 @@ const protectedRoutes = [
   {
     path: 'reportes',
     element: <ReportsPage />,
-    roles: ['admin', 'root'],
+    roles: ['admin', 'root','technician','sales_representative'],
   },
   {
     path: 'configuracion',
