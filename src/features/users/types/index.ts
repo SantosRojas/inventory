@@ -20,12 +20,10 @@ export interface UpdateUser {
     roleId?: number; // Cambiado a roleId
 }
 
-export interface UpdateUserPassword {
+export interface UpdateUserPasswordProps {
     currentPassword?: string; // Opcional para permitir reseteo administrativo
     newPassword: string;
     confirmPassword: string;
-    requestingUserId?: number; // Opcional - el service lo agregará automáticamente
-    requestingUserRole?: string; // Opcional - el service lo agregará automáticamente
 }
 
 // Extiende el tipo base con campos adicionales si necesario

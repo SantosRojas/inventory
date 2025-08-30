@@ -70,7 +70,7 @@ const EditInstitutionModal: React.FC<EditInstitutionModalProps> = ({
             };
 
             await updateInstitution(institution.id, payload);
-            console.log("Institution updated:", institution.id);
+            
             notifySuccess('Institución actualizada exitosamente');
             reset();
             onClose();

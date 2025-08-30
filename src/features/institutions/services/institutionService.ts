@@ -5,6 +5,7 @@ import type {
     InstitutionResponse
 } from "../types";
 import { API_ENDPOINTS } from "../../../config";
+import { fetchWithAuth } from "../../../services/fetchWithAuth";
 
 /**
  * Maneja errores del servidor devolviendo un mensaje legible.
@@ -51,7 +52,7 @@ async function handleSuccessResponse<T>(res: Response): Promise<T> {
  */
 export async function getAllInstitutions(): Promise<InstitutionExtended[]> {
     const endPoint = API_ENDPOINTS.institutions.getAll;
-    const res = await fetch(endPoint);
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -65,7 +66,7 @@ export async function getAllInstitutions(): Promise<InstitutionExtended[]> {
  */
 export async function getInstitutionById(id: number): Promise<InstitutionExtended> {
     const endPoint = API_ENDPOINTS.institutions.getById(id);
-    const res = await fetch(endPoint);
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -79,7 +80,7 @@ export async function getInstitutionById(id: number): Promise<InstitutionExtende
  */
 export async function createInstitution(institutionData: CreateInstitution): Promise<InstitutionResponse> {
     const endPoint = API_ENDPOINTS.institutions.create;
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ export async function createInstitution(institutionData: CreateInstitution): Pro
  */
 export async function updateInstitution(id: number, institutionData: UpdateInstitution): Promise<{ updatedInstitution: InstitutionExtended }> {
     const endPoint = API_ENDPOINTS.institutions.update(id);
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -119,7 +120,7 @@ export async function updateInstitution(id: number, institutionData: UpdateInsti
  */
 export async function deleteInstitution(id: number): Promise<boolean> {
     const endPoint = API_ENDPOINTS.institutions.delete(id);
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'DELETE',
     });
 

@@ -1,13 +1,13 @@
-import type { 
-    CreateUser, 
-    UpdateUser, 
-    UpdateUserPassword,
+import type {
+    CreateUser,
+    UpdateUser,
+    UpdateUserPasswordProps,
     UserExtended,
     UserResponse,
     UpdatePasswordResponse
 } from "../types";
 import { API_ENDPOINTS } from "../../../config";
-import { useAuthStore } from "../../auth/store/store";
+import { fetchWithAuth } from "../../../services/fetchWithAuth";
 
 /**
  * Maneja errores del servidor devolviendo un mensaje legible.
@@ -50,32 +50,11 @@ async function handleSuccessResponse<T>(res: Response): Promise<T> {
 }
 
 /**
- * Obtiene el token de autenticación del store
- */
-function getAuthToken(): string | null {
-    return useAuthStore.getState().token;
-}
-
-/**
- * Headers con autenticación
- */
-function getAuthHeaders(): HeadersInit {
-    const token = getAuthToken();
-    
-    return {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-}
-
-/**
  * Obtiene todos los usuarios
  */
 export async function getAllUsers(): Promise<UserExtended[]> {
     const endPoint = API_ENDPOINTS.users.getFilteredUsers;
-    const res = await fetch(endPoint, {
-        headers: getAuthHeaders()
-    });
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -89,25 +68,7 @@ export async function getAllUsers(): Promise<UserExtended[]> {
  */
 export async function getUserById(id: number): Promise<UserExtended> {
     const endPoint = API_ENDPOINTS.users.getById(id);
-    const res = await fetch(endPoint, {
-        headers: getAuthHeaders()
-    });
-
-    if (!res.ok) {
-        await handleErrorResponse(res);
-    }
-
-    return await handleSuccessResponse<UserExtended>(res);
-}
-
-/**
- * Obtiene el perfil del usuario actual
- */
-export async function getUserProfile(): Promise<UserExtended> {
-    const endPoint = API_ENDPOINTS.users.profile;
-    const res = await fetch(endPoint, {
-        headers: getAuthHeaders()
-    });
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -121,9 +82,8 @@ export async function getUserProfile(): Promise<UserExtended> {
  */
 export async function createUser(userData: CreateUser): Promise<UserResponse> {
     const endPoint = API_ENDPOINTS.users.create;
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'POST',
-        headers: getAuthHeaders(),
         body: JSON.stringify(userData),
     });
 
@@ -139,9 +99,8 @@ export async function createUser(userData: CreateUser): Promise<UserResponse> {
  */
 export async function updateUser(id: number, userData: UpdateUser): Promise<{ updatedUser: UserExtended }> {
     const endPoint = API_ENDPOINTS.users.update(id);
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'PATCH',
-        headers: getAuthHeaders(),
         body: JSON.stringify(userData),
     });
 
@@ -168,42 +127,28 @@ function cleanPayload<T extends Record<string, any>>(obj: T): Partial<T> {
 /**
  * Actualiza la contraseña de un usuario
  */
-export async function updateUserPassword(id: number, passwordData: UpdateUserPassword): Promise<UpdatePasswordResponse> {
-    // Obtener información del usuario actual del store
-    const currentUser = useAuthStore.getState().user;
-    if (!currentUser) {
-        throw new Error('No se pudo obtener la información del usuario actual');
-    }
-    
-    // Construir payload completo con información del usuario actual
-    const completePayload: UpdateUserPassword = {
-        ...passwordData,
-        requestingUserId: currentUser.id,
-        requestingUserRole: currentUser.role
-    };
-    
+export async function updatePassword(id: number, passwordData: UpdateUserPasswordProps): Promise<UpdatePasswordResponse> {
+
     // Limpiar payload de propiedades undefined
-    const cleanedPayload = cleanPayload(completePayload);
-    
-    const endPoint = `${API_ENDPOINTS.users.update(id)}/password`;
-    const headers = getAuthHeaders();
-    
-    const res = await fetch(endPoint, {
+    const cleanedPayload = cleanPayload(passwordData);
+
+    const endPoint = API_ENDPOINTS.users.updatePassword(id);
+
+    const res = await fetchWithAuth(endPoint, {
         method: 'PATCH',
-        headers: headers,
         body: JSON.stringify(cleanedPayload),
     });
 
     if (!res.ok) {
         const errorText = await res.text();
-        
+
         // Re-crear la respuesta para handleErrorResponse
         const errorResponse = new Response(errorText, {
             status: res.status,
             statusText: res.statusText,
             headers: res.headers
         });
-        
+
         await handleErrorResponse(errorResponse);
     }
 
@@ -215,9 +160,8 @@ export async function updateUserPassword(id: number, passwordData: UpdateUserPas
  */
 export async function deleteUser(id: number): Promise<boolean> {
     const endPoint = API_ENDPOINTS.users.delete(id);
-    const res = await fetch(endPoint, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
+    const res = await fetchWithAuth(endPoint, {
+        method: 'DELETE'
     });
 
     if (!res.ok) {
@@ -234,11 +178,11 @@ export async function deleteUser(id: number): Promise<boolean> {
         const errorParts = [];
         if (body?.message) errorParts.push(body.message);
         if (body?.error) errorParts.push(body.error);
-        
-        const message = errorParts.length > 0 
-            ? errorParts.join(': ') 
+
+        const message = errorParts.length > 0
+            ? errorParts.join(': ')
             : 'Error al eliminar el usuario';
-        
+
         throw new Error(message);
     }
 }

@@ -47,7 +47,6 @@ const AddInstitutionModal: React.FC<AddInstitutionModalProps> = ({ isOpen, onClo
                 code: data.code.trim().toUpperCase()
             };
 
-            console.log("Payload to create institution:", payload);
 
             const id = await addInstitution(payload);
             if (id) {

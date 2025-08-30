@@ -1,5 +1,6 @@
 import type {CreatePump, Pump, UpdatePump} from "../../../types";
 import { API_ENDPOINTS } from "../../../config";
+import { fetchWithAuth } from "../../../services/fetchWithAuth";
 
 interface CreatePumpResponse {
     id: number;
@@ -44,7 +45,7 @@ async function handleSuccessResponse<T>(res: Response):Promise<T> {
  */
 export async function getPumpBySerialNumber(serial: string): Promise<Pump[] | null> {
     const endPoint = API_ENDPOINTS.pumps.getBySerialNumber(serial);
-    const res = await fetch(endPoint);
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -58,7 +59,7 @@ export async function getPumpBySerialNumber(serial: string): Promise<Pump[] | nu
  */
 export async function getPumpByQRCode(qr: string): Promise<Pump[] | null> {
     const endPoint = API_ENDPOINTS.pumps.getByQRcode(qr);
-    const res = await fetch(endPoint);
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -72,7 +73,7 @@ export async function getPumpByQRCode(qr: string): Promise<Pump[] | null> {
  */
 export async function updatePump(id: number, pumpData: UpdatePump): Promise<UpdatePumpResponse> {
     const endPoint = API_ENDPOINTS.pumps.update(id);
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
@@ -92,7 +93,7 @@ export async function updatePump(id: number, pumpData: UpdatePump): Promise<Upda
  */
 export async function deletePump(id: number): Promise<boolean> {
     const endPoint = API_ENDPOINTS.pumps.delete(id);
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'DELETE',
     });
 
@@ -108,7 +109,7 @@ export async function deletePump(id: number): Promise<boolean> {
  */
 export async function createPump(pumpData: CreatePump): Promise<CreatePumpResponse> {
     const endPoint = API_ENDPOINTS.pumps.create;
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

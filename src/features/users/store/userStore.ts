@@ -1,15 +1,14 @@
 import { create } from "zustand";
 import type { 
     UpdateUser, 
-    UpdateUserPassword,
+    UpdateUserPasswordProps,
     UserExtended 
 } from "../types";
 import {
     getAllUsers,
     getUserById,
-    getUserProfile,
     updateUser,
-    updateUserPassword,
+    updatePassword,
     deleteUser
 } from "../services";
 
@@ -23,9 +22,9 @@ interface UserState {
     // Actions
     fetchAllUsers: () => Promise<void>;
     fetchUserById: (id: number) => Promise<void>;
-    fetchUserProfile: () => Promise<void>;
+    // fetchUserProfile: () => Promise<void>;
     updateUser: (id: number, data: UpdateUser) => Promise<void>;
-    updateUserPassword: (id: number, data: UpdateUserPassword) => Promise<void>;
+    updateUserPassword: (id: number, data: UpdateUserPasswordProps) => Promise<void>;
     removeUser: (id: number) => Promise<boolean>;
     clearError: () => void;
     clearSelectedUser: () => void;
@@ -64,24 +63,12 @@ export const useUserStore = create<UserState>((set) => ({
         }
     },
 
-    fetchUserProfile: async () => {
-        set({ isLoading: true, error: null });
-        try {
-            const profile = await getUserProfile();
-            set({ currentUserProfile: profile });
-        } catch (err: unknown) {
-            const errorMessage = err instanceof Error ? err.message : 'Error desconocido al cargar el perfil';
-            set({ error: errorMessage });
-        } finally {
-            set({ isLoading: false });
-        }
-    },
 
     updateUser: async (id: number, data: UpdateUser) => {
         set({ isLoading: true, error: null });
         try {
             const updatedData = await updateUser(id, data);
-            console.log('Usuario actualizado:', updatedData);
+            
             const updatedUser = updatedData.updatedUser;
             
             // Actualizar en el estado local
@@ -107,10 +94,10 @@ export const useUserStore = create<UserState>((set) => ({
         }
     },
 
-    updateUserPassword: async (id: number, data: UpdateUserPassword) => {
+    updateUserPassword: async (id: number, data: UpdateUserPasswordProps) => {
         set({ isLoading: true, error: null });
         try {
-            await updateUserPassword(id, data);
+            await updatePassword(id, data);
             // No necesitamos actualizar el estado local para cambios de contraseña
             set({ error: null });
         } catch (err: unknown) {

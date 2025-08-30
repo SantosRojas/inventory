@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button, Input, Modal } from "../../../components";
 import { Key, Eye, EyeOff } from "lucide-react";
-import type { UserExtended, UpdateUserPassword } from "../types";
+import type { UserExtended, UpdateUserPasswordProps } from "../types";
 import { useNotifications } from "../../../hooks/useNotifications";
 import { useUserStore } from "../store";
 import { useUserPermissions } from "../hooks";
@@ -115,7 +115,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     setIsLoading(true);
 
     try {
-      const payload: UpdateUserPassword = needsCurrent
+      const payload: UpdateUserPasswordProps = needsCurrent
         ? {
             currentPassword: data.currentPassword,
             newPassword: data.newPassword,

@@ -1,4 +1,5 @@
-export const API_BASE = 'https://srv586737.hstgr.cloud/v2';
+// export const API_BASE = 'https://srv586737.hstgr.cloud/v2';
+export const API_BASE = 'http://localhost:4000';
 
 export const API_ENDPOINTS = {
   auth: {
@@ -15,6 +16,7 @@ export const API_ENDPOINTS = {
     getById: (id: number) => `${API_BASE}/users/${id}`,
     update: (id: number) => `${API_BASE}/users/${id}`,
     delete: (id: number) => `${API_BASE}/users/${id}`,
+    updatePassword: (id: number) => `${API_BASE}/users/${id}/password`,
   },
   roles: {
     getAll: `${API_BASE}/roles`,
