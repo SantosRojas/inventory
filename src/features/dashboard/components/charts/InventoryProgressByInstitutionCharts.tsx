@@ -16,6 +16,7 @@ import type {
 import { useMediaQuery } from 'react-responsive';
 import { ChartTooltip, TooltipTitle, TooltipValue, TooltipSeparator } from '../../../../components';
 import { useChartAxisStyles } from '../../../../hooks';
+import { formatTickName } from '../../utils';
 
 interface InventoryProgressByInstitutionChartsProps {
   data: InventoryProgressByInstitutionResponse;
@@ -188,13 +189,6 @@ export const InventoryProgressByInstitutionCharts: React.FC<
     return null;
   }, []);
 
-  const formatInstitutionName = useCallback((name: string) => {
-    if (isMobile) {
-      return name.length > 12 ? `${name.substring(0, 9)}...` : name;
-    }
-    return name.length > 15 ? `${name.substring(0, 12)}...` : name;
-  }, [isMobile]);
-
   if (!data?.institutions || data.institutions.length === 0) {
     return (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -323,7 +317,7 @@ export const InventoryProgressByInstitutionCharts: React.FC<
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
                 data={paginatedData}
-                margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
+                margin={{ top: 5, right: 3, left: 3, bottom: isMobile ? 6 : 8 }}
             >
               <CartesianGrid {...gridProps} />
               <XAxis
@@ -331,10 +325,10 @@ export const InventoryProgressByInstitutionCharts: React.FC<
                 {...xAxisProps}
                 angle={-45}
                 textAnchor="end"
-                height={isMobile ? 60 : 80}
-                tickFormatter={formatInstitutionName}
+                height={isMobile ? 60 : 85}
+                tickFormatter={(name) => formatTickName(name, isMobile, 18)}
               />
-              <YAxis {...yAxisProps} />
+              <YAxis width={45}  {...yAxisProps} />
               <Tooltip content={<CustomTooltip />} />
               {/* Quitamos la leyenda de Recharts para usar nuestra leyenda personalizada */}
               <Bar
@@ -358,7 +352,7 @@ export const InventoryProgressByInstitutionCharts: React.FC<
         {/* Leyenda compacta personalizada para todas las pantallas */}
         {(
           <div 
-            className="mt-4 p-3 rounded-lg"
+            className="mt-2 p-3 rounded-lg"
             style={{ backgroundColor: 'var(--color-bg-secondary)' }}
           >
             <p 

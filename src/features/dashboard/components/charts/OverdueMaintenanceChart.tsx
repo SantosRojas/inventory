@@ -13,6 +13,7 @@ import type { OverdueMaintenanceResponse } from '../../types';
 import { useMediaQuery } from 'react-responsive';
 import { ChartTooltip, TooltipTitle, TooltipValue } from '../../../../components';
 import { useChartAxisStyles } from '../../../../hooks';
+import { formatTickName } from '../../utils';
 
 interface Props {
     data?: OverdueMaintenanceResponse;
@@ -112,13 +113,6 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
         setSearchTerm(value);
         setCurrentPage(0);
     }, []);
-
-    const formatInstitutionName = useCallback((name: string) => {
-        if (isMobile) {
-            return name.length > 12 ? `${name.substring(0, 9)}...` : name;
-        }
-        return name.length > 15 ? `${name.substring(0, 12)}...` : name;
-    }, [isMobile]);
 
     const CustomTooltip = useCallback(({
         active,
@@ -228,7 +222,7 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={paginatedData}
-                        margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
+                        margin={{ top: 5, right: 3, left: 3, bottom: isMobile ? 6 : 8 }}
                     >
                         <CartesianGrid {...gridProps} />
                         <XAxis
@@ -236,10 +230,10 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
                             {...xAxisProps}
                             angle={-45}
                             textAnchor="end"
-                            height={isMobile ? 60 : 80}
-                            tickFormatter={formatInstitutionName}
+                            height={isMobile ? 60 : 85}
+                            tickFormatter={(name) => formatTickName(name, isMobile, 18)}
                         />
-                        <YAxis {...yAxisProps} />
+                        <YAxis width={45} {...yAxisProps} />
                         <Tooltip content={<CustomTooltip />} />
                         <Bar 
                             dataKey="value" 
@@ -253,7 +247,7 @@ const OverdueMaintenanceChart = ({ data }: Props) => {
 
             {/* Leyenda personalizada */}
             <div 
-                className="mt-4 p-3 rounded-lg"
+                className="mt-2 p-3 rounded-lg"
                 style={{ backgroundColor: 'var(--color-bg-secondary)' }}
             >
                 <div className="flex items-center justify-center gap-2">

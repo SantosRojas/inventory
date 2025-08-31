@@ -5,10 +5,10 @@ import AccessDeniedPage from '../layouts/components/AccessDeniedPage';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: string[];
+  requiredRoles?: string[];
 }
 
-const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requiredRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -24,9 +24,10 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   }
 
   // Si hay roles requeridos, verificar que el usuario tenga uno válido
-  if (requiredRole && user && !requiredRole.includes(user.role) && user.role !== 'root') {
+  if (requiredRoles && !requiredRoles.includes(user?.role ?? '') && user?.role !== 'root') {
     return <AccessDeniedPage />;
   }
+
 
   return <>{children}</>;
 };

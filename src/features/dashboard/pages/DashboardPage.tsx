@@ -2,108 +2,92 @@ import React, { useEffect, Suspense } from 'react';
 import { LazyCard, PageLoader } from '../../../components';
 import { useAuth } from '../../auth/hooks';
 import { useDashboardStore } from '../store/dashboardStore';
-import {EmptyState} from "../components";
-import {useNavigate} from "react-router-dom";
+import { EmptyState } from "../components";
+import { useNavigate } from "react-router-dom";
 
 // Lazy load de los gráficos pesados
 const LazyCharts = {
     SummaryCharts: React.lazy(() =>
         import('../components/charts').then(mod => ({ default: mod.SummaryCharts }))
     ),
-  ModelDistribution: React.lazy(() =>
-      import('../components/charts').then(mod => ({ default: mod.ModelDistributionCharts }))
-  ),
-  ModelDistributionByInstitution: React.lazy(() =>
-      import('../components/charts').then(mod => ({ default: mod.ModelDistributionByInstitutionCharts }))
-  ),
-  InventoryProgressByInstitution: React.lazy(() =>
-      import('../components/charts').then(mod => ({ default: mod.InventoryProgressByInstitutionCharts }))
-  ),
-  TopInventoryTakers: React.lazy(() =>
-      import('../components/charts').then(mod => ({ default: mod.TopInventoryTakersChart }))
-  ),
-  OverdueMaintenance: React.lazy(() =>
-      import('../components/charts').then(mod => ({ default: mod.OverdueMaintenanceChart }))
-  ),
+    ModelDistribution: React.lazy(() =>
+        import('../components/charts').then(mod => ({ default: mod.ModelDistributionCharts }))
+    ),
+    ModelDistributionByInstitution: React.lazy(() =>
+        import('../components/charts').then(mod => ({ default: mod.ModelDistributionByInstitutionCharts }))
+    ),
+    InventoryProgressByInstitution: React.lazy(() =>
+        import('../components/charts').then(mod => ({ default: mod.InventoryProgressByInstitutionCharts }))
+    ),
+    TopInventoryTakers: React.lazy(() =>
+        import('../components/charts').then(mod => ({ default: mod.TopInventoryTakersChart }))
+    ),
+    OverdueMaintenance: React.lazy(() =>
+        import('../components/charts').then(mod => ({ default: mod.OverdueMaintenanceChart }))
+    ),
 };
 
 // Fallback de carga para los gráficos
 const ChartFallback = ({ height = 'h-64' }: { height?: string }) => (
     <div className={`bg-gray-50 rounded-lg ${height} flex items-center justify-center`}>
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      <span className="ml-2 text-gray-600">Cargando gráfico...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <span className="ml-2 text-gray-600">Cargando gráfico...</span>
     </div>
 );
 
-// Mensajes de estado general
-const StateMessage = ({
-                        icon,
-                        text,
-                        color = 'text-gray-600',
-                      }: {
-  icon: string;
-  text: string;
-  color?: string;
-}) => (
-    <div className="flex justify-center items-center py-12">
-      <p className={`${color}`}>{icon} {text}</p>
-    </div>
-);
 
 // Sección con LazyCard + Suspense (para gráficos pesados)
 const ChartSection = ({
-                        height,
-                        children,
-                      }: {
-  height: string;
-  children: React.ReactNode;
+    height,
+    children,
+}: {
+    height: string;
+    children: React.ReactNode;
 }) => (
     <LazyCard fallbackHeight={height}>
-      <Suspense fallback={<ChartFallback height={height} />}>
-        {children}
-      </Suspense>
+        <Suspense fallback={<ChartFallback height={height} />}>
+            {children}
+        </Suspense>
     </LazyCard>
 );
 
 // Sección ligera con solo Suspense
 const LightChartSection = ({
-                             height,
-                             children,
-                           }: {
-  height: string;
-  children: React.ReactNode;
+    height,
+    children,
+}: {
+    height: string;
+    children: React.ReactNode;
 }) => (
     <Suspense fallback={<ChartFallback height={height} />}>
-      {children}
+        {children}
     </Suspense>
 );
 
 export const DashboardPage = () => {
-    const {user, isLoading: isAuthLoading, token: authToken} = useAuth();
-    const {data, loading, error, getDashboardData} = useDashboardStore();
+    const { user } = useAuth();
+    const data = useDashboardStore((s) => s.data);
+    const loading = useDashboardStore((s) => s.loading);
+    const error = useDashboardStore((s) => s.error);
+    const getDashboardData = useDashboardStore((s) => s.getDashboardData);
 
-    const token = authToken ? authToken : "";
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (user?.id) {
-            console.log("inciando")
-            getDashboardData(token ? token : "");
-        }
-    }, [user?.id, getDashboardData, token]);
+        getDashboardData();
+    }, []);
 
     const handleNavigateToInventory = () => {
         console.log("Redirigiendo a inventario")
         navigate("/inventario");
     }
 
-    if (!data?.summary?.totalPumps) return <EmptyState onAction ={handleNavigateToInventory} />
-
-    if (isAuthLoading) return <StateMessage icon="🔄" text="Inicializando autenticación..."/>;
-    if (!user) return <StateMessage icon="⚠️" text="No hay usuario autenticado" color="text-red-600"/>;
     if (loading) {
         return <PageLoader />;
     }
+
+    if (!data?.summary?.totalPumps) return <EmptyState onAction={handleNavigateToInventory} />;
+
     if (error) {
         return (
             <div className="p-6">
@@ -111,7 +95,7 @@ export const DashboardPage = () => {
                     <h3 className="text-lg font-medium text-red-800 mb-2">❌ Error al cargar el dashboard</h3>
                     <p className="text-red-600 mb-4">{error}</p>
                     <button
-                        onClick={() => getDashboardData(token)}
+                        onClick={() => getDashboardData()}
                         className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                     >
                         🔄 Reintentar
@@ -159,21 +143,21 @@ export const DashboardPage = () => {
                     </p>
                 </div>
                 <button
-                    onClick={() => user?.id && getDashboardData(token)}
+                    onClick={() => user?.id && getDashboardData()}
                     className="bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap flex-shrink-0"
-                    disabled={!user?.id || !token}
+                    disabled={loading}
                 >
                     🔄 <span className="hidden sm:inline">Actualizar</span>
                 </button>
             </div>
 
             {/*Resumen*/}
-            <LazyCharts.SummaryCharts data={summary} isAdmin={isAdmin}/>
+            <LazyCharts.SummaryCharts data={summary} isAdmin={isAdmin} />
 
             {/* Top inventariadores */}
             {topInventoryTakers && (
                 <LightChartSection height="h-auto">
-                    <LazyCharts.TopInventoryTakers data={topInventoryTakers}/>
+                    <LazyCharts.TopInventoryTakers data={topInventoryTakers} />
                 </LightChartSection>
             )}
 
@@ -190,7 +174,7 @@ export const DashboardPage = () => {
             {/* Mantenimiento vencido */}
             {overdueMaintenance && (
                 <LightChartSection height="h-auto">
-                    <LazyCharts.OverdueMaintenance data={overdueMaintenance}/>
+                    <LazyCharts.OverdueMaintenance data={overdueMaintenance} />
                 </LightChartSection>
             )}
 

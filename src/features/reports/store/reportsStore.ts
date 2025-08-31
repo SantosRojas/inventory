@@ -6,7 +6,7 @@ interface ReportsStore {
     loading: boolean;
     error: string | null;
     loadedAt: string | null;
-    getReportsData: (userId: number, token: string) => Promise<void>;
+    getReportsData: () => Promise<void>;
     clearError: () => void;
 }
 
@@ -16,16 +16,12 @@ export const useReportsStore = create<ReportsStore>((set) => ({
     error: null,
     loadedAt: null,
 
-    getReportsData: async (userId: number, token: string) => {
-        if (!userId || !token) {
-            set({ error: 'Usuario o token no válido' });
-            return;
-        }
-
+    getReportsData: async () => {
+       
         set({ loading: true, error: null });
 
         try {
-            const data = await fetchReportsData(token);
+            const data = await fetchReportsData();
             set({
                 data,
                 loading: false,

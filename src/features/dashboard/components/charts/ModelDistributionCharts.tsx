@@ -5,6 +5,7 @@ import type { ModelDistributionResponse, SummaryResponse } from '../../types';
 import { useMediaQuery } from 'react-responsive';
 import { ChartTooltip, TooltipTitle, TooltipValue, TooltipPercentage } from '../../../../components';
 import { useChartAxisStyles } from '../../../../hooks';
+import { formatTickName } from '../../utils';
 
 
 interface ModelDistributionChartsProps {
@@ -95,13 +96,6 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
     setSearchTerm(value);
     setCurrentPage(0);
   }, []);
-
-  const formatModelName = useCallback((name: string) => {
-    if (isMobile) {
-      return name.length > 12 ? `${name.substring(0, 9)}...` : name;
-    }
-    return name.length > 15 ? `${name.substring(0, 12)}...` : name;
-  }, [isMobile]);
 
   // Tooltip personalizado
   const CustomTooltip = useCallback(({ active, payload, label }: {
@@ -202,7 +196,7 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={paginatedData}
-            margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
+            margin={{ top: 5, right: 3, left: 3, bottom: isMobile ? 6 : 8 }}
           >
             <CartesianGrid {...gridProps} />
             <XAxis
@@ -210,10 +204,10 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
               {...xAxisProps}
               angle={-45}
               textAnchor="end"
-              height={isMobile ? 60 : 80}
-              tickFormatter={formatModelName}
+              height={isMobile ? 70 : 90}
+              tickFormatter={(name) => formatTickName(name, isMobile)}
             />
-            <YAxis {...yAxisProps} />
+            <YAxis width={45} {...yAxisProps} />
             <Tooltip content={<CustomTooltip />} />
             <Bar 
               dataKey="count" 
@@ -227,7 +221,7 @@ export const ModelDistributionCharts: React.FC<ModelDistributionChartsProps> = (
 
       {/* Leyenda personalizada */}
       <div 
-        className="mt-4 p-3 rounded-lg"
+        className="mt-2 p-3 rounded-lg"
         style={{ backgroundColor: 'var(--color-bg-secondary)' }}
       >
         <div className="flex items-center justify-center gap-2">

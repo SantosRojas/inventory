@@ -5,7 +5,7 @@ import type {
   CreatedModelResponse
 } from '../types/models.types';
 import { API_ENDPOINTS } from '../../../config';
-import { useAuthStore } from '../../auth/store/store';
+import { fetchWithAuth } from '../../../services/fetchWithAuth';
 
 /**
  * Maneja errores del servidor devolviendo un mensaje legible.
@@ -44,33 +44,13 @@ async function handleSuccessResponse<T>(res: Response): Promise<T> {
     }
 }
 
-/**
- * Obtiene el token de autenticación del store
- */
-function getAuthToken(): string | null {
-    return useAuthStore.getState().token;
-}
-
-/**
- * Headers con autenticación
- */
-function getAuthHeaders(): HeadersInit {
-    const token = getAuthToken();
-    
-    return {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-}
 
 const MODELS_ENDPOINT = API_ENDPOINTS.models;
 
 export const modelsService = {
   // Obtener todos los modelos
   getModels: async (): Promise<Model[]> => {
-    const res = await fetch(MODELS_ENDPOINT.getAll, {
-      headers: getAuthHeaders()
-    });
+    const res = await fetchWithAuth(MODELS_ENDPOINT.getAll);
 
     if (!res.ok) {
       await handleErrorResponse(res);
@@ -81,9 +61,7 @@ export const modelsService = {
 
   // Obtener un modelo por ID
   getModel: async (id: number): Promise<Model> => {
-    const res = await fetch(MODELS_ENDPOINT.getById(id), {
-      headers: getAuthHeaders()
-    });
+    const res = await fetchWithAuth(MODELS_ENDPOINT.getById(id));
 
     if (!res.ok) {
       await handleErrorResponse(res);
@@ -94,9 +72,8 @@ export const modelsService = {
 
   // Crear un nuevo modelo
   createModel: async (modelData: CreateModelRequest): Promise<CreatedModelResponse> => {
-    const res = await fetch(MODELS_ENDPOINT.create, {
+    const res = await fetchWithAuth(MODELS_ENDPOINT.create, {
       method: 'POST',
-      headers: getAuthHeaders(),
       body: JSON.stringify(modelData),
     });
 
@@ -109,9 +86,8 @@ export const modelsService = {
 
   // Actualizar un modelo existente
   updateModel: async (id: number, modelData: Omit<UpdateModelRequest, 'id'>): Promise<{modelUpdated:Model}> => {
-    const res = await fetch(MODELS_ENDPOINT.update(id), {
+    const res = await fetchWithAuth(MODELS_ENDPOINT.update(id), {
       method: 'PATCH',
-      headers: getAuthHeaders(),
       body: JSON.stringify(modelData),
     });
 
@@ -124,9 +100,8 @@ export const modelsService = {
 
   // Eliminar un modelo
   deleteModel: async (id: number): Promise<boolean> => {
-    const res = await fetch(MODELS_ENDPOINT.delete(id), {
+    const res = await fetchWithAuth(MODELS_ENDPOINT.delete(id), {
       method: 'DELETE',
-      headers: getAuthHeaders()
     });
 
     if (!res.ok) {

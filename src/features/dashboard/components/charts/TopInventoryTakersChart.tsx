@@ -14,6 +14,7 @@ import type { TopInventoryTakersResponse } from '../../types';
 import { useAuth } from '../../../auth/hooks';
 import { ChartTooltip, TooltipTitle, TooltipValue } from '../../../../components';
 import { useChartAxisStyles } from '../../../../hooks';
+import { formatTickName } from '../../utils';
 
 interface Props {
   data?: TopInventoryTakersResponse;
@@ -123,13 +124,6 @@ const TopInventoryTakersChart = ({ data }: Props) => {
     setSearchTerm(value);
     setCurrentPage(0);
   }, []);
-
-  const formatName = useCallback((name: string) => {
-    if (isMobile) {
-      return name.length > 12 ? `${name.substring(0, 9)}...` : name;
-    }
-    return name.length > 15 ? `${name.substring(0, 12)}...` : name;
-  }, [isMobile]);
 
   const CustomTooltip = useCallback(({ active, payload }: {
     active?: boolean;
@@ -255,7 +249,7 @@ const TopInventoryTakersChart = ({ data }: Props) => {
           <ResponsiveContainer width="100%" height="100%">
           <BarChart
               data={paginatedData}
-              margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
+              margin={{ top: 5, right: 3, left: 3, bottom: isMobile ? 6 : 8 }}
           >
             <CartesianGrid {...gridProps} />
             <XAxis 
@@ -264,9 +258,9 @@ const TopInventoryTakersChart = ({ data }: Props) => {
               angle={-45} 
               textAnchor='end'
               height={isMobile ? 60 : 80}
-              tickFormatter={formatName}
+              tickFormatter={(name) => formatTickName(name, isMobile)}
             />
-            <YAxis {...yAxisProps} />
+            <YAxis width={45} {...yAxisProps} />
             <Tooltip content={<CustomTooltip />} />
             <Bar 
               dataKey="value" 
@@ -280,7 +274,7 @@ const TopInventoryTakersChart = ({ data }: Props) => {
 
         {/* Leyenda compacta personalizada para todas las pantallas */}
         <div 
-          className="mt-4 p-3 rounded-lg"
+          className="mt-2 p-3 rounded-lg"
           style={{ backgroundColor: 'var(--color-bg-secondary)' }}
         >
           <p 

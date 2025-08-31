@@ -3,6 +3,7 @@
 import type {AuthResponse, User, UserToRegister} from '../types/types.ts'
 import type {LoginInput} from '../schemas'
 import { API_ENDPOINTS } from '../../../config/api.ts';
+import { fetchWithAuth } from '../../../services/fetchWithAuth.ts';
 
 export const loginUser = async (data: LoginInput): Promise<AuthResponse> => {
     try {
@@ -45,13 +46,8 @@ export const registerUser = async (data: UserToRegister): Promise<AuthResponse> 
     return responseJSON.data // 👈 EXTRAES data correctamente
 }
 
-export const checkTokenValidity = async (token: string): Promise<User> => {
-    const res = await fetch(API_ENDPOINTS.auth.verify, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-        },
-    })
+export const checkTokenValidity = async (): Promise<User> => {
+    const res = await fetchWithAuth(API_ENDPOINTS.auth.verify)
 
     if (!res.ok) throw new Error('Token inválido o expirado')
     const responseJSON = await res.json()

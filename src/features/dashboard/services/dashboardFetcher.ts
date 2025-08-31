@@ -7,8 +7,8 @@ import type {
     TopInventoryTakersResponse,
     OverdueMaintenanceResponse,
 } from '../types';
-import {getHeaders} from "../../../utils/headersUtil.ts";
 import {API_ENDPOINTS} from "../../../config";
+import { fetchWithAuth } from '../../../services/fetchWithAuth';
 
 export interface DashboardData {
     summary: SummaryResponse | null;
@@ -19,11 +19,9 @@ export interface DashboardData {
     overdueMaintenance: OverdueMaintenanceResponse | null;
 }
 
-export const fetchDashboardData = async (
-    token: string
-): Promise<DashboardData> => {
+export const fetchDashboardData = async (): Promise<DashboardData> => {
     const fetchAndValidate = async <T>(url: string): Promise<T | null> => {
-        const response = await fetch(url, { headers: getHeaders(token) });
+        const response = await fetchWithAuth(url);
         const json = await response.json();
 
         if (json.success === false) {

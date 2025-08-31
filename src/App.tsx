@@ -1,16 +1,9 @@
 import { AppRoutes } from './routes';
-import {useAuthStore} from "./features/auth/store/store.ts";
-import {useEffect} from "react";
 import { useTheme } from './hooks';
 
 function App() {
-    const validateToken = useAuthStore((state) => state.validateToken);
-    useTheme(); // Inicializar tema
     
-    useEffect(() => {
-        console.log("--->>")
-        validateToken().then(r => console.log("validado"+r))
-    }, [validateToken])
+    useTheme(); // Inicializar tema
     
     return <AppRoutes />;
 }

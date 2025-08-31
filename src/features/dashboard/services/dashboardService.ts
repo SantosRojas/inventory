@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from '../../../config';
-import { getHeaders } from '../../../utils/headersUtil';
+import { fetchWithAuth } from '../../../services/fetchWithAuth';
 import type { DashboardInventoryItem } from '../../../utils/downloadUtil';
 
 /**
@@ -9,13 +9,10 @@ class DashboardService {
   /**
    * Descarga todas las bombas de una institución
    */
-  async downloadInventoryTotal(institutionId: number, token: string): Promise<DashboardInventoryItem[]> {
+  async downloadInventoryTotal(institutionId: number): Promise<DashboardInventoryItem[]> {
     try {
-      const response = await fetch(
-        API_ENDPOINTS.pumps.getByInstitutionId(institutionId),
-        {
-          headers: getHeaders(token),
-        }
+      const response = await fetchWithAuth(
+        API_ENDPOINTS.pumps.getByInstitutionId(institutionId)
       );
 
       const json = await response.json();
@@ -36,13 +33,10 @@ class DashboardService {
   /**
    * Descarga las bombas inventariadas este año de una institución
    */
-  async downloadInventoryCurrentYear(institutionId: number, token: string): Promise<DashboardInventoryItem[]> {
+  async downloadInventoryCurrentYear(institutionId: number): Promise<DashboardInventoryItem[]> {
     try {
-      const response = await fetch(
-        API_ENDPOINTS.pumps.getThisYearByInstitutionId(institutionId),
-        {
-          headers: getHeaders(token),
-        }
+      const response = await fetchWithAuth(
+        API_ENDPOINTS.pumps.getThisYearByInstitutionId(institutionId)
       );
 
       const json = await response.json();
@@ -62,14 +56,9 @@ class DashboardService {
   /**
    * Descarga las bombas no inventariadas este año de una institución
    */
-  async downloadInventoryNotInventoried(institutionId: number, token: string): Promise<DashboardInventoryItem[]> {
+  async downloadInventoryNotInventoried(institutionId: number): Promise<DashboardInventoryItem[]> {
     try {
-      const response = await fetch(
-        API_ENDPOINTS.pumps.getNotThisYearByInstitutionId(institutionId),
-        {
-          headers: getHeaders(token),
-        }
-      );
+      const response = await fetchWithAuth(API_ENDPOINTS.pumps.getNotThisYearByInstitutionId(institutionId));
 
       const json = await response.json();
 
@@ -88,14 +77,10 @@ class DashboardService {
   /**
    * Descarga las bombas con mantenimiento vencido de una institución
    */
-  async downloadOverdueMaintenance(institutionId: number, token: string): Promise<DashboardInventoryItem[]> {
+  async downloadOverdueMaintenance(institutionId: number): Promise<DashboardInventoryItem[]> {
     try {
-      const response = await fetch(
-        API_ENDPOINTS.pumps.getOverdueMaintenanceByInstitutionId(institutionId),
-        {
-          headers: getHeaders(token),
-        }
-      );
+      const response = await fetchWithAuth(
+        API_ENDPOINTS.pumps.getOverdueMaintenanceByInstitutionId(institutionId));
 
       const json = await response.json();
 
@@ -114,13 +99,10 @@ class DashboardService {
   /**
    * Descarga las bombas de un servicio específico en una institución
    */
-  async downloadServiceInventory(serviceId: number, institutionId: number, token: string): Promise<DashboardInventoryItem[]> {
+  async downloadServiceInventory(serviceId: number, institutionId: number): Promise<DashboardInventoryItem[]> {
     try {
-      const response = await fetch(
-        API_ENDPOINTS.pumps.getByServiceIdAndInstitutionId(serviceId, institutionId),
-        {
-          headers: getHeaders(token),
-        }
+      const response = await fetchWithAuth(
+        API_ENDPOINTS.pumps.getByServiceIdAndInstitutionId(serviceId, institutionId)
       );
 
       const json = await response.json();

@@ -12,6 +12,7 @@ import { useMediaQuery } from 'react-responsive';
 import { ChevronLeft, ChevronRight, Search, SortAsc, SortDesc } from 'lucide-react';
 import { ChartTooltip, TooltipTitle, TooltipValue, TooltipSeparator } from '../../../../components';
 import { useChartAxisStyles } from '../../../../hooks';
+import { formatTickName } from '../../utils';
 
 interface ModelDistributionByInstitutionResponse {
   totalPumps: number;
@@ -28,9 +29,20 @@ interface ModelDistributionByInstitutionChartsProps {
 }
 
 const MODEL_COLORS = [
-  '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-  '#06B6D4', '#F97316', '#EC4899', '#84CC16', '#6366F1'
+  '#3B82F6', // azul
+  '#10B981', // verde
+  '#F59E0B', // naranja
+  '#EF4444', // rojo
+  '#8B5CF6', // violeta
+  '#06B6D4', // celeste
+  '#F97316', // naranja fuerte
+  '#EC4899', // rosado
+  '#84CC16', // verde lima
+  '#6366F1', // azul violeta
+  '#EAB308', // amarillo vibrante (nuevo)
+  '#14B8A6', // verde azulado brillante (nuevo)
 ];
+
 
 export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByInstitutionChartsProps> = ({ data }) => {
   // Hook para detectar el tamaño de pantalla
@@ -156,13 +168,6 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
     );
   }, []);
 
-  const formatInstitutionName = useCallback((name: string) => {
-    if (isMobile) {
-      return name.length > 12 ? `${name.substring(0, 9)}...` : name;
-    }
-    return name.length > 15 ? `${name.substring(0, 12)}...` : name;
-  }, [isMobile]);
-
   if (!paginatedData?.length) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -236,7 +241,7 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={paginatedData}
-            margin={{ top: 5, right: 5, left: 5, bottom: isMobile ? 60 : 80 }}
+            margin={{ top: 5, right: 3, left: 3, bottom: isMobile ? 6 : 8 }}
           >
             <CartesianGrid {...gridProps} />
             <XAxis
@@ -244,10 +249,10 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
               {...xAxisProps}
               angle={-45}
               textAnchor="end"
-              height={isMobile ? 60 : 80}
-              tickFormatter={formatInstitutionName}
+              height={isMobile ? 60 : 85}
+              tickFormatter={(name) => formatTickName(name, isMobile, 18)}
             />
-            <YAxis {...yAxisProps} />
+            <YAxis width={45} {...yAxisProps} />
             <Tooltip content={<CustomTooltip />} />
             {/* Quitamos la leyenda de Recharts para usar nuestra leyenda personalizada */}
             {models.map((modelName, index) => (
@@ -266,7 +271,7 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
       {/* Leyenda compacta personalizada para todas las pantallas */}
       {models.length > 0 && (
         <div 
-          className="mt-4 p-3 rounded-lg"
+          className="mt-2 p-3 rounded-lg"
           style={{ backgroundColor: 'var(--color-bg-secondary)' }}
         >
           <p 
@@ -275,7 +280,7 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
           >
             Modelos:
           </p>
-          <div className={`grid gap-1 text-xs ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
+          <div className={`grid gap-y-1 gap-x-2 text-xs ${isMobile ? 'grid-cols-2' : 'grid-cols-3 lg:grid-cols-4'}`}>
             {models.map((modelName, index) => (
               <div key={modelName} className="flex items-center gap-1">
                 <div
@@ -287,12 +292,7 @@ export const ModelDistributionByInstitutionCharts: React.FC<ModelDistributionByI
                   title={modelName}
                   style={{ color: 'var(--color-text-secondary)' }}
                 >
-                  {isMobile && modelName.length > 12 
-                    ? `${modelName.substring(0, 9)}...` 
-                    : !isMobile && modelName.length > 15
-                    ? `${modelName.substring(0, 12)}...`
-                    : modelName
-                  }
+                  {modelName}
                 </span>
               </div>
             ))}

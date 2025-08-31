@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const user = await checkTokenValidity(token)
+          const user = await checkTokenValidity()
           set({ user })
         } catch {
           set({ user: null, token: null })
@@ -73,7 +73,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ token: state.token, user: state.user }),
+      partialize: (state) => ({ token: state.token }),
     }
   )
 )

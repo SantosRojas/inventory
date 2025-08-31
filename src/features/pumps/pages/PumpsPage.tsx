@@ -4,28 +4,59 @@ import type { Pump } from '../../../types';
 import { useCatalogLoader } from "../hooks";
 import { PumpsTable, PumpsToolbar, LatestInventoriesTable } from "../components";
 import { PageLoader } from "../../../components";
-import { DeletePumpModal,AddPumpModal,EditPumpModal,QRScannerModal } from "../modals";
+import { DeletePumpModal, AddPumpModal, EditPumpModal, QRScannerModal } from "../modals";
 import { useLatestInventoriesStore } from '../store';
+import { TokenCountdown } from '../../../components/CountDown';
+import { useAuthStore } from '../../auth/store/store';
+import { getTokenExp } from '../../../utils';
 
 
 const PumpsPage = () => {
     console.log('🚀 Renderizando PumpsPage');
     const { loading, error } = useCatalogLoader();
-    const fetchLatestInventories  = useLatestInventoriesStore((state) => state.fetchLatestInventories);
-    const limit = useLatestInventoriesStore((state) => state.limit);
+    const fetchLatestInventories = useLatestInventoriesStore((state) => state.fetchLatestInventories);
+    const token = useAuthStore((s) => s.token);
+    const logout = useAuthStore((s) => s.logout);
 
     // Estados para modales
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
+    const [showCountdown, setShowCountdown] = useState(false);
 
     // Estados para operaciones CRUD
     const [selectedPump, setSelectedPump] = useState<Pump | null>(null);
     const [bombaToDelete, setPumpToDelete] = useState<Pump | null>(null);
 
     useEffect(() => {
-        console.log('🔄 Fetching latest inventories with limit:', limit);
+        if (!token) return;
+
+        const expMs = getTokenExp(token);
+        if (!expMs) return;
+
+        const now = Date.now();
+        const msRemaining = expMs - now;
+        const msToShow = msRemaining - 10 * 60 * 1000; // faltan 10 min
+
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+        if (msRemaining <= 10 * 60 * 1000) {
+            // Si ya faltan ≤10 min → mostrar de inmediato
+            setShowCountdown(true);
+        } else {
+            // Si falta más → programar montaje exacto
+            timeoutId = setTimeout(() => {
+                setShowCountdown(true);
+            }, msToShow);
+        }
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [token]);
+
+    useEffect(() => {
         fetchLatestInventories();
     }, []);
 
@@ -82,8 +113,8 @@ const PumpsPage = () => {
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Error al cargar datos</h3>
                     <p className="text-sm text-gray-600 mb-4">{error}</p>
-                    <button 
-                        onClick={() => window.location.reload()} 
+                    <button
+                        onClick={() => window.location.reload()}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                     >
                         Reintentar
@@ -99,6 +130,14 @@ const PumpsPage = () => {
 
     return (
         <div className="flex flex-col h-full w-full">
+            {/* Contador de sesión */}
+            {showCountdown && (
+                <TokenCountdown
+                    token={token!}
+                    onLogout={logout}
+                />
+            )}
+
             {/* Toolbar */}
             <PumpsToolbar
                 onQRScan={handleQRScan}
@@ -117,7 +156,7 @@ const PumpsPage = () => {
                     onDelete={handleDelete}
                 />
             </div>
-            
+
 
             {/* Modales */}
             <QRScannerModal

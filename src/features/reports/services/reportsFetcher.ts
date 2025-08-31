@@ -2,19 +2,17 @@ import type {
     SummaryResponse,
     InventoryProgressByServiceResponse,
 } from '../../dashboard/types';
-import {getHeaders} from "../../../utils/headersUtil.ts";
 import {API_ENDPOINTS} from "../../../config";
+import { fetchWithAuth } from '../../../services/fetchWithAuth.ts';
 
 export interface ReportsData {
     summary: SummaryResponse | null;
     inventoryProgressByService: InventoryProgressByServiceResponse | null;
 }
 
-export const fetchReportsData = async (
-    token: string
-): Promise<ReportsData> => {
+export const fetchReportsData = async (): Promise<ReportsData> => {
     const fetchAndValidate = async <T>(url: string): Promise<T | null> => {
-        const response = await fetch(url, { headers: getHeaders(token) });
+        const response = await fetchWithAuth(url);
         const json = await response.json();
 
         if (json.success === false) {

@@ -3,7 +3,6 @@ import type { InventoryProgressByServiceResponse, SummaryResponse} from '../../t
 import { LazyCard } from '../../../../components';
 import { dashboardService } from '../../services';
 import { downloadDashboardInventoryExcel } from '../../../../utils';
-import { useAuthStore } from '../../../auth/store/store';
 import { useNotifications } from '../../../../hooks';
 
 
@@ -17,9 +16,6 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [downloadingServiceId, setDownloadingServiceId] = useState<string | null>(null);
-  
-  // Obtener token del auth store
-  const { token } = useAuthStore();
   
   // Hook de notificaciones
   const { notifySuccess, notifyError, notifyWarning } = useNotifications();
@@ -139,19 +135,11 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
 
   // Función para descargar inventario de un servicio específico
   const handleServiceDownload = useCallback(async (serviceId: number, serviceName: string, institutionId: number, institutionName: string) => {
-    if (!token) {
-      notifyError(
-        'Error de autenticación', 
-        'Por favor, inicia sesión nuevamente.'
-      );
-      return;
-    }
-
     const downloadKey = `${institutionId}-${serviceId}`;
     setDownloadingServiceId(downloadKey);
 
     try {
-      const data = await dashboardService.downloadServiceInventory(serviceId, institutionId, token);
+      const data = await dashboardService.downloadServiceInventory(serviceId, institutionId);
       // Validar si hay datos para descargar
       if (!data || data.length === 0) {
         notifyWarning(
@@ -184,7 +172,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
     } finally {
       setDownloadingServiceId(null);
     }
-  }, [token, notifySuccess, notifyError, notifyWarning]);
+  }, [notifySuccess, notifyError, notifyWarning]);
 
   // Componente de servicio memoizado para evitar re-renders innecesarios
   const ServiceCard = useCallback(({ service, institutionId, institutionName }: { 
@@ -266,15 +254,6 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
   }, [handleServiceDownload, downloadingServiceId]);
 
   const handleDownload = useCallback(async (institutionId: number, type: 'total' | 'current-year' | 'not-inventoried' | 'overdue-maintenance', institutionName: string) => {
-    if (!token) {
-      console.error('❌ No token available for download');
-      notifyError(
-        'Error de autenticación', 
-        'Por favor, inicia sesión nuevamente.'
-      );
-      return;
-    }
-
     const downloadKey = `${institutionId}-${type}`;
     setDownloadingId(downloadKey);
 
@@ -285,22 +264,22 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
 
       switch (type) {
         case 'total':
-          data = await dashboardService.downloadInventoryTotal(institutionId, token);
+          data = await dashboardService.downloadInventoryTotal(institutionId);
           filename = `inventario-total-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
           typeDisplayName = 'Inventario Total';
           break;
         case 'current-year':
-          data = await dashboardService.downloadInventoryCurrentYear(institutionId, token);
+          data = await dashboardService.downloadInventoryCurrentYear(institutionId);
           filename = `inventario-2025-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
           typeDisplayName = 'Inventario 2025';
           break;
         case 'not-inventoried':
-          data = await dashboardService.downloadInventoryNotInventoried(institutionId, token);
+          data = await dashboardService.downloadInventoryNotInventoried(institutionId);
           filename = `pendientes-inventario-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
           typeDisplayName = 'Pendientes de Inventario';
           break;
         case 'overdue-maintenance':
-          data = await dashboardService.downloadOverdueMaintenance(institutionId, token);
+          data = await dashboardService.downloadOverdueMaintenance(institutionId);
           filename = `mantenimiento-vencido-${institutionName.replace(/\s+/g, '-').toLowerCase()}.xlsx`;
           typeDisplayName = 'Mantenimiento Vencido';
           break;
@@ -340,7 +319,7 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
     } finally {
       setDownloadingId(null);
     }
-  }, [token, notifySuccess, notifyError, notifyWarning]);
+  }, [notifySuccess, notifyError, notifyWarning]);
 
   if (!data?.institutions || data.institutions.length === 0) {
     return (

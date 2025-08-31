@@ -34,8 +34,17 @@ export async function fetchWithAuth(
   }
 
   // Ejecutar fetch final
-  return fetch(url, {
+  const res = await fetch(url, {
     ...options,
     headers,
   });
+
+  // ✅ Si el backend devuelve 401 → cerrar sesión automáticamente
+  if (res.status === 401) {
+    console.warn("Token inválido o expirado. Cerrando sesión...");
+    useAuthStore.getState().logout(); // 👈 asegúrate de tener este método en el store
+    throw new Error("Sesión expirada, vuelve a iniciar sesión");
+  }
+
+  return res;
 }

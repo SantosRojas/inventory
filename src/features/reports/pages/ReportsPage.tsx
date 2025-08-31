@@ -1,5 +1,4 @@
 import React, { useEffect, Suspense } from 'react';
-import { useAuth } from '../../auth/hooks';
 import { useReportsStore } from '../store/reportsStore';
 import { PageLoader } from '../../../components';
 
@@ -18,21 +17,6 @@ const ChartFallback = ({ height = 'h-64' }: { height?: string }) => (
     </div>
 );
 
-// Mensajes de estado general
-const StateMessage = ({
-                        icon,
-                        text,
-                        color = 'text-gray-600',
-                      }: {
-  icon: string;
-  text: string;
-  color?: string;
-}) => (
-    <div className="flex justify-center items-center py-12">
-      <p className={`${color}`}>{icon} {text}</p>
-    </div>
-);
-
 // Sección ligera con solo Suspense
 const LightChartSection = ({
                              height,
@@ -47,19 +31,12 @@ const LightChartSection = ({
 );
 
 export const ReportsPage = () => {
-    const {user, isLoading: isAuthLoading, token: authToken} = useAuth();
+
     const {data, loading, error, getReportsData} = useReportsStore();
 
-    const token = authToken ? authToken : "";
-
     useEffect(() => {
-        if (user?.id) {
-            getReportsData(user.id, token ? token : "");
-        }
-    }, [user?.id, getReportsData, token]);
-
-    if (isAuthLoading) return <StateMessage icon="🔄" text="Inicializando autenticación..."/>;
-    if (!user) return <StateMessage icon="⚠️" text="No hay usuario autenticado" color="text-red-600"/>;
+        getReportsData();
+    }, []);
     if (loading) {
         return <PageLoader />;
     }
@@ -70,7 +47,7 @@ export const ReportsPage = () => {
                     <h3 className="text-lg font-medium text-red-800 mb-2">❌ Error al cargar los reportes</h3>
                     <p className="text-red-600 mb-4">{error}</p>
                     <button
-                        onClick={() => getReportsData(user.id, token)}
+                        onClick={() => getReportsData()}
                         className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                     >
                         🔄 Reintentar

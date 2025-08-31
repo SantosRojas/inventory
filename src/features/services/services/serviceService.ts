@@ -5,6 +5,7 @@ import type {
     ServiceResponse
 } from "../types";
 import { API_ENDPOINTS } from "../../../config";
+import { fetchWithAuth } from "../../../services/fetchWithAuth";
 
 /**
  * Maneja errores del servidor devolviendo un mensaje legible.
@@ -51,7 +52,7 @@ async function handleSuccessResponse<T>(res: Response): Promise<T> {
  */
 export async function getAllServices(): Promise<ServiceExtended[]> {
     const endPoint = API_ENDPOINTS.services.getAll;
-    const res = await fetch(endPoint);
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -65,7 +66,7 @@ export async function getAllServices(): Promise<ServiceExtended[]> {
  */
 export async function getServiceById(id: number): Promise<ServiceExtended> {
     const endPoint = API_ENDPOINTS.services.getById(id);
-    const res = await fetch(endPoint);
+    const res = await fetchWithAuth(endPoint);
 
     if (!res.ok) {
         await handleErrorResponse(res);
@@ -79,11 +80,8 @@ export async function getServiceById(id: number): Promise<ServiceExtended> {
  */
 export async function createService(serviceData: CreateService): Promise<ServiceResponse> {
     const endPoint = API_ENDPOINTS.services.create;
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         body: JSON.stringify(serviceData),
     });
 
@@ -99,11 +97,8 @@ export async function createService(serviceData: CreateService): Promise<Service
  */
 export async function updateService(id: number, serviceData: UpdateService): Promise<{ updatedService: ServiceExtended }> {
     const endPoint = API_ENDPOINTS.services.update(id);
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         body: JSON.stringify(serviceData),
     });
 
@@ -119,7 +114,7 @@ export async function updateService(id: number, serviceData: UpdateService): Pro
  */
 export async function deleteService(id: number): Promise<boolean> {
     const endPoint = API_ENDPOINTS.services.delete(id);
-    const res = await fetch(endPoint, {
+    const res = await fetchWithAuth(endPoint, {
         method: 'DELETE',
     });
 

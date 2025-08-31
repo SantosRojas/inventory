@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { API_ENDPOINTS } from '../../../config';
-import { getHeaders } from '../../../utils/headersUtil';
 import type { Pump } from '../../../types';
-import { useAuthStore } from '../../auth/store/store';
+import { fetchWithAuth } from '../../../services/fetchWithAuth';
 
 interface LatestInventoriesState {
   latestInventories: Pump[];
@@ -20,13 +19,9 @@ export const useLatestInventoriesStore = create<LatestInventoriesState>((set) =>
   limit: 10,
 
   fetchLatestInventories: async (requestedLimit = 10) => {
-    const { token, user } = useAuthStore.getState();
-    if (!token || !user?.id) return;
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch(API_ENDPOINTS.pumps.getLastInventories(requestedLimit), {
-        headers: getHeaders(token),
-      });
+      const response = await fetchWithAuth(API_ENDPOINTS.pumps.getLastInventories(requestedLimit));
       const data = await response.json();
       if (!response.ok || data.success === false) {
         if(data.error === "No se encontraron inventarios para este usuario") {

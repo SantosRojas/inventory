@@ -18,8 +18,10 @@ interface DashboardState {
         inventoryProgressByInstitution: InventoryProgressByInstitutionResponse | null;
         topInventoryTakers: TopInventoryTakersResponse | null;
         overdueMaintenance: OverdueMaintenanceResponse | null;
-        loadedAt: string | null; } | null; loading: boolean; error: string | null;
-        getDashboardData: (token?: string) => Promise<void>; clear: () => void;
+        loadedAt: string | null; } | null;
+        loading: boolean; error: string | null;
+        getDashboardData: () => Promise<void>; 
+        clear: () => void;
 }
 export const useDashboardStore = create<DashboardState>()(
     persist(
@@ -28,11 +30,12 @@ export const useDashboardStore = create<DashboardState>()(
             loading: false,
             error: null,
 
-            getDashboardData: async (token='') => {
+            getDashboardData: async () => {
                 set({ loading: true, error: null });
+                console.log("Cargando datos del dashboard...");
 
                 try {
-                    const dashboardData = await fetchDashboardData(token);
+                    const dashboardData = await fetchDashboardData();
 
                     set({
                         data: {

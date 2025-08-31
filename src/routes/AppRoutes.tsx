@@ -118,7 +118,7 @@ const AppRoutes = () => {
                 key={path}
                 path={path}
                 element={
-                  <ProtectedRoute requiredRole={roles}>
+                  <ProtectedRoute requiredRoles={roles}>
                     {element}
                   </ProtectedRoute>
                 }
