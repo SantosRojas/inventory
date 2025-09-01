@@ -6,6 +6,31 @@ import type { Pump } from '../../../types';
  */
 class DownloadService {
   /**
+   * Descargar todas las bombas del inventario
+   */
+
+  async downloadAllInventory():Promise<Pump[]>{
+    try{
+      const response = await fetchWithAuth(
+        API_ENDPOINTS.pumps.getAll
+      )
+       const json = await response.json();
+
+      if (!response.ok || json.success === false) {
+        throw new Error(json.message || json.error || 'Error al descargar inventario total');
+      }
+
+      // Transformar los datos al formato esperado por la utilidad de descarga
+      const pumps = json.data || [];
+      return pumps;
+    } catch (error) {
+      console.error('❌ Error downloading total inventory:', error);
+      throw error;
+    }
+  }
+
+
+  /**
    * Descarga todas las bombas de una institución
    */
   async downloadInventoryTotal(institutionId: number): Promise<Pump[]> {

@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { LazyCard } from '../../../components';
+import { Button, LazyCard } from '../../../components';
 import { downloadInventoryExcel, getInventoryCounts } from '../../../utils';
 import { useNotifications } from '../../../hooks';
 import { downloadService } from '../services';
 import type { InstitutionProgressWithTotals, InventoryProgressByServiceResponse } from '../types';
 import type { SummaryResponse } from '../../dashboard/types';
-import { Download } from 'lucide-react';
+import { Download, DownloadIcon } from 'lucide-react';
+import { useAuth } from '../../auth/hooks';
 
 
 interface InventoryProgressByServiceChartsProps {
@@ -18,9 +19,11 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const [downloadingServiceId, setDownloadingServiceId] = useState<string | null>(null);
+  const [downloadingAllInventory, setDownloadingAllInventory] = useState(false)
 
   // Hook de notificaciones
   const { notifySuccess, notifyError, notifyWarning } = useNotifications();
+  const {isAdmin} = useAuth()
 
   // Usar datos directos del summary en lugar de calcularlos - MUCHO MÁS EFICIENTE
   const summaryStats = useMemo(() => {
@@ -261,6 +264,30 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
     );
   }, [handleServiceDownload, downloadingServiceId]);
 
+  const handleDownloadAllInventory = async () => {
+    setDownloadingAllInventory(true)
+    try {
+      const allInventory = await downloadService.downloadAllInventory()
+      const { modelCount, serviceCount, inventoriedThisYear, institutionCount } = getInventoryCounts(allInventory);
+
+      const resumen = [
+        { Campo: 'Cantidad de Modelos', Valor: modelCount.toString() },
+        { Campo: 'Cantidad de Servicios', Valor: serviceCount.toString() },
+        { Campo: 'Cantidad de Instituciones', Valor: institutionCount.toString() },
+        { Campo: 'Bombas Inventariadas Este Año', Valor: inventoriedThisYear.toString() },
+        { Campo: 'Bombas No Inventariadas Este Año', Valor: (allInventory.length - inventoriedThisYear).toString() },
+        { Campo: 'Total de Bombas', Valor: allInventory.length.toString() }
+      ]
+      downloadInventoryExcel(allInventory, "Inventario Total", 'Inventario_Total', resumen)
+    } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : "Error al descargar el inventario";
+      notifyError("Error", errorMessage);
+    }finally{
+      setDownloadingAllInventory(false)
+    }
+
+  }
+
   const handleDownload = useCallback(async (institution: InstitutionProgressWithTotals, type: 'total' | 'current-year' | 'not-inventoried' | 'overdue-maintenance') => {
     const downloadKey = `${institution.institutionId}-${type}`;
     setDownloadingId(downloadKey);
@@ -381,11 +408,27 @@ const InventoryProgressByServiceCharts: React.FC<InventoryProgressByServiceChart
             {summaryStats.totalServices} servicios en {summaryStats.totalInstitutions} instituciones
           </p>
         </div>
-        <div className="text-right flex-shrink-0">
-          <div className="text-xs sm:text-sm text-gray-500">Progreso General</div>
-          <div className="text-xl sm:text-2xl font-bold text-green-600">
-            {totalProgress.toFixed(1)}%
+        <div className='flex gap-4 w-full sm:w-auto justify-between'>
+          <div className="text-right flex-shrink-0">
+            <div className="text-xs sm:text-sm text-gray-500">Progreso General</div>
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
+              {totalProgress.toFixed(1)}%
+            </div>
           </div>
+
+          {
+            isAdmin && (
+              <Button title='Descargar todo el inventario' className='flex items-center justify-center gap-2'>
+            {
+              downloadingAllInventory ?(
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+              ):<DownloadIcon onClick={handleDownloadAllInventory} className='text-white' />
+            }
+            
+            <p className='hidden sm:inline text-white'>Descargar</p>
+          </Button>
+            )
+          }
         </div>
       </div>
 

@@ -31,6 +31,9 @@ const downloadInventoryExcel = (
         'Fecha de Fabricación': bomba.manufactureDate
             ? new Date(bomba.manufactureDate).toLocaleDateString('es-ES')
             : 'Sin fecha',
+        'Último mantenimiento': bomba.lastMaintenanceDate
+            ? new Date(bomba.lastMaintenanceDate).toLocaleDateString('es-ES')
+            : 'Sin fecha',
         'Fecha de Creación': bomba.createdAt
             ? new Date(bomba.createdAt).toLocaleDateString('es-ES')
             : 'Sin fecha',
