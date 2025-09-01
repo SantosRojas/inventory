@@ -5,7 +5,7 @@ import { PageLoader } from '../../../components';
 // Lazy load del gráfico desde dashboard
 const LazyCharts = {
   InventoryProgressByService: React.lazy(() =>
-      import('../../dashboard/components/charts').then(mod => ({ default: mod.InventoryProgressByServiceCharts }))
+      import('../components').then(mod => ({ default: mod.InventoryProgressByServiceCharts }))
   ),
 };
 

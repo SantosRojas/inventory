@@ -6,18 +6,10 @@ import type {
     InventoryProgressByInstitutionResponse,
     TopInventoryTakersResponse,
     OverdueMaintenanceResponse,
+    DashboardData,
 } from '../types';
 import {API_ENDPOINTS} from "../../../config";
 import { fetchWithAuth } from '../../../services/fetchWithAuth';
-
-export interface DashboardData {
-    summary: SummaryResponse | null;
-    modelDistribution: ModelDistributionResponse | null;
-    modelDistributionByInstitution: ModelDistributionByInstitutionResponse | null;
-    inventoryProgressByInstitution: InventoryProgressByInstitutionResponse | null;
-    topInventoryTakers: TopInventoryTakersResponse | null;
-    overdueMaintenance: OverdueMaintenanceResponse | null;
-}
 
 export const fetchDashboardData = async (): Promise<DashboardData> => {
     const fetchAndValidate = async <T>(url: string): Promise<T | null> => {

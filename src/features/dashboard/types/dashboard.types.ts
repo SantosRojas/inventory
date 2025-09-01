@@ -41,19 +41,7 @@ export interface InventoryProgressByInstitutionResponse {
   }>;
 }
 
-// === INVENTORY PROGRESS BY SERVICE ENDPOINT ===
-export interface InventoryProgressByServiceResponse {
-  institutions: Array<{
-    institutionId: number;
-    institutionName: string;
-    services: Array<{
-      serviceId: number;
-      serviceName: string;
-      pumpsInventoriedThisYear: number;
-      totalPumps: number;
-    }>;
-  }>;
-}
+
 
 // === TOP INVENTORY TAKERS ENDPOINT ===
 export interface TopInventoryTakersResponse {
@@ -114,28 +102,13 @@ export interface InventoryDownloadItem {
 
 export type InventoryDownloadResponse = InventoryDownloadItem[];
 
-// === DASHBOARD DATA CONSOLIDADO ===
+
 export interface DashboardData {
-  summary: SummaryResponse;
-  modelDistribution: ModelDistributionResponse;
-  modelDistributionByInstitution: ModelDistributionByInstitutionResponse;
-  inventoryProgressByInstitution: InventoryProgressByInstitutionResponse;
-  inventoryProgressByService: InventoryProgressByServiceResponse;
-  topInventoryTakers: TopInventoryTakersResponse;
-  overdueMaintenance: OverdueMaintenanceResponse;
-  stateByService: StateByServiceResponse;
-  stateByModel: StateByModelResponse;
-
-  // Metadatos
-  isAdmin: boolean;
-  userId: number;
-  loadedAt: string;
+    summary: SummaryResponse | null;
+    modelDistribution: ModelDistributionResponse | null;
+    modelDistributionByInstitution: ModelDistributionByInstitutionResponse | null;
+    inventoryProgressByInstitution: InventoryProgressByInstitutionResponse | null;
+    topInventoryTakers: TopInventoryTakersResponse | null;
+    overdueMaintenance: OverdueMaintenanceResponse | null;
 }
 
-// === TIPOS PARA HOOK ===
-export interface UseDashboardReturn {
-  data: DashboardData | null;
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}

@@ -1,9 +1,9 @@
 import type {
     SummaryResponse,
-    InventoryProgressByServiceResponse,
 } from '../../dashboard/types';
 import {API_ENDPOINTS} from "../../../config";
 import { fetchWithAuth } from '../../../services/fetchWithAuth.ts';
+import type { InventoryProgressByServiceResponse } from '../types/types.ts';
 
 export interface ReportsData {
     summary: SummaryResponse | null;
