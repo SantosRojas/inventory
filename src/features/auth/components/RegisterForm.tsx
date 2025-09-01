@@ -6,6 +6,7 @@ import { useRegisterForm } from '../hooks/useRegisterForm';
 import { Button } from '../../../components';
 import { RegisterInput } from "./index";
 import SubmitError from './SubmitError';
+import { useAuthStore } from '../store/store';
 
 const RegisterForm: React.FC = () => {
     const {
@@ -17,6 +18,7 @@ const RegisterForm: React.FC = () => {
     } = useRegisterForm();
 
     const [showError, setShowError] = useState(false)
+    const clearError = useAuthStore((state) => state.clearError)
 
 
     useEffect(() => {
@@ -24,7 +26,7 @@ const RegisterForm: React.FC = () => {
             setShowError(true);
 
             const timer = setTimeout(() => {
-                setShowError(false);
+                clearMessage();
             }, 10000); // Oculta el mensaje después de 10 segundos
 
             return () => clearTimeout(timer); // Limpia el temporizador si el componente se desmonta o el error cambia
@@ -33,6 +35,7 @@ const RegisterForm: React.FC = () => {
 
 
     const clearMessage = () => {
+        clearError()
         setShowError(false)
     }
 

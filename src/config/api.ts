@@ -1,5 +1,5 @@
-// export const API_BASE = 'https://srv586737.hstgr.cloud/v2';
-export const API_BASE = 'http://localhost:4000';
+export const API_BASE = 'https://srv586737.hstgr.cloud/v2';
+// export const API_BASE = 'http://localhost:4000';
 
 export const API_ENDPOINTS = {
   auth: {

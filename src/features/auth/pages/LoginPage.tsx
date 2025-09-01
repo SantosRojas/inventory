@@ -15,6 +15,7 @@ const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const { isAuthenticated, isLoading, error } = useAuth();
     const login = useAuthStore((state) => state.login);
+    const clearError = useAuthStore((state) => state.clearError)
 
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',
@@ -28,8 +29,8 @@ const LoginPage: React.FC = () => {
             setShowError(true);
 
             const timer = setTimeout(() => {
-                setShowError(false);
-            }, 100000); // Oculta el mensaje después de 10 segundos
+                handleCloseMessage();
+            }, 10000); // Oculta el mensaje después de 10 segundos
 
             return () => clearTimeout(timer); // Limpia el temporizador si el componente se desmonta o el error cambia
         }
@@ -46,6 +47,10 @@ const LoginPage: React.FC = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handleCloseMessage = () => {
+        clearError()
+        setShowError(false)
+    }
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -71,7 +76,7 @@ const LoginPage: React.FC = () => {
 
             {/* Error Message */}
             {showError && (
-                <SubmitError error={error} onClose={() => setShowError(false)} />
+                <SubmitError error={error} onClose={handleCloseMessage} />
             )}
 
             {/* Login Form */}

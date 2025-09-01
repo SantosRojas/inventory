@@ -8,11 +8,12 @@ interface AuthState {
   user: User | null
   token: string | null
   isLoading: boolean
-  error:string | null
+  error: string | null
   login: (email: string, password: string) => Promise<void>
   register: (data: any) => Promise<void>
   logout: () => void
   validateToken: () => Promise<void>
+  clearError: () => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -21,17 +22,17 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isLoading: false,
-      error:null,
+      error: null,
 
       // 🔐 LOGIN con manejo de loading
       login: async (email: string, password: string) => {
-        set({ isLoading: true,error:null })
+        set({ isLoading: true, error: null })
         try {
           const { user, token } = await loginUser({ email, password })
           set({ user, token })
-        } catch (err:any) {
-          set({error:err.message, user: null, token: null })
-    
+        } catch (err: any) {
+          set({ error: err.message, user: null, token: null })
+
         } finally {
           set({ isLoading: false })
         }
@@ -39,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
 
       // 📝 REGISTER con manejo de loading
       register: async (data: UserToRegister) => {
-        set({ isLoading: true, error:null })
+        set({ isLoading: true, error: null })
         try {
           const { user, token } = await registerUser(data)
           set({ user, token })
@@ -55,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       validateToken: async () => {
-        set({ isLoading: true, error:null })
+        set({ isLoading: true, error: null })
         const token = get().token
         if (!token) {
           set({ isLoading: false })
@@ -65,11 +66,16 @@ export const useAuthStore = create<AuthState>()(
         try {
           const user = await checkTokenValidity()
           set({ user })
-        } catch(err:any) {
+        } catch (err: any) {
           set({ user: null, token: null, error: err.message })
         } finally {
           set({ isLoading: false })
         }
+      },
+      clearError: () => {
+        set({
+          error: null
+        })
       },
     }),
     {
