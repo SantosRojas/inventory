@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {useAuth} from "./useAuth.ts";
@@ -8,8 +7,7 @@ import {type RegisterInput, registerSchema} from "../schemas";
 export const useRegisterForm = () => {
     const { isLoading } = useAuth();
     const register = useAuthStore((state) => state.register);
-    const [submitError, setSubmitError] = useState('');
-    const [submitSuccess, setSubmitSuccess] = useState('');
+    const error = useAuthStore((state) => state.error)
 
     const form = useForm<RegisterInput>({
         resolver: zodResolver(registerSchema),
@@ -26,12 +24,8 @@ export const useRegisterForm = () => {
     });
 
     const onSubmit = async (data: RegisterInput) => {
-        setSubmitError('');
-        setSubmitSuccess('');
-        console.log(data);
 
-        try {
-            const registerData = {
+        const registerData = {
                 firstName: data.firstName,      // Mapear first_name -> firstName
                 lastName: data.lastName,        // Mapear last_name -> lastName
                 cellPhone: data.cellPhone,       // Mapear cellphone -> cellPhone
@@ -41,11 +35,6 @@ export const useRegisterForm = () => {
             };
 
             await register(registerData);
-
-        } catch (error) {
-            console.error('Error during registration:', error);
-            setSubmitError(error instanceof Error ? error.message : 'Error inesperado al registrar usuario');
-        }
     };
 
     const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,18 +43,12 @@ export const useRegisterForm = () => {
         form.setValue('cellPhone', value, { shouldValidate: true });
     };
 
-    const clearMessages = () => {
-        setSubmitError('');
-        setSubmitSuccess('');
-    };
 
     return {
         form,
         onSubmit,
         handlePhoneInput,
-        submitError,
-        submitSuccess,
+        error,
         isLoading,
-        clearMessages,
     };
 };

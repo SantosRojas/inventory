@@ -5,6 +5,7 @@ export const useAuth = () => {
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error)
   const rawValidateToken = useAuthStore((state) => state.validateToken);
 
   // ✅ Memoizamos validateToken para que no cambie de referencia
@@ -29,6 +30,7 @@ export const useAuth = () => {
     isLoading,
     isAuthenticated,
     isAdmin,
+    error,
     validateToken, // lo devolvemos también por si lo necesitas
   };
 };

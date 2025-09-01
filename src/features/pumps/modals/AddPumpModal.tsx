@@ -87,7 +87,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                 onClose();
             }
         } catch (err) {
-            notifyError('Error', 'No se pudo crear la bomba');
+            notifyError('Error', error?error:"No se puede agregar la bomba");
         }
     };
 

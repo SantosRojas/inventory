@@ -8,6 +8,7 @@ interface AuthState {
   user: User | null
   token: string | null
   isLoading: boolean
+  error:string | null
   login: (email: string, password: string) => Promise<void>
   register: (data: any) => Promise<void>
   logout: () => void
@@ -20,16 +21,17 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isLoading: false,
+      error:null,
 
       // 🔐 LOGIN con manejo de loading
       login: async (email: string, password: string) => {
-        set({ isLoading: true })
+        set({ isLoading: true,error:null })
         try {
           const { user, token } = await loginUser({ email, password })
           set({ user, token })
-        } catch (err) {
-          set({ user: null, token: null })
-          throw err
+        } catch (err:any) {
+          set({error:err.message, user: null, token: null })
+    
         } finally {
           set({ isLoading: false })
         }
@@ -37,13 +39,12 @@ export const useAuthStore = create<AuthState>()(
 
       // 📝 REGISTER con manejo de loading
       register: async (data: UserToRegister) => {
-        set({ isLoading: true })
+        set({ isLoading: true, error:null })
         try {
           const { user, token } = await registerUser(data)
           set({ user, token })
-        } catch (err) {
-          set({ user: null, token: null })
-          throw err
+        } catch (err: any) {
+          set({ user: null, token: null, error: err.message })
         } finally {
           set({ isLoading: false })
         }
@@ -54,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       validateToken: async () => {
-        set({ isLoading: true })
+        set({ isLoading: true, error:null })
         const token = get().token
         if (!token) {
           set({ isLoading: false })
@@ -64,8 +65,8 @@ export const useAuthStore = create<AuthState>()(
         try {
           const user = await checkTokenValidity()
           set({ user })
-        } catch {
-          set({ user: null, token: null })
+        } catch(err:any) {
+          set({ user: null, token: null, error: err.message })
         } finally {
           set({ isLoading: false })
         }

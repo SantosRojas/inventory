@@ -211,7 +211,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             onSuccess?.();
             onClose();
         } catch (err) {
-            notifyError('Error', 'No se pudo actualizar la bomba');
+            notifyError('Error', error ? error : 'No se pudo actualizar la bomba');
         }
     };
 

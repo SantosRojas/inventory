@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { Button, Input } from '../../../components';
 import { LogIn } from 'lucide-react';
 import { useAuth } from "../hooks";
 import { useAuthStore } from "../store/store";
+import SubmitError from '../components/SubmitError';
 
 interface LoginFormData {
     email: string;
@@ -12,14 +13,28 @@ interface LoginFormData {
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading, error } = useAuth();
     const login = useAuthStore((state) => state.login);
 
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',
         password: '',
     });
-    const [error, setError] = useState('');
+    const [showError, setShowError] = useState(false)
+
+
+    useEffect(() => {
+        if (error) {
+            setShowError(true);
+
+            const timer = setTimeout(() => {
+                setShowError(false);
+            }, 100000); // Oculta el mensaje después de 10 segundos
+
+            return () => clearTimeout(timer); // Limpia el temporizador si el componente se desmonta o el error cambia
+        }
+    }, [error]);
+
 
     // 🔒 Redirigir si ya está autenticado
     if (isAuthenticated && !isLoading) {
@@ -31,16 +46,16 @@ const LoginPage: React.FC = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
 
         try {
             await login(formData.email, formData.password);
             navigate('/');
         } catch (err) {
             console.error('Login error:', err);
-            setError(err instanceof Error ? err.message : 'Error inesperado al iniciar sesión');
         }
     };
 
@@ -55,10 +70,8 @@ const LoginPage: React.FC = () => {
             </div>
 
             {/* Error Message */}
-            {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-red-700 text-sm">{error}</p>
-                </div>
+            {showError && (
+                <SubmitError error={error} onClose={() => setShowError(false)} />
             )}
 
             {/* Login Form */}

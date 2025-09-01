@@ -1,34 +1,48 @@
-import React, {useEffect} from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { UserPlus } from 'lucide-react';
+import { UserPlus} from 'lucide-react';
 import { useRegisterForm } from '../hooks/useRegisterForm';
-import { StatusMessages } from './StatusMessages';
 import { Button } from '../../../components';
-import {RegisterInput} from "./index";
+import { RegisterInput } from "./index";
+import SubmitError from './SubmitError';
 
 const RegisterForm: React.FC = () => {
     const {
         form,
         onSubmit,
         handlePhoneInput,
-        submitError,
-        submitSuccess,
         isLoading,
-        clearMessages,
+        error
     } = useRegisterForm();
 
+    const [showError, setShowError] = useState(false)
+
+
     useEffect(() => {
-        console.log(form.formState.isValid)
-    },[form.formState])
+        if (error) {
+            setShowError(true);
+
+            const timer = setTimeout(() => {
+                setShowError(false);
+            }, 10000); // Oculta el mensaje después de 10 segundos
+
+            return () => clearTimeout(timer); // Limpia el temporizador si el componente se desmonta o el error cambia
+        }
+    }, [error]);
+
+
+    const clearMessage = () => {
+        setShowError(false)
+    }
 
     return (
         <div className="space-y-6">
-            <StatusMessages
-                error={submitError}
-                success={submitSuccess}
-                onClearMessages={clearMessages}
-            />
+            {
+                showError && (
+                    <SubmitError error={error} onClose={clearMessage} />
+                )
+            }
 
             <FormProvider {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -41,7 +55,7 @@ const RegisterForm: React.FC = () => {
                         tabIndex={-1}
                         aria-hidden="true"
                     />
-                    
+
                     {/* Nombres */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <RegisterInput
@@ -139,9 +153,9 @@ const RegisterForm: React.FC = () => {
                             </div>
                         </div>
                         {form.formState.errors.acceptTerms && (
-                                <p className="text-sm text-red-600">
-                                    {form.formState.errors.acceptTerms.message}
-                                </p>
+                            <p className="text-sm text-red-600">
+                                {form.formState.errors.acceptTerms.message}
+                            </p>
                         )}
                     </div>
 
@@ -151,7 +165,7 @@ const RegisterForm: React.FC = () => {
                         variant="primary"
                         icon={UserPlus}
                         disabled={isLoading || !form.formState.isValid}
-                        className="w-full"
+                        className="w-full cursor-pointer"
                     >
                         {isLoading ? 'Registrando...' : 'Registrar Usuario'}
                     </Button>
