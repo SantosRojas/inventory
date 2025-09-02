@@ -16,7 +16,7 @@ interface EditBombaModalProps {
 
 const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSuccess, bomba }) => {
     const { user } = useAuth();
-    const updatePump = usePumpStore((state) =>state.updatePump)
+    const updatePump = usePumpStore((state) => state.updatePump)
     const isLoading = usePumpStore((state) => state.isLoading)
     const error = usePumpStore((state) => state.error)
     const clearError = usePumpStore((state) => state.clearError)
@@ -43,6 +43,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [showConfirmClose, setShowConfirmClose] = useState(false);
+    const [startTime, setStartTime] = useState<Date | null>(null)
 
     // Función helper para convertir fecha ISO a formato YYYY-MM-DD
     const formatDateForInputLocal = (date: string | null | undefined): string => {
@@ -88,6 +89,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
     useEffect(() => {
         if (isOpen) {
             setShowConfirmClose(false); // Resetear al abrir
+            setStartTime(new Date()) // registramos la fecha-hora al habrir el modal
         }
     }, [isOpen]);
 
@@ -176,7 +178,10 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         e.preventDefault();
 
         if (!validateForm() || !bomba?.id) return;
-
+        const endTime = new Date();
+        const duration = startTime ? (endTime.getTime() - startTime.getTime()) / 1000 : null;
+        setStartTime(endTime)
+        
         // Preparar los datos para actualización basados en los permisos del user
         const updateData: UpdatePump = {
             // Campos que todos pueden editar
@@ -209,6 +214,26 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         }
 
         const isUpdated = await updatePump(bomba.id, updateData);
+
+        const payload = {
+            user_id: user?.id, // Asumiendo que tienes el ID del usuario en el contexto
+            inventario_id: bomba.id, // Este sería el ID del inventario que estás manipulando
+            start_time: startTime?.toISOString(),
+            end_time: endTime.toISOString(),
+            duration_seconds: duration,
+            success: isUpdated // o false si hubo error
+        };
+
+        try {
+            await fetch("http://localhost:3001/guardar-tiempo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+        } catch (err) {
+            console.error("Error al guardar el tiempo:", err);
+        }
+
         if (isUpdated) {
             notifySuccess('Bomba actualizada', 'La bomba se ha actualizado correctamente');
             onSuccess?.();
@@ -216,6 +241,11 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         } else {
             notifyError('Error', error ? error : 'No se pudo actualizar la bomba');
         }
+
+
+        
+        console.log(payload)
+
     };
 
     const handleClose = () => {
@@ -292,7 +322,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                             </div>
                         </div>
                     )}
-    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Número de Serie - Solo admin */}
                         <div>

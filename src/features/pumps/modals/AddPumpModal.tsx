@@ -50,6 +50,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
     });
 
     const [showConfirmClose, setShowConfirmClose] = useState(false);
+    const [startTime, setStartTime] = useState<Date | null>(null)
 
     // ✅ Memoizamos las transformaciones de catálogos
     const modelosItems = useMemo(() => transformModelosForSelect(pumpModels), [pumpModels]);
@@ -63,11 +64,19 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
     useEffect(() => {
         if (isOpen) {
             setShowConfirmClose(false); // Resetear al abrir
+            setStartTime(new Date()) // registramos la fecha-hora al habrir el modal
         }
     }, [isOpen]);
 
     const onSubmit = async (data: BombaSchemaType) => {
         if (!user?.id) return;
+
+        const endTime = new Date();
+        const duration = startTime ? (endTime.getTime() - startTime.getTime()) / 1000 : null;
+
+
+        setStartTime(endTime)
+
 
         const now = new Date().toISOString().split('T')[0];
 
@@ -81,7 +90,29 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
         };
 
         const result = await addPump(payload);
-        if (result) {
+
+        const success = !!result;
+
+        const payloadTiming = {
+            user_id: user.id,
+            inventory_id: result || null, // null si falló
+            start_time: startTime?.toISOString(),
+            end_time: endTime.toISOString(),
+            duration_seconds: duration,
+            success: success
+        };
+
+        try {
+            await fetch("http://localhost:3001/guardar-tiempo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payloadTiming),
+            });
+        } catch (err) {
+            console.error("Error al guardar el tiempo:", err);
+        }
+
+        if (success) {
             notifySuccess('Bomba registrada', `Bomba registrada correctamente con ID: ${result}`);
             setShowConfirmClose(false);
             reset();
@@ -90,6 +121,9 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
         } else {
             notifyError('Error', error ? error : "No se puede agregar la bomba");
         }
+
+        console.log(payloadTiming)
+
     };
 
     const handleConfirmClose = () => {
