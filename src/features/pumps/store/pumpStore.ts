@@ -18,9 +18,10 @@ interface PumpState {
   fetchBySerie: (serie: string) => Promise<void>;
   fetchByQr: (qr: string) => Promise<void>;
   addPump: (data: CreatePump) => Promise<number | undefined>;
-  updatePump: (id: number, data: UpdatePump) => Promise<void>;
+  updatePump: (id: number, data: UpdatePump) => Promise<boolean>;
   removePump: (id: number) => Promise<boolean>;
   clearPumpData: () => void;
+  clearError: () => void;
 }
 
 export const usePumpStore = create<PumpState>((set) => ({
@@ -70,44 +71,47 @@ export const usePumpStore = create<PumpState>((set) => ({
     try {
       const updatedPump = await updatePump(id, data);
       set((state) => ({
-  pumpData: state.pumpData
-    ? state.pumpData.map((pump) =>
-        pump.id === id ? updatedPump.updated : pump
-      )
-    : [updatedPump.updated],
-}));
+        pumpData: state.pumpData
+          ? state.pumpData.map((pump) =>
+            pump.id === id ? updatedPump.updated : pump
+          )
+          : [updatedPump.updated],
+      }));
+      return true;
     } catch (err: any) {
-      set({ error: err.message });
+      const errorMessage = err.message || "Error desconocido"
+      set({ error: errorMessage });
+      return false;
     } finally {
       set({ isLoading: false });
     }
   },
 
   removePump: async (id) => {
-  set({ isLoading: true, error: null });
-  try {
-    const successDeletePump = await deletePump(id);
+    set({ isLoading: true, error: null });
+    try {
+      const successDeletePump = await deletePump(id);
 
-    if (successDeletePump) {
-      console.log("Pump deleted successfully");
-      set((state) => ({
-        pumpData: state.pumpData
-          ? state.pumpData.filter((pump) => pump.id !== id)
-          : null,
-      }));
-      return true;
-    } else {
-      set({ error: "No se pudo eliminar la bomba" });
+      if (successDeletePump) {
+        set((state) => ({
+          pumpData: state.pumpData
+            ? state.pumpData.filter((pump) => pump.id !== id)
+            : null,
+        }));
+        return true;
+      } else {
+        set({ error: "No se pudo eliminar la bomba" });
+        return false;
+      }
+    } catch (err: any) {
+      set({ error: err.message });
       return false;
+    } finally {
+      set({ isLoading: false });
     }
-  } catch (err: any) {
-    set({ error: err.message });
-    return false;
-  } finally {
-    set({ isLoading: false });
-  }
-},
+  },
 
 
   clearPumpData: () => set({ pumpData: null, error: null }),
+  clearError: () => set({error:null}),
 }));

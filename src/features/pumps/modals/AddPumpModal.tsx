@@ -23,7 +23,10 @@ interface AddBombaModalProps {
 
 const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess }) => {
     const { user } = useAuth();
-    const { addPump, isLoading, error } = usePumpStore();
+    const addPump = usePumpStore((state) => state.addPump)
+    const error = usePumpStore((state) => state.error)
+    const isLoading = usePumpStore((state) => state.isLoading)
+    const clearError = usePumpStore((state) => state.clearError)
     const { notifySuccess, notifyError } = useNotifications();
     const { institutions, services, pumpModels } = useCatalogsStore();
 
@@ -77,18 +80,23 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
             createdAt: now,
         };
 
-        try {
-            const result = await addPump(payload);
-            if (result) {
-                notifySuccess('Bomba registrada', `Bomba registrada correctamente con ID: ${result}`);
-                setShowConfirmClose(false);
-                reset();
-                onSuccess?.();
-                onClose();
-            }
-        } catch (err) {
-            notifyError('Error', error?error:"No se puede agregar la bomba");
+        const result = await addPump(payload);
+        if (result) {
+            notifySuccess('Bomba registrada', `Bomba registrada correctamente con ID: ${result}`);
+            setShowConfirmClose(false);
+            reset();
+            onSuccess?.();
+            onClose();
+        } else {
+            notifyError('Error', error ? error : "No se puede agregar la bomba");
         }
+    };
+
+    const handleConfirmClose = () => {
+        setShowConfirmClose(false); // ✅ Resetear estado de confirmación
+        reset();
+        onClose();
+        clearError()
     };
 
     const handleClose = () => {
@@ -98,6 +106,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
         } else {
             reset();
             onClose();
+            clearError()
         }
     };
 
@@ -302,11 +311,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
                             </Button>
                             <Button
                                 variant="danger"
-                                onClick={() => {
-                                    setShowConfirmClose(false); // ✅ Resetear estado de confirmación
-                                    reset();
-                                    onClose();
-                                }}
+                                onClick={handleConfirmClose}
                             >
                                 Descartar
                             </Button>

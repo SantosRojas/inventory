@@ -24,6 +24,7 @@ const PumpsPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
     const [showCountdown, setShowCountdown] = useState(false);
+    const [showHistory, setShowHistory] = useState(false)
 
     // Estados para operaciones CRUD
     const [selectedPump, setSelectedPump] = useState<Pump | null>(null);
@@ -140,6 +141,8 @@ const PumpsPage = () => {
 
             {/* Toolbar */}
             <PumpsToolbar
+                showHistory={showHistory}
+                onCloseHistory={() => setShowHistory(!showHistory)}
                 onQRScan={handleQRScan}
                 onAdd={handleAdd}
             />
@@ -151,10 +154,14 @@ const PumpsPage = () => {
                     onDelete={handleDelete}
                 />
 
-                <LatestInventoriesTable
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
+                {
+                    showHistory && (
+                        <LatestInventoriesTable
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
+                    )
+                }
             </div>
 
 

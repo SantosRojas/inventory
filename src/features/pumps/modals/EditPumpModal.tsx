@@ -16,7 +16,10 @@ interface EditBombaModalProps {
 
 const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSuccess, bomba }) => {
     const { user } = useAuth();
-    const { updatePump, isLoading, error } = usePumpStore();
+    const updatePump = usePumpStore((state) =>state.updatePump)
+    const isLoading = usePumpStore((state) => state.isLoading)
+    const error = usePumpStore((state) => state.error)
+    const clearError = usePumpStore((state) => state.clearError)
     const { notifySuccess, notifyError } = useNotifications();
     const {
         institutions,
@@ -205,12 +208,12 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             updateData.modelId = formData.modelId;
         }
 
-        try {
-            await updatePump(bomba.id, updateData);
+        const isUpdated = await updatePump(bomba.id, updateData);
+        if (isUpdated) {
             notifySuccess('Bomba actualizada', 'La bomba se ha actualizado correctamente');
             onSuccess?.();
             onClose();
-        } catch (err) {
+        } else {
             notifyError('Error', error ? error : 'No se pudo actualizar la bomba');
         }
     };
@@ -227,6 +230,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
             resetForm();
             setShowConfirmClose(false);
             onClose();
+            clearError()
         }
     };
 
@@ -248,6 +252,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         resetForm();
         setShowConfirmClose(false);
         onClose();
+        clearError()
     };
 
     const handleCancelClose = () => {
@@ -268,23 +273,6 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                 preventCloseOnOverlay={hasFormChanges() && !showConfirmClose}
                 preventCloseOnEscape={hasFormChanges() && !showConfirmClose}
             >
-                {!isAdmin && (
-                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                        <div className="flex">
-                            <div className="flex-shrink-0">
-                                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                            <div className="ml-3">
-                                <p className="text-sm text-blue-800">
-                                    <strong>Permisos limitados:</strong> Solo los administradores pueden editar el número de serie y el modelo.
-                                    Puedes editar todos los demás campos.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Mostrar errores de la API */}
@@ -304,7 +292,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
                             </div>
                         </div>
                     )}
-
+    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Número de Serie - Solo admin */}
                         <div>
