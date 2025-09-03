@@ -1,5 +1,5 @@
-export const API_BASE = 'https://srv586737.hstgr.cloud/v2';
-// export const API_BASE = 'http://localhost:4000';
+// export const API_BASE = 'https://srv586737.hstgr.cloud/v2';
+export const API_BASE = 'http://localhost:3000';
 
 export const API_ENDPOINTS = {
   auth: {
@@ -80,4 +80,11 @@ export const API_ENDPOINTS = {
         `${API_BASE}/dashboard/top-inventory-takers`,
     overdueMaintenance: () => `${API_BASE}/dashboard/overdue-maintenance/by-institution`,
   },
+  inventoryTimes: {
+    getAll: `${API_BASE}/inventory-time`,
+    create: `${API_BASE}/inventory-time`,
+    getById: (id: number) => `${API_BASE}/inventory-time/${id}`,
+    update: (id: number) => `${API_BASE}/inventory-time/${id}`,
+    delete: (id: number) => `${API_BASE}/inventory-time/${id}`,
+  }
 };

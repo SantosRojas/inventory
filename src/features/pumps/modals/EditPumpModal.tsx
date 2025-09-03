@@ -7,6 +7,8 @@ import { useCatalogsStore } from "../store";
 import { useAuth } from '../../auth/hooks';
 import { usePumpStore } from "../store";
 import { transformInstitucionesForAutocomplete, transformModelosForSelect, transformServiciosForAutocomplete } from "../utils";
+import { API_ENDPOINTS } from '../../../config';
+import { fetchWithAuth } from '../../../services/fetchWithAuth';
 interface EditBombaModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -216,18 +218,17 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         const isUpdated = await updatePump(bomba.id, updateData);
 
         const payload = {
-            user_id: user?.id, // Asumiendo que tienes el ID del usuario en el contexto
-            inventario_id: bomba.id, // Este sería el ID del inventario que estás manipulando
-            start_time: startTime?.toISOString(),
-            end_time: endTime.toISOString(),
-            duration_seconds: duration,
+            userId: user?.id, // Asumiendo que tienes el ID del usuario en el contexto
+            inventoryId: bomba.id, // Este sería el ID del inventario que estás manipulando
+            startTime: startTime?.toISOString(),
+            endTime: endTime.toISOString(),
+            durationSeconds: duration,
             success: isUpdated // o false si hubo error
         };
 
         try {
-            await fetch("http://localhost:3001/guardar-tiempo", {
+            await fetchWithAuth(API_ENDPOINTS.inventoryTimes.create, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
         } catch (err) {

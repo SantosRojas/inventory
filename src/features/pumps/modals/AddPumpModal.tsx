@@ -14,6 +14,8 @@ import {
     transformModelosForSelect,
     transformServiciosForAutocomplete
 } from "../utils";
+import { API_ENDPOINTS } from '../../../config/api.ts';
+import { fetchWithAuth } from '../../../services/fetchWithAuth.ts';
 
 interface AddBombaModalProps {
     isOpen: boolean;
@@ -103,9 +105,8 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
         };
 
         try {
-            await fetch("http://localhost:3001/guardar-tiempo", {
+            await fetchWithAuth(API_ENDPOINTS.inventoryTimes.create, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payloadTiming),
             });
         } catch (err) {
