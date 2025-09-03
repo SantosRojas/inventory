@@ -25,26 +25,53 @@ const NAV_ITEMS = [
   { name: 'Configuración', href: '/configuracion', icon: Settings },
 ];
 
- // Filtrar elementos de navegación según el rol del usuario
-const getFilteredNavItems = (user: User) => {
-  const { role } = user || {};
-  const isAdminOrRoot = role === 'admin' || role === 'root';
-  const isGuest = role === 'guest';
+// Filtrar elementos de navegación según el rol del usuario
+// const getFilteredNavItems = (user: User) => {
+//   const { role } = user || {};
+//   const isAdminOrRoot = role === 'admin' || role === 'root';
+//   const isGuest = role === 'guest';
 
-  if (isAdminOrRoot) return NAV_ITEMS;
+//   if (isAdminOrRoot) return NAV_ITEMS;
 
-  const excludedItems = isGuest
-    ? ['Inventario','Modelos', 'Instituciones', 'Servicios', 'Reportes', 'Dashboard', 'Configuración']
-    : ['Modelos', 'Instituciones', 'Servicios', 'Configuración'];
+//   const excludedItems = isGuest
+//     ? ['Inventario','Modelos', 'Instituciones', 'Servicios', 'Reportes', 'Dashboard', 'Configuración']
+//     : ['Modelos', 'Instituciones', 'Servicios', 'Configuración'];
 
-  return NAV_ITEMS
-    .filter(item => !excludedItems.includes(item.name))
-    .map(item =>
-      item.name === 'Usuarios' ? { ...item, name: 'Mi Perfil' } : item
-    );
+//   return NAV_ITEMS
+//     .filter(item => !excludedItems.includes(item.name))
+//     .map(item =>
+//       item.name === 'Usuarios' ? { ...item, name: 'Mi Perfil' } : item
+//     );
+// };
+
+const NAVS_POR_ROL: Record<string, string[]> = {
+  admin: NAV_ITEMS.map(item => item.name),
+  root: NAV_ITEMS.map(item => item.name),
+  technician: ['Dashboard', 'Inventario','Usuarios', 'Reportes'],
+  sales_representative: ['Dashboard', 'Inventario', 'Usuarios', 'Reportes'],
+  supervisor: ['Dashboard', 'Inventario', 'Reportes','Usuarios'],
+  guest: ['Usuarios'], // o los que quieras permitir
 };
 
+const getFilteredNavItems = (user: User) => {
+  const { role } = user || {};
+  const navPermitidos = NAVS_POR_ROL[role];
 
+  if (!navPermitidos) {
+    console.warn(`Rol desconocido: ${role}`);
+    return [];
+  }
+
+  const isAdminOrRoot = role === 'admin' || role === 'root';
+
+  return NAV_ITEMS
+    .filter(item => navPermitidos.includes(item.name))
+    .map(item =>
+      item.name === 'Usuarios' && !isAdminOrRoot
+        ? { ...item, name: 'Mi Perfil' }
+        : item
+    );
+};
 
 interface SideBarProps {
   user: User | null;
@@ -73,13 +100,13 @@ const SideBar = ({
         "flex flex-col transition-all duration-200 ease-in-out glass-effect",
         isMobile
           ? [
-              "fixed top-0 left-0 z-40 w-64 h-screen shadow-xl",
-              open ? "translate-x-0" : "-translate-x-full",
-            ]
+            "fixed top-0 left-0 z-40 w-64 h-screen shadow-xl",
+            open ? "translate-x-0" : "-translate-x-full",
+          ]
           : [
-              collapsed ? "w-16" : "w-56",
-              "rounded-2xl mt-2 mb-2 ml-2 h-[calc(100vh-1rem)] shadow-lg border",
-            ]
+            collapsed ? "w-16" : "w-56",
+            "rounded-2xl mt-2 mb-2 ml-2 h-[calc(100vh-1rem)] shadow-lg border",
+          ]
       )}
       style={{
         background: !isMobile

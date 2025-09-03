@@ -8,7 +8,7 @@ export interface User {
     email: string
     createdAt: string   // o Date, si lo parseas
     updatedAt: string   // o Date
-    role: 'root' | 'admin' | 'technician' | 'sales_representative' | 'guest' // puedes ajustar según tus roles posibles
+    role: 'root' | 'admin' | 'supervisor' | 'technician' | 'sales_representative' | 'guest' // puedes ajustar según tus roles posibles
 }
 
 export interface UserToRegister{

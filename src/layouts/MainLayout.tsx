@@ -98,6 +98,8 @@ const MainLayout = () => {
                     ? "Root"
                     : user?.role === "admin"
                     ? "Administrador"
+                    : user?.role === "supervisor"
+                    ? "Supervisor"
                     : user?.role === "sales_representative"
                     ? "Representante de Ventas"
                     : user?.role === "technician"

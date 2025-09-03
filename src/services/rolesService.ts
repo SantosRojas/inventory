@@ -61,7 +61,8 @@ export const getDefaultRoles = (): Role[] => {
         { id: 2, name: 'admin', description: 'Administrador del sistema con todos los permisos' },
         { id: 3, name: 'sales_representative', description: 'Puede gestionar inventarios y reportar incidentes' },
         { id: 4, name: 'technician', description: 'Puede gestionar inventarios y realizar mantenimientos' },
-        { id: 5, name: 'guest', description: 'Puede reportar incidentes pero no tiene acceso a la gestión de inventarios' }
+        { id: 5, name: 'guest', description: 'Puede reportar incidentes pero no tiene acceso a la gestión de inventarios' },
+        { id: 6, name: 'supervisor', description: 'Puede ver dashboard y reportes, e inventariar' }
     ];
 };
 
@@ -82,6 +83,7 @@ export const getRoleDisplayName = (roleName: string): string => {
     const roleNames: Record<string, string> = {
         'root': 'Root',
         'admin': 'Administrador',
+        'supervisor':'Supervisor',
         'sales_representative': 'Representante de Ventas',
         'technician': 'Técnico',
         'guest': 'Invitado'

@@ -48,12 +48,12 @@ const protectedRoutes = [
   {
     path: 'dashboard',
     element: <DashboardPage />,
-    roles: ['admin', 'root', 'technician','sales_representative'],
+    roles: ['admin', 'root', 'technician','sales_representative','supervisor'],
   },
   {
     path: 'inventario',
     element: <InventoryPage />,
-    roles: ['admin', 'root', 'technician','sales_representative'],
+    roles: ['admin', 'root', 'technician','sales_representative','supervisor'],
   },
   {
     path: 'modelos',
@@ -73,12 +73,12 @@ const protectedRoutes = [
   {
     path: 'usuarios',
     element: <UsersPage />,
-    roles: ['admin', 'root', 'technician','sales_representative', 'guest'],
+    roles: ['admin', 'root', 'technician','sales_representative', 'guest','supervisor'],
   },
   {
     path: 'reportes',
     element: <ReportsPage />,
-    roles: ['admin', 'root','technician','sales_representative'],
+    roles: ['admin', 'root','technician','sales_representative','supervisor'],
   },
   {
     path: 'configuracion',

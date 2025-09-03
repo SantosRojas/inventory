@@ -40,10 +40,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   const roleOptionsForUser = useMemo(() => {
     if (rolesLoading) return [];
     if(isRoot){
-      return  roleOptions.filter((roleOption) => roleOption.name!=="Root"&&roleOption.name!=="Administradort")
+      return  roleOptions.filter((roleOption) => roleOption.name!=="Root")
     }
     else if(isAdmin){
-      return roleOptions.filter((roleOption) => roleOption.name!=="Root" );
+      return roleOptions.filter((roleOption) => roleOption.name!=="Root"&&roleOption.name!=="Administrador" );
     }
 
     else return []
