@@ -9,6 +9,7 @@ import { usePumpStore } from "../store";
 import { transformInstitucionesForAutocomplete, transformModelosForSelect, transformServiciosForAutocomplete } from "../utils";
 import { API_ENDPOINTS } from '../../../config';
 import { fetchWithAuth } from '../../../services/fetchWithAuth';
+import formatDateToPeruMySQL from '../../../utils/formateDate';
 interface EditBombaModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -45,7 +46,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [showConfirmClose, setShowConfirmClose] = useState(false);
-    const [startTime, setStartTime] = useState<Date | null>(null)
+    const [startTime, setStartTime] = useState<Date>(new Date())
 
     // Función helper para convertir fecha ISO a formato YYYY-MM-DD
     const formatDateForInputLocal = (date: string | null | undefined): string => {
@@ -183,7 +184,7 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         const endTime = new Date();
         const duration = startTime ? (endTime.getTime() - startTime.getTime()) / 1000 : null;
         setStartTime(endTime)
-        
+
         // Preparar los datos para actualización basados en los permisos del user
         const updateData: UpdatePump = {
             // Campos que todos pueden editar
@@ -220,20 +221,20 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         const payload = {
             userId: user?.id, // Asumiendo que tienes el ID del usuario en el contexto
             inventoryId: bomba.id, // Este sería el ID del inventario que estás manipulando
-            startTime: startTime?.toISOString(),
-            endTime: endTime.toISOString(),
+            startTime: formatDateToPeruMySQL(startTime),
+            endTime: formatDateToPeruMySQL(endTime),
             durationSeconds: duration,
             success: isUpdated // o false si hubo error
         };
 
-        try {
-            await fetchWithAuth(API_ENDPOINTS.inventoryTimes.create, {
-                method: "POST",
-                body: JSON.stringify(payload),
-            });
-        } catch (err) {
+
+        fetchWithAuth(API_ENDPOINTS.inventoryTimes.create, {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }).catch((err) => {
             console.error("Error al guardar el tiempo:", err);
-        }
+        });
+
 
         if (isUpdated) {
             notifySuccess('Bomba actualizada', 'La bomba se ha actualizado correctamente');
@@ -242,10 +243,6 @@ const EditPumpModal: React.FC<EditBombaModalProps> = ({ isOpen, onClose, onSucce
         } else {
             notifyError('Error', error ? error : 'No se pudo actualizar la bomba');
         }
-
-
-        
-        console.log(payload)
 
     };
 

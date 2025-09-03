@@ -16,6 +16,7 @@ import {
 } from "../utils";
 import { API_ENDPOINTS } from '../../../config/api.ts';
 import { fetchWithAuth } from '../../../services/fetchWithAuth.ts';
+import formatDateToPeruMySQL from '../../../utils/formateDate.ts';
 
 interface AddBombaModalProps {
     isOpen: boolean;
@@ -52,7 +53,7 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
     });
 
     const [showConfirmClose, setShowConfirmClose] = useState(false);
-    const [startTime, setStartTime] = useState<Date | null>(null)
+    const [startTime, setStartTime] = useState<Date>(new Date())
 
     // ✅ Memoizamos las transformaciones de catálogos
     const modelosItems = useMemo(() => transformModelosForSelect(pumpModels), [pumpModels]);
@@ -96,22 +97,22 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
         const success = !!result;
 
         const payloadTiming = {
-            user_id: user.id,
-            inventory_id: result || null, // null si falló
-            start_time: startTime?.toISOString(),
-            end_time: endTime.toISOString(),
-            duration_seconds: duration,
+            userId: user.id,
+            inventoryId: result || null, // null si falló
+            startTime: formatDateToPeruMySQL(startTime),
+            endTime: formatDateToPeruMySQL(endTime),
+            durationSeconds: duration,
             success: success
         };
 
-        try {
-            await fetchWithAuth(API_ENDPOINTS.inventoryTimes.create, {
-                method: "POST",
-                body: JSON.stringify(payloadTiming),
-            });
-        } catch (err) {
+
+        fetchWithAuth(API_ENDPOINTS.inventoryTimes.create, {
+            method: "POST",
+            body: JSON.stringify(payloadTiming),
+        }).catch((err) => {
             console.error("Error al guardar el tiempo:", err);
-        }
+        });
+
 
         if (success) {
             notifySuccess('Bomba registrada', `Bomba registrada correctamente con ID: ${result}`);
@@ -123,7 +124,6 @@ const AddPumpModal: React.FC<AddBombaModalProps> = ({ isOpen, onClose, onSuccess
             notifyError('Error', error ? error : "No se puede agregar la bomba");
         }
 
-        console.log(payloadTiming)
 
     };
 
