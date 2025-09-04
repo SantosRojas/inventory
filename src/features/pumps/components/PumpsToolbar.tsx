@@ -26,21 +26,9 @@ const PumpsToolbar = (
                     onQRScan={onQRScan}
                     onAdd={onAdd}
                 />
-                <Button onClick={onCloseHistory} className='flex gap-3'>
-                    {
-                        showHistory ? (
-                            <>
-                                <EyeOff className='h-4 w-4' />
-                                <span className='hidden sm:inline'>Ocultar Historial</span>
-                            </>
-                        ) : (
-                            <>
-                                <Eye className='h-4 w-4' />
-                                <span className='hidden sm:inline'>Mostrar Historial</span>
-                            </>
-                        )
-                    }
 
+                <Button onClick={onCloseHistory} variant='primary' size='bs' icon={showHistory ? EyeOff : Eye}>
+                    <span className='hidden sm:inline'>Historial</span>
                 </Button>
 
             </div>

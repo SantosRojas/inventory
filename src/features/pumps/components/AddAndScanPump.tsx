@@ -34,12 +34,12 @@ const AddAndScanPump = ({
             <Button
                 onClick={onQRScan}
                 disabled={isLoading}
+                icon={QrCode}
                 variant="outline"
                 size="bs"
-                className="border-gray-300 hover:bg-gray-50"
+                className="border-gray-300 hover:bg-gray-50 flex"
             >
-                <QrCode className="h-4 w-4" />
-                <span>Escanear</span>
+                Escanear
             </Button>
         </div>
     )

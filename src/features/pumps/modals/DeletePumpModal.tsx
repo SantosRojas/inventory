@@ -18,7 +18,7 @@ const DeletePumpModal: React.FC<DeleteBombaModalProps> = ({
                                                                onSuccess,
                                                                bomba,
                                                            }) => {
-    const { removePump, isLoading } = usePumpStore();
+    const { removePump, isLoading, error } = usePumpStore();
     const { notifySuccess, notifyError } = useNotifications();
 
     const handleConfirmDelete = async () => {
@@ -31,7 +31,7 @@ const DeletePumpModal: React.FC<DeleteBombaModalProps> = ({
                 onSuccess?.();
                 onClose();
             } else {
-                notifyError('Error', 'No se pudo eliminar la bomba');
+                notifyError('Error', error || 'Ocurrió un error al eliminar la bomba');
             }
         } catch (error) {
             console.error('Error al eliminar bomba:', error);
